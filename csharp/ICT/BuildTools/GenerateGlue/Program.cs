@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -32,6 +32,7 @@ using Ict.Common;
 using Ict.Common.IO;
 using Ict.Tools.CodeGeneration;
 using GenerateSharedCode;
+using GenerateGlue;
 
 namespace Ict.Tools.GenerateGlue
 {
@@ -99,12 +100,16 @@ namespace Ict.Tools.GenerateGlue
 
             try
             {
+                /*
+                 * CreateInstantiators instantiators = new CreateInstantiators();
+                 * instantiators.CreateFiles(namespaceRoot, OutputDir + "/Server/lib", cmd.GetOptValue("TemplateDir"));
+                 * TCreateConnectors connectors = new TCreateConnectors();
+                 * connectors.CreateFiles(namespaceRoot, OutputDir + "/Server/lib", cmd.GetOptValue("TemplateDir"));
+                 */
+
                 CreateInterfaces interfaces = new CreateInterfaces();
                 interfaces.CreateFiles(namespaceRoot, OutputDir + "/Shared/lib/Interfaces", cmd.GetOptValue("TemplateDir"));
-                CreateInstantiators instantiators = new CreateInstantiators();
-                instantiators.CreateFiles(namespaceRoot, OutputDir + "/Server/lib", cmd.GetOptValue("TemplateDir"));
-                TCreateConnectors connectors = new TCreateConnectors();
-                connectors.CreateFiles(namespaceRoot, OutputDir + "/Server/lib", cmd.GetOptValue("TemplateDir"));
+                GenerateClientGlue.GenerateCode(namespaceRoot, OutputDir + "/Client/app/Core/Remoteobjects", cmd.GetOptValue("TemplateDir"));
             }
             catch (Exception e)
             {

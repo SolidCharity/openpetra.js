@@ -19,28 +19,13 @@ using Ict.Common.Remoting.Shared;
 
 namespace Ict.Petra.Shared.Interfaces.M{#MODULE}
 {
-    /// <summary>auto generated</summary>
-    public interface IM{#MODULE}Namespace : IInterface
-    {
-        {#SUBNAMESPACES}
-    }
-    
     {#INTERFACES}
-}
-
-{##SUBNAMESPACE}
-/// <summary>access to sub namespace</summary>
-I{#SUBNAMESPACENAME}Namespace {#SUBNAMESPACEOBJECT}
-{
-    get;
 }
 
 {##INTERFACE}
 /// <summary>auto generated</summary>
 public interface {#INTERFACENAME} : IInterface
 {
-    {#SUBNAMESPACES}
-    
     {#CONTENT}
 }
 

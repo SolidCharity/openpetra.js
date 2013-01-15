@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -106,14 +106,7 @@ namespace Ict.Petra.Client.App.Core
             //
             // initialise object that holds references to all our remote object .NET Remoting Proxies
             //
-            FRemote = new TRemote(FClientManager,
-                FRemoteCommonObjects,
-                FRemoteConferenceObjects,
-                FRemotePartnerObjects,
-                FRemotePersonnelObjects,
-                FRemoteFinanceObjects,
-                FRemoteReportingObjects,
-                FRemoteSysManObjects);
+            new TRemote();
 
             return true;
         }

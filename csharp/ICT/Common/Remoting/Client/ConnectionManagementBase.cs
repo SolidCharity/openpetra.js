@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -69,11 +69,6 @@ namespace Ict.Common.Remoting.Client
         private TPollClientTasks FPollClientTasks;
 
         /// <summary>
-        /// the remoting object
-        /// </summary>
-        protected TRemoteBase FRemote;
-
-        /// <summary>
         /// the urls of the services
         /// </summary>
         protected Hashtable FRemotingURLs;
@@ -119,15 +114,6 @@ namespace Ict.Common.Remoting.Client
             }
         }
 
-        /// <summary>todoComment</summary>
-        public TRemoteBase RemoteObjects
-        {
-            get
-            {
-                return FRemote;
-            }
-        }
-
         /// <summary>
         /// todoComment
         /// </summary>
@@ -167,7 +153,6 @@ namespace Ict.Common.Remoting.Client
                     out ASystemEnabled,
                     out ConnectionError,
                     out AUserInfo);
-                TRemoteBase.ClientManager = FClientManager;
 
                 if (!ReturnValue)
                 {
@@ -224,10 +209,6 @@ namespace Ict.Common.Remoting.Client
             //
             FPollClientTasks = new TPollClientTasks(FClientID, FRemotePollClientTasks);
 
-            //
-            // initialise object that holds references to all our remote object .NET Remoting Proxies
-            //
-            FRemote = new TRemoteBase(FClientManager);
             return true;
         }
 
@@ -347,10 +328,9 @@ namespace Ict.Common.Remoting.Client
                     RemotingServices.Disconnect((MarshalByRefObject)FRemotePollClientTasks);
                 }
 
-                if (FRemote != null)
+                if (FClientManager != null)
                 {
-                    ReturnValue = TRemoteBase.ClientManager.DisconnectClient(FClientID, out ACantDisconnectReason);
-                    TRemoteBase.Disconnect();
+                    ReturnValue = FClientManager.DisconnectClient(FClientID, out ACantDisconnectReason);
                 }
             }
             catch (System.Net.Sockets.SocketException)
