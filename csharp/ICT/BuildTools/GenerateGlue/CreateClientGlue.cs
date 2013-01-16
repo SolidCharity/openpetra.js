@@ -46,6 +46,78 @@ public class GenerateClientGlue
     static private string FTemplateDir = string.Empty;
     static SortedList <string, string>FUsingNamespaces = null;
     static bool FModuleHasUIConnector = false;
+    static List <string>FUIConnectorsAdded = null;
+
+    private static string GetExpectedReturnType(int ResultCounter, string returntype)
+    {
+        string expectedreturntype = string.Empty;
+
+        if (ResultCounter > 0)
+        {
+            expectedreturntype = "list";
+        }
+        else if ((returntype == "System.Int64") || (returntype == "System.Int32") || (returntype == "System.Int16")
+                 || (returntype == "System.String"))
+        {
+            expectedreturntype = returntype;
+        }
+        else
+        {
+            expectedreturntype = "binary";
+        }
+
+        return expectedreturntype;
+    }
+
+    private static void InsertMethodCall(ProcessTemplate snippet, TypeDeclaration connectorClass, MethodDeclaration m)
+    {
+        string ParameterDefinition = string.Empty;
+        string ActualParameters = string.Empty;
+
+        AutoGenerationTools.FormatParameters(m.Parameters, out ActualParameters, out ParameterDefinition);
+
+        string returntype = AutoGenerationTools.TypeToString(m.TypeReference, "");
+
+        snippet.SetCodelet("RETURN", returntype != "void" ? "return " : string.Empty);
+
+        snippet.SetCodelet("METHODNAME", m.Name);
+        snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
+        snippet.SetCodelet("RETURNTYPE", returntype);
+        snippet.SetCodelet("WEBCONNECTORCLASS", connectorClass.Name);
+        snippet.SetCodelet("ASSIGNRESULTANDRETURN", string.Empty);
+        snippet.SetCodelet("ADDACTUALPARAMETERS", string.Empty);
+
+        int ResultCounter = 0;
+
+        foreach (ParameterDeclarationExpression p in m.Parameters)
+        {
+            if (((ParameterModifiers.Ref & p.ParamModifier) > 0) || ((ParameterModifiers.Out & p.ParamModifier) > 0))
+            {
+                // need to assign the result to the ref and the out parameter
+                snippet.AddToCodelet("ASSIGNRESULTANDRETURN",
+                    p.ParameterName + " = (" + p.TypeReference.ToString() + ") Result[" + ResultCounter.ToString() + "];" +
+                    Environment.NewLine);
+                ResultCounter++;
+            }
+
+            if ((ParameterModifiers.Out & p.ParamModifier) == 0)
+            {
+                snippet.AddToCodelet("ADDACTUALPARAMETERS",
+                    "ActualParameters.Add(\"" + p.ParameterName + "\", " +
+                    p.ParameterName + ");" + Environment.NewLine);
+            }
+        }
+
+        string expectedreturntype = GetExpectedReturnType(ResultCounter, returntype);
+
+        snippet.SetCodelet("EXPECTEDRETURNTYPE", expectedreturntype);
+
+        if (returntype != "void")
+        {
+            snippet.AddToCodelet("ASSIGNRESULTANDRETURN",
+                "return (" + returntype + ") Result[" + ResultCounter.ToString() + "];" + Environment.NewLine);
+        }
+    }
 
     private static void ImplementWebConnector(
         SortedList <string, TypeDeclaration>connectors,
@@ -84,70 +156,106 @@ public class GenerateClientGlue
                     snippet = ATemplate.GetSnippet("WEBCONNECTORMETHODREMOTE");
                 }
 
-                string ParameterDefinition = string.Empty;
-                string ActualParameters = string.Empty;
-
-                AutoGenerationTools.FormatParameters(m.Parameters, out ActualParameters, out ParameterDefinition);
-
-                string returntype = AutoGenerationTools.TypeToString(m.TypeReference, "");
-
-                snippet.SetCodelet("RETURN", returntype != "void" ? "return " : string.Empty);
-
-                snippet.SetCodelet("METHODNAME", m.Name);
-                snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
-                snippet.SetCodelet("RETURNTYPE", returntype);
-                snippet.SetCodelet("WEBCONNECTORCLASS", connectorClass.Name);
-                snippet.SetCodelet("ASSIGNRESULTANDRETURN", string.Empty);
-                snippet.SetCodelet("ADDACTUALPARAMETERS", string.Empty);
-
-                int ResultCounter = 0;
-
-                foreach (ParameterDeclarationExpression p in m.Parameters)
-                {
-                    if (((ParameterModifiers.Ref & p.ParamModifier) > 0) || ((ParameterModifiers.Out & p.ParamModifier) > 0))
-                    {
-                        // need to assign the result to the ref and the out parameter
-                        snippet.AddToCodelet("ASSIGNRESULTANDRETURN",
-                            p.ParameterName + " = (" + p.TypeReference.ToString() + ") Result[" + ResultCounter.ToString() + "];" +
-                            Environment.NewLine);
-                        ResultCounter++;
-                    }
-
-                    if ((ParameterModifiers.Out & p.ParamModifier) == 0)
-                    {
-                        snippet.AddToCodelet("ADDACTUALPARAMETERS",
-                            "ActualParameters.Add(\"" + p.ParameterName + "\", " +
-                            p.ParameterName + ");" + Environment.NewLine);
-                    }
-                }
-
-                string expectedreturntype = string.Empty;
-
-                if (ResultCounter > 0)
-                {
-                    expectedreturntype = "list";
-                }
-                else if ((returntype == "System.Int64") || (returntype == "System.Int32") || (returntype == "System.Int16")
-                         || (returntype == "System.String"))
-                {
-                    expectedreturntype = returntype;
-                }
-                else
-                {
-                    expectedreturntype = "binary";
-                }
-
-                snippet.SetCodelet("EXPECTEDRETURNTYPE", expectedreturntype);
-
-                if (returntype != "void")
-                {
-                    snippet.AddToCodelet("ASSIGNRESULTANDRETURN",
-                        "return (" + returntype + ") Result[" + ResultCounter.ToString() + "];" + Environment.NewLine);
-                }
+                InsertMethodCall(snippet, connectorClass, m);
 
                 ATemplate.InsertSnippet("CONNECTORMETHODS", snippet);
             }
         }
+    }
+
+    private static void InsertMethodsAndProperties(ProcessTemplate template, TypeDeclaration t)
+    {
+        // foreach public method create a method
+        foreach (MethodDeclaration m in CSParser.GetMethods(t))
+        {
+            if (TCollectConnectorInterfaces.IgnoreMethod(m.Attributes, m.Modifier))
+            {
+                continue;
+            }
+
+            ProcessTemplate methodSnippet = template.GetSnippet("UICONNECTORMETHOD");
+
+            InsertMethodCall(methodSnippet, t, m);
+
+            template.InsertSnippet("METHODSANDPROPERTIES", methodSnippet);
+        }
+
+        // foreach public method create a method
+        foreach (PropertyDeclaration p in CSParser.GetProperties(t))
+        {
+            if (TCollectConnectorInterfaces.IgnoreMethod(p.Attributes, p.Modifier))
+            {
+                continue;
+            }
+
+            ProcessTemplate propertySnippet = template.GetSnippet("UICONNECTORPROPERTY");
+
+            propertySnippet.SetCodelet("NAME", p.Name);
+            propertySnippet.SetCodelet("TYPE", AutoGenerationTools.TypeToString(p.TypeReference, string.Empty));
+
+            string expectedreturntype = GetExpectedReturnType(0, AutoGenerationTools.TypeToString(p.TypeReference, string.Empty));
+
+            propertySnippet.SetCodelet("EXPECTEDRETURNTYPE", expectedreturntype);
+
+            if (p.HasGetRegion)
+            {
+                propertySnippet.SetCodelet("GETTER", "yes");
+            }
+
+            if (p.HasSetRegion)
+            {
+                propertySnippet.SetCodelet("SETTER", "yes");
+            }
+
+            template.InsertSnippet("METHODSANDPROPERTIES", propertySnippet);
+        }
+    }
+
+    private static ProcessTemplate GenerateUIConnector(ProcessTemplate ATemplate, TypeDeclaration connectorClass, string interfacename)
+    {
+        ProcessTemplate snippet = ATemplate.GetSnippet("UICONNECTORCLASS");
+
+        snippet.SetCodelet("UICONNECTORINTERFACE", interfacename);
+        snippet.SetCodelet("UICONNECTORCLASSNAME", connectorClass.Name);
+        snippet.SetCodelet("CONSTRUCTORS", string.Empty);
+
+        foreach (ConstructorDeclaration m in CSParser.GetConstructors(connectorClass))
+        {
+            if (TCollectConnectorInterfaces.IgnoreMethod(m.Attributes, m.Modifier))
+            {
+                continue;
+            }
+
+            ProcessTemplate snippetConstructor = ATemplate.GetSnippet("UICONNECTORCONSTRUCTOR");
+
+            string ParameterDefinition = string.Empty;
+            string ActualParameters = string.Empty;
+
+            AutoGenerationTools.FormatParameters(m.Parameters, out ActualParameters, out ParameterDefinition);
+
+            snippetConstructor.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
+            snippetConstructor.SetCodelet("UICONNECTORCLASSNAME", connectorClass.Name);
+            snippetConstructor.SetCodelet("ACTUALPARAMETERS", ActualParameters);
+            snippetConstructor.SetCodelet("ADDACTUALPARAMETERS", string.Empty);
+
+            foreach (ParameterDeclarationExpression p in m.Parameters)
+            {
+                if (((ParameterModifiers.Ref & p.ParamModifier) > 0) || ((ParameterModifiers.Out & p.ParamModifier) > 0))
+                {
+                    throw new Exception("we do not support ref or out parameters in UIConnector constructor calls! " + connectorClass.Name);
+                }
+
+                snippetConstructor.AddToCodelet("ADDACTUALPARAMETERS",
+                    "ActualParameters.Add(\"" + p.ParameterName + "\", " +
+                    p.ParameterName + ");" + Environment.NewLine);
+            }
+
+            snippet.InsertSnippet("CONSTRUCTORS", snippetConstructor);
+        }
+
+        InsertMethodsAndProperties(snippet, connectorClass);
+
+        return snippet;
     }
 
     private static void ImplementUIConnector(
@@ -201,12 +309,25 @@ public class GenerateClientGlue
                     methodname = methodname.Substring(0, methodname.LastIndexOf("UIConnector"));
                 }
 
+                string interfacename = CSParser.GetImplementedInterface(connectorClass);
                 snippet.SetCodelet("METHODNAME", methodname);
                 snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
                 snippet.SetCodelet("ACTUALPARAMETERS", ActualParameters);
-                snippet.SetCodelet("UICONNECTORINTERFACE", CSParser.GetImplementedInterface(connectorClass));
-                snippet.SetCodelet("UICONNECTORCLIENTREMOTINGCLASS", connectorClass.Name + "Remote");
-                snippet.SetCodelet("UICONNECTORCLASS", connectorClass.Name);
+                snippet.SetCodelet("UICONNECTORINTERFACE", interfacename);
+                snippet.SetCodelet("UICONNECTORCLASSNAME", connectorClass.Name);
+
+                snippet.SetCodelet("UICONNECTORCLASS", string.Empty);
+
+                if (TAppSettingsManager.GetValue("compileForStandalone", "no", false) != "yes")
+                {
+                    if (!FUIConnectorsAdded.Contains(connectorClass.Name))
+                    {
+                        FUIConnectorsAdded.Add(connectorClass.Name);
+
+                        snippet.InsertSnippet("UICONNECTORCLASS",
+                            GenerateUIConnector(ATemplate, connectorClass, interfacename));
+                    }
+                }
 
                 ATemplate.InsertSnippet("CONNECTORMETHODS", snippet);
             }
@@ -265,6 +386,7 @@ public class GenerateClientGlue
 
         FUsingNamespaces = new SortedList <string, string>();
         FModuleHasUIConnector = false;
+        FUIConnectorsAdded = new List <string>();
 
         // load default header with license and copyright
         Template.SetCodelet("GPLFILEHEADER", ProcessTemplate.LoadEmptyFileComment(FTemplateDir));

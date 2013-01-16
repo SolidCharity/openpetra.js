@@ -67,13 +67,61 @@ public {#RETURNTYPE} {#METHODNAME}({#PARAMETERDEFINITION})
 }
 
 {##UICONNECTORMETHODREMOTE}
-/// forward the method call
+/// create an object on the server side
 public {#UICONNECTORINTERFACE} {#METHODNAME}({#PARAMETERDEFINITION})
 {
-    return ({#UICONNECTORINTERFACE}) TCreateRemotableObject.CreateRemotableObject(
-            typeof({#UICONNECTORINTERFACE}),
-            typeof({#UICONNECTORCLIENTREMOTINGCLASS}),
-            new {#UICONNECTORCLASS}({#ACTUALPARAMETERS}));
+    return new {#UICONNECTORCLASSNAME}({#ACTUALPARAMETERS});
+}
+
+{#UICONNECTORCLASS}
+
+{##UICONNECTORCLASS}
+/// the implementation of the UIConnector for the client
+public class {#UICONNECTORCLASSNAME}: {#UICONNECTORINTERFACE}
+{
+    private Guid FObjectID = null;
+
+    {#CONSTRUCTORS}
+
+    {#METHODSANDPROPERTIES}
+}
+
+{##UICONNECTORCONSTRUCTOR}
+/// constructor, create the object on the server
+public {#UICONNECTORCLASSNAME}({#PARAMETERDEFINITION})
+{
+    SortedList<string, object> ActualParameters = new SortedList<string, object>();
+    {#ADDACTUALPARAMETERS}
+    FObjectID = THttpConnector.CreateUIConnector("{#UICONNECTORCLASSNAME}", ActualParameters);
+}
+
+{##UICONNECTORMETHOD}
+/// access the UIConnector Method
+public {#RETURNTYPE} {#METHODNAME}({#PARAMETERDEFINITION})
+{
+    SortedList<string, object> ActualParameters = new SortedList<string, object>();
+    {#ADDACTUALPARAMETERS}
+    List<object> Result = THttpConnector.CallUIConnectorMethod(FObjectID, "{#UICONNECTORCLASSNAME}", "{#METHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
+    {#ASSIGNRESULTANDRETURN}
+}
+
+{##UICONNECTORPROPERTY}
+/// access the UIConnector Property
+public {#TYPE} {#NAME}
+{
+{#IFDEF GETTER}
+    get
+    {
+        return ({#TYPE}) THttpConnector.ReadUIConnectorProperty(FObjectID, "{#UICONNECTORCLASSNAME}", "{#NAME}", "{#EXPECTEDRETURNTYPE}");
+    }
+{#ENDIF GETTER}
+{#IFDEF SETTER}
+    set
+    {
+        SortedList<string, object> ActualParameters = new SortedList<string, object>();
+        object Result = THttpConnector.WriteUIConnectorProperty(FObjectID, "{#UICONNECTORCLASSNAME}", "{#NAME}", ActualParameters, value);
+    }
+{#ENDIF SETTER}
 }
 
 {##UICONNECTORMETHODSTANDALONE}

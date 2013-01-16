@@ -103,6 +103,36 @@ namespace Ict.Common.Remoting.Client
             }
         }
 
+        private static SortedList <string, string>ConvertParameters(SortedList <string, object>parameters)
+        {
+            SortedList <string, string>result = new SortedList <string, string>();
+
+            foreach (string param in parameters.Keys)
+            {
+                object o = parameters[param];
+                result.Add(param, SerializeObject(o,
+                        !(o.GetType() == typeof(string)
+                          || o.GetType() == typeof(Int16)
+                          || o.GetType() == typeof(Int32)
+                          || o.GetType() == typeof(Int64)
+                          )));
+            }
+
+            return result;
+        }
+
+        private static string TrimResult(string result)
+        {
+            // returns <string xmlns="...">someresulttext</string>
+            TLogging.Log("returned from server (unmodified): " + result);
+            result = result.Substring(result.IndexOf("<string xmlns="));
+            result = result.Substring(result.IndexOf(">") + 1);
+            result = result.Substring(0, result.IndexOf("<"));
+
+            TLogging.Log("returned from server: " + result);
+            return result;
+        }
+
         /// <summary>
         /// call a webconnector
         /// </summary>
@@ -110,18 +140,7 @@ namespace Ict.Common.Remoting.Client
             string methodname,
             SortedList <string, object>parameters, string expectedReturnType)
         {
-            SortedList <string, string>Parameters = new SortedList <string, string>();
-
-            foreach (string param in parameters.Keys)
-            {
-                object o = parameters[param];
-                Parameters.Add(param, SerializeObject(o,
-                        !(o.GetType() == typeof(string)
-                          || o.GetType() == typeof(Int16)
-                          || o.GetType() == typeof(Int32)
-                          || o.GetType() == typeof(Int64)
-                          )));
-            }
+            SortedList <string, string>Parameters = ConvertParameters(parameters);
 
             string result = THTTPUtils.ReadWebsite(ServerURL + "/" + methodname, Parameters);
 
@@ -131,13 +150,7 @@ namespace Ict.Common.Remoting.Client
                 return null;
             }
 
-            // returns <string xmlns="...">someresulttext</string>
-            TLogging.Log("returned from server (unmodified): " + result);
-            result = result.Substring(result.IndexOf("<string xmlns="));
-            result = result.Substring(result.IndexOf(">") + 1);
-            result = result.Substring(0, result.IndexOf("<"));
-
-            TLogging.Log("returned from server: " + result);
+            result = TrimResult(result);
 
             List <object>resultObjects = new List <object>();
 
@@ -157,6 +170,68 @@ namespace Ict.Common.Remoting.Client
             }
 
             return resultObjects;
+        }
+
+        /// <summary>
+        /// call a method of a UIConnector
+        /// </summary>
+        public static List <object>CallUIConnectorMethod(
+            Guid ObjectID,
+            string UIConnectorClass,
+            string methodname,
+            SortedList <string, object>parameters, string expectedReturnType)
+        {
+            parameters.Add("UIConnectorObjectID", ObjectID);
+
+            return CallWebConnector(UIConnectorClass + "." + methodname, parameters, expectedReturnType);
+        }
+
+        /// <summary>
+        /// read a property of a UIConnector
+        /// </summary>
+        public static object ReadUIConnectorProperty(
+            Guid ObjectID,
+            string UIConnectorClass,
+            string propertyname,
+            string expectedReturnType)
+        {
+            SortedList <string, object>parameters = new SortedList <string, object>();
+            parameters.Add("UIConnectorObjectID", ObjectID);
+
+            return CallWebConnector(UIConnectorClass + ".Get" + propertyname, parameters, expectedReturnType)[0];
+        }
+
+        /// <summary>
+        /// write to a property of a UIConnector
+        /// </summary>
+        public static void WriteUIConnectorProperty(
+            Guid ObjectID,
+            string UIConnectorClass,
+            string propertyname,
+            object value)
+        {
+            SortedList <string, object>parameters = new SortedList <string, object>();
+            parameters.Add("UIConnectorObjectID", ObjectID);
+            parameters.Add("value", value);
+
+            CallWebConnector(UIConnectorClass + ".Set" + propertyname, parameters, "void");
+        }
+
+        /// <summary>
+        /// create a UIConnector on the server
+        /// </summary>
+        public static Guid CreateUIConnector(
+            string classname,
+            SortedList <string, object>parameters)
+        {
+            SortedList <string, string>Parameters =
+                ConvertParameters(parameters);
+
+            string result = THTTPUtils.ReadWebsite(ServerURL + "/" + classname, Parameters);
+
+            result = TrimResult(result);
+
+            return Guid.Parse(DeserializeObject(result, "System.String").ToString());
         }
     }
 }
