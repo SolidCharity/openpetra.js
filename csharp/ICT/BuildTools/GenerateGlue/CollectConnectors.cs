@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -154,7 +154,7 @@ public class TCollectConnectorInterfaces
 //        TLogging.Log("implementing " + ANamespace);
         foreach (string key in AConnectors.Keys)
         {
-            if (key.StartsWith(ANamespace))
+            if (key.StartsWith(ANamespace) && (key.LastIndexOf(".") == ANamespace.Length))
             {
 //                TLogging.Log("   " + AConnectors[key]);
                 Result.Add(AConnectors[key]);

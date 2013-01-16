@@ -45,6 +45,7 @@ public class GenerateClientGlue
 {
     static private string FTemplateDir = string.Empty;
     static SortedList <string, string>FUsingNamespaces = null;
+    static bool FModuleHasUIConnector = false;
 
     private static void ImplementWebConnector(
         SortedList <string, TypeDeclaration>connectors,
@@ -125,6 +126,8 @@ public class GenerateClientGlue
                 }
 
                 ProcessTemplate snippet;
+
+                FModuleHasUIConnector = true;
 
                 if (TAppSettingsManager.GetValue("compileForStandalone", "no", false) == "yes")
                 {
@@ -215,13 +218,12 @@ public class GenerateClientGlue
             "ClientGlue.cs");
 
         FUsingNamespaces = new SortedList <string, string>();
+        FModuleHasUIConnector = false;
 
         // load default header with license and copyright
         Template.SetCodelet("GPLFILEHEADER", ProcessTemplate.LoadEmptyFileComment(FTemplateDir));
 
         Template.SetCodelet("TOPLEVELMODULE", tn.Name);
-
-        Template.AddToCodelet("USINGNAMESPACES", "using Ict.Petra.Shared.Interfaces.M" + tn.Name + ";" + Environment.NewLine);
 
         string InterfacePath = Path.GetFullPath(AOutputPath).Replace(Path.DirectorySeparatorChar, '/');
         InterfacePath = InterfacePath.Substring(0, InterfacePath.IndexOf("csharp/ICT/Petra")) + "csharp/ICT/Petra/Shared/lib/Interfaces";
@@ -229,9 +231,45 @@ public class GenerateClientGlue
 
         InsertSubNamespaces(Template, connectors, tn.Name, "Ict.Petra.Shared.M" + tn.Name, tn);
 
+        if (FModuleHasUIConnector)
+        {
+            Template.AddToCodelet("USINGNAMESPACES", "using Ict.Petra.Shared.Interfaces.M" + tn.Name + ";" + Environment.NewLine);
+        }
+
         foreach (string usingNamespace in FUsingNamespaces.Keys)
         {
             Template.AddToCodelet("USINGNAMESPACES", "using " + usingNamespace + ";" + Environment.NewLine);
+        }
+
+        Template.FinishWriting(OutputFile, ".cs", true);
+    }
+
+    /// <summary>
+    /// generate the connector code for the client
+    /// </summary>
+    static public void GenerateConnectorCode(String AOutputPath, String ATemplateDir)
+    {
+        String OutputFile = AOutputPath + Path.DirectorySeparatorChar + "ClientGlue.Connector-generated.cs";
+
+        Console.WriteLine("working on " + OutputFile);
+
+        ProcessTemplate Template = new ProcessTemplate(FTemplateDir + Path.DirectorySeparatorChar +
+            "ClientServerGlue" + Path.DirectorySeparatorChar +
+            "ClientGlue.Connector.cs");
+
+        // load default header with license and copyright
+        Template.SetCodelet("GPLFILEHEADER", ProcessTemplate.LoadEmptyFileComment(FTemplateDir));
+        Template.SetCodelet("USINGNAMESPACES", string.Empty);
+
+        if (TAppSettingsManager.GetValue("compileForStandalone", "no", false) == "yes")
+        {
+            Template.AddToCodelet("USINGNAMESPACES", "using Ict.Common.Remoting.Server;" + Environment.NewLine);
+            Template.AddToCodelet("USINGNAMESPACES", "using Ict.Petra.Server.App.Core;" + Environment.NewLine);
+            Template.InsertSnippet("CONNECTOR", Template.GetSnippet("CONNECTORSTANDALONE"));
+        }
+        else
+        {
+            Template.InsertSnippet("CONNECTOR", Template.GetSnippet("CONNECTORCLIENTSERVER"));
         }
 
         Template.FinishWriting(OutputFile, ".cs", true);

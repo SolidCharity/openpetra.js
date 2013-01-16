@@ -2,9 +2,9 @@
 // DO NOT REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 //
 // @Authors:
-//       christiank
+//       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -62,16 +62,12 @@ namespace Ict.Common.Remoting.Client
         ///
         /// </summary>
         /// <param name="AClientID">ClientID of the PetraClient</param>
-        /// <param name="ARemotePollClientTasks">Reference to the instantiated Server-side
-        /// TPollClientTasks Object that will get called regularly.
-        /// </param>
-        /// <returns>void</returns>
-        public TPollClientTasks(Int32 AClientID, IPollClientTasksInterface ARemotePollClientTasks)
+        public TPollClientTasks(Int32 AClientID)
         {
             Thread TheThread;
 
             FClientID = AClientID;
-            FRemotePollClientTasks = ARemotePollClientTasks;
+            // TODORemoting FRemotePollClientTasks = ARemotePollClientTasks;
             FKeepPollingClientTasks = true;
 
             // Start PollClientTasksThread

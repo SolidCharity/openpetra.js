@@ -24,8 +24,6 @@
 using System;
 using System.Collections;
 using System.Net.Sockets;
-using System.Runtime.Remoting;
-using System.Runtime.Remoting.Lifetime;
 using System.Security.Principal;
 using System.IO;
 using Ict.Common;
@@ -33,13 +31,6 @@ using Ict.Common.DB;
 using Ict.Common.IO;
 using Ict.Common.Remoting.Shared;
 using Ict.Common.Remoting.Client;
-using Ict.Petra.Shared.Interfaces.MCommon;
-using Ict.Petra.Shared.Interfaces.MConference;
-using Ict.Petra.Shared.Interfaces.MPartner;
-using Ict.Petra.Shared.Interfaces.MPersonnel;
-using Ict.Petra.Shared.Interfaces.MFinance;
-using Ict.Petra.Shared.Interfaces.MReporting;
-using Ict.Petra.Shared.Interfaces.MSysMan;
 using Ict.Petra.Shared.Security;
 using Ict.Petra.Shared;
 using Ict.Petra.Client.App.Core;
@@ -54,21 +45,6 @@ namespace Ict.Petra.Client.App.Core
     /// </summary>
     public class TConnectionManagement : TConnectionManagementBase
     {
-        private String FRemotingURL_MConference;
-        private String FRemotingURL_MPartner;
-        private String FRemotingURL_MPersonnel;
-        private String FRemotingURL_MCommon;
-        private String FRemotingURL_MFinance;
-        private String FRemotingURL_MReporting;
-        private String FRemotingURL_MSysMan;
-        private IMCommonNamespace FRemoteCommonObjects;
-        private IMConferenceNamespace FRemoteConferenceObjects;
-        private IMPartnerNamespace FRemotePartnerObjects;
-        private IMPersonnelNamespace FRemotePersonnelObjects;
-        private IMFinanceNamespace FRemoteFinanceObjects;
-        private IMReportingNamespace FRemoteReportingObjects;
-        private IMSysManNamespace FRemoteSysManObjects;
-
         /// <summary>
         /// todoComment
         /// </summary>
@@ -94,14 +70,6 @@ namespace Ict.Petra.Client.App.Core
             }
 
             Ict.Petra.Shared.UserInfo.GUserInfo = (TPetraPrincipal)LocalUserInfo;
-
-            FRemoteConferenceObjects = (IMConferenceNamespace)FConnector.GetRemoteObject(FRemotingURL_MConference, typeof(IMConferenceNamespace));
-            FRemotePersonnelObjects = (IMPersonnelNamespace)FConnector.GetRemoteObject(FRemotingURL_MPersonnel, typeof(IMPersonnelNamespace));
-            FRemoteCommonObjects = (IMCommonNamespace)FConnector.GetRemoteObject(FRemotingURL_MCommon, typeof(IMCommonNamespace));
-            FRemotePartnerObjects = (IMPartnerNamespace)FConnector.GetRemoteObject(FRemotingURL_MPartner, typeof(IMPartnerNamespace));
-            FRemoteFinanceObjects = (IMFinanceNamespace)FConnector.GetRemoteObject(FRemotingURL_MFinance, typeof(IMFinanceNamespace));
-            FRemoteReportingObjects = (IMReportingNamespace)FConnector.GetRemoteObject(FRemotingURL_MReporting, typeof(IMReportingNamespace));
-            FRemoteSysManObjects = (IMSysManNamespace)FConnector.GetRemoteObject(FRemotingURL_MSysMan, typeof(IMSysManNamespace));
 
             //
             // initialise object that holds references to all our remote object .NET Remoting Proxies
@@ -147,41 +115,6 @@ namespace Ict.Petra.Client.App.Core
                 }
 
                 Ict.Petra.Shared.UserInfo.GUserInfo = (TPetraPrincipal)AUserInfo;
-
-                if (FRemotingURLs.ContainsKey(SharedConstants.REMOTINGURL_IDENTIFIER_MSYSMAN))
-                {
-                    FRemotingURL_MSysMan = (String)FRemotingURLs[SharedConstants.REMOTINGURL_IDENTIFIER_MSYSMAN];
-                }
-
-                if (FRemotingURLs.ContainsKey(SharedConstants.REMOTINGURL_IDENTIFIER_MCOMMON))
-                {
-                    FRemotingURL_MCommon = (String)FRemotingURLs[SharedConstants.REMOTINGURL_IDENTIFIER_MCOMMON];
-                }
-
-                if (FRemotingURLs.ContainsKey(SharedConstants.REMOTINGURL_IDENTIFIER_MCONFERENCE))
-                {
-                    FRemotingURL_MConference = (String)FRemotingURLs[SharedConstants.REMOTINGURL_IDENTIFIER_MCONFERENCE];
-                }
-
-                if (FRemotingURLs.ContainsKey(SharedConstants.REMOTINGURL_IDENTIFIER_MPARTNER))
-                {
-                    FRemotingURL_MPartner = (String)FRemotingURLs[SharedConstants.REMOTINGURL_IDENTIFIER_MPARTNER];
-                }
-
-                if (FRemotingURLs.ContainsKey(SharedConstants.REMOTINGURL_IDENTIFIER_MPERSONNEL))
-                {
-                    FRemotingURL_MPersonnel = (String)FRemotingURLs[SharedConstants.REMOTINGURL_IDENTIFIER_MPERSONNEL];
-                }
-
-                if (FRemotingURLs.ContainsKey(SharedConstants.REMOTINGURL_IDENTIFIER_MFINANCE))
-                {
-                    FRemotingURL_MFinance = (String)FRemotingURLs[SharedConstants.REMOTINGURL_IDENTIFIER_MFINANCE];
-                }
-
-                if (FRemotingURLs.ContainsKey(SharedConstants.REMOTINGURL_IDENTIFIER_MREPORTING))
-                {
-                    FRemotingURL_MReporting = (String)FRemotingURLs[SharedConstants.REMOTINGURL_IDENTIFIER_MREPORTING];
-                }
 
                 return true;
             }

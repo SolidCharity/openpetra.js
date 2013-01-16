@@ -55,7 +55,6 @@ namespace Ict.Common.Remoting.Shared
             out String AClientName,
             out System.Int32 AClientID,
             out string ACrossDomainURL,
-            out Hashtable ARemotingURLs,
             out TExecutingOSEnum AServerOS,
             out Int32 AProcessID,
             out String AWelcomeMessage,

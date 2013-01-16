@@ -360,7 +360,7 @@ namespace Ict.Petra.Client.App.PetraClient
 
                 // initialize the client
                 TClientTasksQueue.ClientTasksInstanceType = typeof(TClientTaskInstance);
-                TConnectionManagementBase.ConnectorType = typeof(TConnector);
+
                 TConnectionManagementBase.GConnectionManagement = new TConnectionManagement();
 
 

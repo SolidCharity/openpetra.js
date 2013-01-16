@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -27,7 +27,6 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using Ict.Petra.Shared.Interfaces.MFinance;
 using Ict.Petra.Shared.Interfaces.MPartner;
-using Ict.Petra.Shared.Interfaces.MConference;
 using Ict.Petra.Shared.MConference;
 using Ict.Petra.Shared.MFinance;
 using Ict.Petra.Shared.MPartner;

@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -1298,9 +1298,6 @@ namespace Ict.Common.Remoting.Server
         /// <param name="AClientName">Server-assigned Name of the Client</param>
         /// <param name="AClientID">Server-assigned ID of the Client</param>
         /// <param name="ACrossDomainURL">there is only one url now for connecting to the services</param>
-        /// <param name="ARemotingURLs">A HashTable containing .NET Remoting URLs of the Petra
-        /// Module Root Namespaces (eg. MPartner, MFinance) and other important objects
-        /// that need to be called from the Client.</param>
         /// <param name="AServerOS">Operating System that the Server is running on
         /// </param>
         /// <param name="AProcessID"></param>
@@ -1317,7 +1314,6 @@ namespace Ict.Common.Remoting.Server
             out String AClientName,
             out System.Int32 AClientID,
             out string ACrossDomainURL,
-            out Hashtable ARemotingURLs,
             out TExecutingOSEnum AServerOS,
             out Int32 AProcessID,
             out String AWelcomeMessage,
@@ -1353,7 +1349,7 @@ namespace Ict.Common.Remoting.Server
              */
             try
             {
-                if (Monitor.TryEnter(UConnectClientMonitor, TSrvSetting.ClientConnectionTimeoutAfterXSeconds * 1000))
+                // TODORemoting if (Monitor.TryEnter(UConnectClientMonitor, TSrvSetting.ClientConnectionTimeoutAfterXSeconds * 1000))
                 {
                     #region Logging
 
@@ -1374,7 +1370,6 @@ namespace Ict.Common.Remoting.Server
 
                     #endregion
                     #region Variable assignments
-                    ARemotingURLs = new Hashtable(6);
                     AClientID = (short)FClientsConnectedTotal;
                     FClientsConnectedTotal++;
                     AClientName = AUserName.ToUpper() + "_" + AClientID.ToString();
@@ -1533,7 +1528,7 @@ namespace Ict.Common.Remoting.Server
                                 UCacheableTablesManager,
                                 AUserInfo,
                                 out RemotingURL_PollClientTasks);
-                            ARemotingURLs.Add(RemotingConstants.REMOTINGURL_IDENTIFIER_POLLCLIENTTASKS, RemotingURL_PollClientTasks);
+                            // TODORemoting ARemotingURLs.Add(RemotingConstants.REMOTINGURL_IDENTIFIER_POLLCLIENTTASKS, RemotingURL_PollClientTasks);
                         }
                         catch (TargetInvocationException exp)
                         {
@@ -1600,23 +1595,23 @@ namespace Ict.Common.Remoting.Server
                      * Notify all waiting Clients (that have not timed out yet) that they can
                      * now try to connect...
                      */
-                    Monitor.PulseAll(UConnectClientMonitor);
+                    // TODORemoting Monitor.PulseAll(UConnectClientMonitor);
                 }
-                else
+// TODORemoting               else
                 {
                     /*
                      * Throw Exception to tell any timed-out connecting Client that the Server
                      * is too busy to accept connect requests at the moment.
                      */
-                    throw new ELoginFailedServerTooBusyException();
+// TODORemoting                   throw new ELoginFailedServerTooBusyException();
                 }
             }
             finally
             {
-                Monitor.Exit(UConnectClientMonitor);
+// TODORemoting               Monitor.Exit(UConnectClientMonitor);
             }
 
-            ClientDomainManager.LoadAssemblies(AClientID.ToString(), AUserInfo, ref ARemotingURLs);
+            // TODORemoting ClientDomainManager.LoadAssemblies(AClientID.ToString(), AUserInfo, ref ARemotingURLs);
 
             ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsActive;
             ((TRunningAppDomain)UClientObjects[(object)AClientID]).FClientConnectionFinishedTime = DateTime.Now;

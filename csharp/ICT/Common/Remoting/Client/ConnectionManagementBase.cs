@@ -24,8 +24,6 @@
 using System;
 using System.Collections;
 using System.Net.Sockets;
-using System.Runtime.Remoting;
-using System.Runtime.Remoting.Lifetime;
 using System.Security.Principal;
 using System.IO;
 using Ict.Common;
@@ -46,16 +44,6 @@ namespace Ict.Common.Remoting.Client
         public static TConnectionManagementBase GConnectionManagement = null;
 
         /// <summary>
-        /// set to typeof(TConnector)
-        /// </summary>
-        public static Type ConnectorType = typeof(TConnector);
-
-        /// <summary>
-        /// keeps the connection to the server
-        /// </summary>
-        protected TConnector FConnector;
-
-        /// <summary>
         /// the client manager
         /// </summary>
         protected IClientManagerInterface FClientManager;
@@ -63,7 +51,6 @@ namespace Ict.Common.Remoting.Client
         private String FClientName;
         private Int32 FClientID;
         private TExecutingOSEnum FServerOS;
-        private String FRemotingURL_PollClientTasks;
         private IPollClientTasksInterface FRemotePollClientTasks;
         private TEnsureKeepAlive FKeepAlive;
         private TPollClientTasks FPollClientTasks;
@@ -128,23 +115,9 @@ namespace Ict.Common.Remoting.Client
             AError = "";
             String ConnectionError;
 
-            if (FConnector == null)
-            {
-                FConnector = (TConnector)Activator.CreateInstance(ConnectorType);
-            }
-
             try
             {
-                if (TAppSettingsManager.ConfigFileName.Length > 0)
-                {
-                    // connect to the PetraServer's ClientManager
-                    FConnector.GetRemoteServerConnection(TAppSettingsManager.ConfigFileName, out FClientManager);
-                }
-                else
-                {
-                    // connect to the PetraServer's ClientManager
-                    FConnector.GetRemoteServerConnection(Environment.GetCommandLineArgs()[0] + ".config", out FClientManager);
-                }
+                FClientManager = TConnectionHelper.Connect();
 
                 // register Client session at the PetraServer
                 bool ReturnValue = ConnectClient(AUserName, APassword, FClientManager,
@@ -193,13 +166,6 @@ namespace Ict.Common.Remoting.Client
             }
 
             //
-            // acquire .NET Remoting Proxy objects for remoted Server objects
-            //
-
-            FRemotePollClientTasks =
-                (IPollClientTasksInterface)FConnector.GetRemoteObject(FRemotingURL_PollClientTasks, typeof(IPollClientTasksInterface));
-
-            //
             // start the KeepAlive Thread (which needs to run as long as the Client is running)
             //
             FKeepAlive = new TEnsureKeepAlive();
@@ -207,7 +173,7 @@ namespace Ict.Common.Remoting.Client
             //
             // start the PollClientTasks Thread (which needs to run as long as the Client is running)
             //
-            FPollClientTasks = new TPollClientTasks(FClientID, FRemotePollClientTasks);
+            FPollClientTasks = new TPollClientTasks(FClientID);
 
             return true;
         }
@@ -249,19 +215,11 @@ namespace Ict.Common.Remoting.Client
                     out FClientName,
                     out FClientID,
                     out FCrossDomainURI,
-                    out FRemotingURLs,
                     out FServerOS,
                     out AProcessID,
                     out AWelcomeMessage,
                     out ASystemEnabled,
                     out AUserInfo);
-
-                if (FRemotingURLs.ContainsKey(RemotingConstants.REMOTINGURL_IDENTIFIER_POLLCLIENTTASKS))
-                {
-                    FRemotingURL_PollClientTasks = (String)FRemotingURLs[RemotingConstants.REMOTINGURL_IDENTIFIER_POLLCLIENTTASKS];
-                }
-
-                FConnector.Init(FCrossDomainURI, FClientID.ToString());
 
                 return true;
             }
@@ -325,7 +283,6 @@ namespace Ict.Common.Remoting.Client
                 if (FPollClientTasks != null)
                 {
                     FPollClientTasks.StopPollClientTasks();
-                    RemotingServices.Disconnect((MarshalByRefObject)FRemotePollClientTasks);
                 }
 
                 if (FClientManager != null)
