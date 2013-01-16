@@ -14,6 +14,8 @@ using System.Collections.Specialized;
 using Ict.Common;
 using Ict.Common.Data;
 using Ict.Common.Verification;
+using Ict.Common.Remoting.Shared;
+using Ict.Common.Remoting.Client;
 using Ict.Petra.Shared;
 {#USINGNAMESPACES}
 
@@ -79,7 +81,7 @@ public {#UICONNECTORINTERFACE} {#METHODNAME}({#PARAMETERDEFINITION})
 /// the implementation of the UIConnector for the client
 public class {#UICONNECTORCLASSNAME}: {#UICONNECTORINTERFACE}
 {
-    private Guid FObjectID = null;
+    private Guid FObjectID = new Guid();
 
     {#CONSTRUCTORS}
 
@@ -112,14 +114,13 @@ public {#TYPE} {#NAME}
 {#IFDEF GETTER}
     get
     {
-        return ({#TYPE}) THttpConnector.ReadUIConnectorProperty(FObjectID, "{#UICONNECTORCLASSNAME}", "{#NAME}", "{#EXPECTEDRETURNTYPE}");
+        {#GETTER}
     }
 {#ENDIF GETTER}
 {#IFDEF SETTER}
     set
     {
-        SortedList<string, object> ActualParameters = new SortedList<string, object>();
-        object Result = THttpConnector.WriteUIConnectorProperty(FObjectID, "{#UICONNECTORCLASSNAME}", "{#NAME}", ActualParameters, value);
+        THttpConnector.WriteUIConnectorProperty(FObjectID, "{#UICONNECTORCLASSNAME}", "{#NAME}", value);
     }
 {#ENDIF SETTER}
 }

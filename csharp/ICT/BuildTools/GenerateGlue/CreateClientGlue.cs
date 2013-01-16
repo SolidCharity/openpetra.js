@@ -190,8 +190,9 @@ public class GenerateClientGlue
 
             ProcessTemplate propertySnippet = template.GetSnippet("UICONNECTORPROPERTY");
 
+            string type = AutoGenerationTools.TypeToString(p.TypeReference, string.Empty);
             propertySnippet.SetCodelet("NAME", p.Name);
-            propertySnippet.SetCodelet("TYPE", AutoGenerationTools.TypeToString(p.TypeReference, string.Empty));
+            propertySnippet.SetCodelet("TYPE", type);
 
             string expectedreturntype = GetExpectedReturnType(0, AutoGenerationTools.TypeToString(p.TypeReference, string.Empty));
 
@@ -199,7 +200,19 @@ public class GenerateClientGlue
 
             if (p.HasGetRegion)
             {
-                propertySnippet.SetCodelet("GETTER", "yes");
+                if (type.StartsWith("I"))
+                {
+                    propertySnippet.SetCodelet(
+                        "GETTER",
+                        "return new T" + type.Substring(
+                            1) + "(THttpConnector.GetDependantUIConnector(FObjectID, \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\"));");
+                }
+                else
+                {
+                    propertySnippet.SetCodelet(
+                        "GETTER",
+                        "return ({#TYPE}) THttpConnector.ReadUIConnectorProperty(FObjectID, \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\", \"{#EXPECTEDRETURNTYPE}\");");
+                }
             }
 
             if (p.HasSetRegion)
@@ -438,6 +451,7 @@ public class GenerateClientGlue
         else
         {
             Template.InsertSnippet("CONNECTOR", Template.GetSnippet("CONNECTORCLIENTSERVER"));
+            Template.SetCodelet("HTTPREMOTING", "true");
         }
 
         Template.FinishWriting(OutputFile, ".cs", true);

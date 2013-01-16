@@ -233,5 +233,21 @@ namespace Ict.Common.Remoting.Client
 
             return Guid.Parse(DeserializeObject(result, "System.String").ToString());
         }
+
+        /// <summary>
+        /// create a UIConnector on the server, that depends on another UIConnector object
+        /// </summary>
+        public static Guid GetDependantUIConnector(
+            Guid ParentObjectID,
+            string UIConnectorClass,
+            string propertyname)
+        {
+            SortedList <string, object>Parameters = new SortedList <string, object>();
+            Parameters.Add("UIConnectorObjectID", ParentObjectID);
+
+            string result = CallWebConnector(UIConnectorClass + ".Get" + propertyname, Parameters, "System.String")[0].ToString();
+
+            return Guid.Parse(result);
+        }
     }
 }
