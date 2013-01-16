@@ -52,13 +52,17 @@ public class T{#NAMESPACENAME}Namespace
 /// forward the method call
 public {#RETURNTYPE} {#METHODNAME}({#PARAMETERDEFINITION})
 {
-    // TODO call through https interface {#RETURN}{#WEBCONNECTORCLASS}.{#METHODNAME}({#ACTUALPARAMETERS});
+    SortedList<string, object> ActualParameters = new SortedList<string, object>();
+    {#ADDACTUALPARAMETERS}
+    List<object> Result = THttpConnector.CallWebConnector("{#WEBCONNECTORCLASS}.{#METHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
+    {#ASSIGNRESULTANDRETURN}
 }
 
 {##WEBCONNECTORMETHODSTANDALONE}
 /// forward the method call
 public {#RETURNTYPE} {#METHODNAME}({#PARAMETERDEFINITION})
 {
+    // TODO: check permissions
     {#RETURN}{#WEBCONNECTORCLASS}.{#METHODNAME}({#ACTUALPARAMETERS});
 }
 
@@ -76,5 +80,6 @@ public {#UICONNECTORINTERFACE} {#METHODNAME}({#PARAMETERDEFINITION})
 /// forward the method call
 public {#UICONNECTORINTERFACE} {#METHODNAME}({#PARAMETERDEFINITION})
 {
+    // TODO: check permissions
     return new {#UICONNECTORCLASS}({#ACTUALPARAMETERS});
 }

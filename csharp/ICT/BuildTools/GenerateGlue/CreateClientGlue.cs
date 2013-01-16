@@ -94,10 +94,56 @@ public class GenerateClientGlue
                 snippet.SetCodelet("RETURN", returntype != "void" ? "return " : string.Empty);
 
                 snippet.SetCodelet("METHODNAME", m.Name);
-                snippet.SetCodelet("ACTUALPARAMETERS", ActualParameters);
                 snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
                 snippet.SetCodelet("RETURNTYPE", returntype);
                 snippet.SetCodelet("WEBCONNECTORCLASS", connectorClass.Name);
+                snippet.SetCodelet("ASSIGNRESULTANDRETURN", string.Empty);
+                snippet.SetCodelet("ADDACTUALPARAMETERS", string.Empty);
+
+                int ResultCounter = 0;
+
+                foreach (ParameterDeclarationExpression p in m.Parameters)
+                {
+                    if (((ParameterModifiers.Ref & p.ParamModifier) > 0) || ((ParameterModifiers.Out & p.ParamModifier) > 0))
+                    {
+                        // need to assign the result to the ref and the out parameter
+                        snippet.AddToCodelet("ASSIGNRESULTANDRETURN",
+                            p.ParameterName + " = (" + p.TypeReference.ToString() + ") Result[" + ResultCounter.ToString() + "];" +
+                            Environment.NewLine);
+                        ResultCounter++;
+                    }
+
+                    if ((ParameterModifiers.Out & p.ParamModifier) == 0)
+                    {
+                        snippet.AddToCodelet("ADDACTUALPARAMETERS",
+                            "ActualParameters.Add(\"" + p.ParameterName + "\", " +
+                            p.ParameterName + ");" + Environment.NewLine);
+                    }
+                }
+
+                string expectedreturntype = string.Empty;
+
+                if (ResultCounter > 0)
+                {
+                    expectedreturntype = "list";
+                }
+                else if ((returntype == "System.Int64") || (returntype == "System.Int32") || (returntype == "System.Int16")
+                         || (returntype == "System.String"))
+                {
+                    expectedreturntype = returntype;
+                }
+                else
+                {
+                    expectedreturntype = "binary";
+                }
+
+                snippet.SetCodelet("EXPECTEDRETURNTYPE", expectedreturntype);
+
+                if (returntype != "void")
+                {
+                    snippet.AddToCodelet("ASSIGNRESULTANDRETURN",
+                        "return (" + returntype + ") Result[" + ResultCounter.ToString() + "];" + Environment.NewLine);
+                }
 
                 ATemplate.InsertSnippet("CONNECTORMETHODS", snippet);
             }
