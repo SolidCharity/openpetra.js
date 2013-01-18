@@ -249,5 +249,16 @@ namespace Ict.Common.Remoting.Client
 
             return Guid.Parse(result);
         }
+
+        /// <summary>
+        /// disconnect an object from the server, freeing up memory on the server
+        /// </summary>
+        public static void Disconnect(Guid ObjectID)
+        {
+            SortedList <string, object>Parameters = new SortedList <string, object>();
+            Parameters.Add("UIConnectorObjectID", ObjectID);
+
+            CallWebConnector("DisconnectUIConnector", Parameters, "void");
+        }
     }
 }

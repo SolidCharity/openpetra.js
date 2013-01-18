@@ -31,7 +31,7 @@ namespace Ict.Common.Remoting.Client
     
 {#IFDEF HTTPREMOTING}
     /// manually written client side for this special UIConnector
-    public class TAsynchronousExecutionProgress : IAsynchronousExecutionProgress
+    public class TAsynchronousExecutionProgress : IAsynchronousExecutionProgress, IDisposable
     {
         private Guid FObjectID = new Guid();
         
@@ -40,7 +40,19 @@ namespace Ict.Common.Remoting.Client
         {
             FObjectID = ObjectID;
         }
-        
+
+        /// desctructor
+        ~TAsynchronousExecutionProgress()
+        {
+            Dispose();
+        }
+
+        /// dispose the object on the server as well
+        public void Dispose()
+        {
+            THttpConnector.Disconnect(FObjectID);
+        }
+
         /// <summary>
         /// some text information about current progress
         /// </summary>

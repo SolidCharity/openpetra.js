@@ -79,11 +79,23 @@ public {#UICONNECTORINTERFACE} {#METHODNAME}({#PARAMETERDEFINITION})
 
 {##UICONNECTORCLASS}
 /// the implementation of the UIConnector for the client
-public class {#UICONNECTORCLASSNAME}: {#UICONNECTORINTERFACE}
+public class {#UICONNECTORCLASSNAME}: {#UICONNECTORINTERFACE}, IDisposable
 {
     private Guid FObjectID = new Guid();
 
     {#CONSTRUCTORS}
+
+    /// desctructor
+    ~{#UICONNECTORCLASSNAME}()
+    {
+        Dispose();
+    }
+
+    /// dispose the object on the server as well
+    public void Dispose()
+    {
+        THttpConnector.Disconnect(FObjectID);
+    }
 
     {#METHODSANDPROPERTIES}
 }
