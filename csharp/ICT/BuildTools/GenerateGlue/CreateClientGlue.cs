@@ -72,7 +72,8 @@ public class GenerateClientGlue
     /// <summary>
     /// insert a method call
     /// </summary>
-    private static void InsertMethodCall(ProcessTemplate snippet, TypeDeclaration connectorClass, MethodDeclaration m)
+    private static void InsertMethodCall(ProcessTemplate snippet, TypeDeclaration connectorClass, MethodDeclaration m,
+        ref List <string>AMethodNames)
     {
         string ParameterDefinition = string.Empty;
         string ActualParameters = string.Empty;
@@ -83,6 +84,19 @@ public class GenerateClientGlue
 
         snippet.SetCodelet("RETURN", returntype != "void" ? "return " : string.Empty);
 
+        // avoid duplicate names for webservice methods
+        string methodname = m.Name;
+        int methodcounter = 1;
+
+        while (AMethodNames.Contains(methodname))
+        {
+            methodcounter++;
+            methodname = m.Name + methodcounter.ToString();
+        }
+
+        AMethodNames.Add(methodname);
+
+        snippet.SetCodelet("UNIQUEMETHODNAME", methodname);
         snippet.SetCodelet("METHODNAME", m.Name);
         snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
         snippet.SetCodelet("RETURNTYPE", returntype);
@@ -136,6 +150,8 @@ public class GenerateClientGlue
 
         foreach (TypeDeclaration connectorClass in ConnectorClasses)
         {
+            List <string>MethodNames = new List <string>();
+
             foreach (MethodDeclaration m in CSParser.GetMethods(connectorClass))
             {
                 if (TCollectConnectorInterfaces.IgnoreMethod(m.Attributes, m.Modifier))
@@ -159,7 +175,7 @@ public class GenerateClientGlue
                     snippet = ATemplate.GetSnippet("WEBCONNECTORMETHODREMOTE");
                 }
 
-                InsertMethodCall(snippet, connectorClass, m);
+                InsertMethodCall(snippet, connectorClass, m, ref MethodNames);
 
                 ATemplate.InsertSnippet("CONNECTORMETHODS", snippet);
             }
@@ -168,6 +184,8 @@ public class GenerateClientGlue
 
     private static void InsertMethodsAndProperties(ProcessTemplate template, TypeDeclaration t)
     {
+        List <string>MethodNames = new List <string>();
+
         // foreach public method create a method
         foreach (MethodDeclaration m in CSParser.GetMethods(t))
         {
@@ -178,7 +196,7 @@ public class GenerateClientGlue
 
             ProcessTemplate methodSnippet = template.GetSnippet("UICONNECTORMETHOD");
 
-            InsertMethodCall(methodSnippet, t, m);
+            InsertMethodCall(methodSnippet, t, m, ref MethodNames);
 
             template.InsertSnippet("METHODSANDPROPERTIES", methodSnippet);
         }
@@ -208,7 +226,8 @@ public class GenerateClientGlue
                     propertySnippet.SetCodelet(
                         "GETTER",
                         "return new T" + type.Substring(
-                            1) + "(THttpConnector.GetDependantUIConnector(FObjectID, \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\"));");
+                            1) +
+                        "(THttpConnector.GetDependantUIConnector(FObjectID, \"M{#TOPLEVELMODULE}\", \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\"));");
                 }
                 else
                 {

@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -34,6 +34,39 @@ namespace Ict.Common.IO
     /// </summary>
     public class THTTPUtils
     {
+        private class WebClientWithSession : WebClient
+        {
+            public WebClientWithSession()
+                : this(new CookieContainer())
+            {
+            }
+
+            public WebClientWithSession(CookieContainer c)
+            {
+                this.CookieContainer = c;
+            }
+
+            public CookieContainer CookieContainer {
+                get; set;
+            }
+
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                WebRequest request = base.GetWebRequest(address);
+
+                var castRequest = request as HttpWebRequest;
+
+                if (castRequest != null)
+                {
+                    castRequest.CookieContainer = this.CookieContainer;
+                }
+
+                return request;
+            }
+        }
+
+        private static WebClientWithSession FWebClient = null;
+
         /// <summary>
         /// read from a website;
         /// used to check for available patches
@@ -42,23 +75,42 @@ namespace Ict.Common.IO
         /// <returns></returns>
         public static string ReadWebsite(string url)
         {
-            string ReturnValue;
+            string ReturnValue = null;
 
             // see http://blogs.msdn.com/b/carloc/archive/2007/02/13/webclient-2-0-class-not-working-under-win2000-with-https.aspx
             // it seems we need to specify SSL3 instead of TLS
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
 
             byte[] buf;
-            WebClient client;
-            client = new WebClient();
-            ReturnValue = null;
+
+            if (FWebClient == null)
+            {
+                FWebClient = new WebClientWithSession();
+            }
+
+            if (TLogging.DebugLevel > 0)
+            {
+                string urlToLog = url;
+
+                if (url.Contains("password"))
+                {
+                    urlToLog = url.Substring(0, url.IndexOf("?")) + "?...";
+                }
+
+                TLogging.Log(urlToLog);
+            }
+
             try
             {
-                buf = client.DownloadData(url);
+                buf = FWebClient.DownloadData(url);
 
                 if ((buf != null) && (buf.Length > 0))
                 {
                     ReturnValue = Encoding.ASCII.GetString(buf, 0, buf.Length);
+                }
+                else
+                {
+                    TLogging.Log("server did not return anything? timeout?");
                 }
             }
             catch (System.Net.WebException e)
@@ -75,9 +127,7 @@ namespace Ict.Common.IO
                         e.Message, TLoggingType.ToLogfile);
                 }
             }
-            finally
-            {
-            }
+
             return ReturnValue;
         }
 

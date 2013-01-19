@@ -22,9 +22,8 @@ list of available commands:
   compileProject: compile a single project file
       nant compileProject -D:file=delivery/projects/sharpdevelop4/Ict.Testing.ControlTestBench.csproj 
   start: start both the local server and client
-  startPetraServer: run a local Petra Server
-  stopPetraServer: stop the local Petra Server
-  startPetraClient: run the Petra Client
+  startServer: run a local OpenPetra Server
+  startClient: run the OpenPetra Client
   deleteBakFiles: delete all backup files
   initConfigFiles: write and overwrite the config files for client, server and testing, and the version.txt
   test: will run the NUnit tests

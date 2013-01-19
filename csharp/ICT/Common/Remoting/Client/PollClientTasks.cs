@@ -108,6 +108,9 @@ namespace Ict.Common.Remoting.Client
             TClientTasksQueue ClientTasksQueueInstance;
             Thread ClientTaskQueueThread;
 
+            // TODORemoting
+            return;
+
             // Check whether this Thread should still execute
             while (FKeepPollingClientTasks)
             {

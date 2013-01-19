@@ -56,6 +56,11 @@ namespace Ict.Common.Remoting.Client
         {
             SortedList <string, string>result = new SortedList <string, string>();
 
+            if (parameters == null)
+            {
+                return result;
+            }
+
             foreach (string param in parameters.Keys)
             {
                 object o = parameters[param];
@@ -68,12 +73,16 @@ namespace Ict.Common.Remoting.Client
         private static string TrimResult(string result)
         {
             // returns <string xmlns="...">someresulttext</string>
-            TLogging.Log("returned from server (unmodified): " + result);
-            result = result.Substring(result.IndexOf("<string xmlns="));
+            if (TLogging.DebugLevel > 0)
+            {
+                TLogging.Log("returned from server (unmodified): " + result);
+            }
+
+            result = result.Replace("<?xml version=\"1.0\" encoding=\"utf-8\"?>", string.Empty).Substring(result.IndexOf("<"));
             result = result.Substring(result.IndexOf(">") + 1);
             result = result.Substring(0, result.IndexOf("<"));
 
-            TLogging.Log("returned from server: " + result);
+            // TLogging.Log("returned from server: " + result);
             return result;
         }
 
@@ -81,12 +90,18 @@ namespace Ict.Common.Remoting.Client
         /// call a webconnector
         /// </summary>
         public static List <object>CallWebConnector(
+            string AModuleName,
             string methodname,
             SortedList <string, object>parameters, string expectedReturnType)
         {
             SortedList <string, string>Parameters = ConvertParameters(parameters);
 
-            string result = THTTPUtils.ReadWebsite(ServerURL + "/" + methodname.Replace(".", "_"), Parameters);
+            string result = THTTPUtils.ReadWebsite(ServerURL + "/server" + AModuleName + ".asmx/" + methodname.Replace(".", "_"), Parameters);
+
+            if ((result == null) || (result.Length == 0))
+            {
+                throw new Exception("invalid response from the server");
+            }
 
             if (expectedReturnType == "void")
             {
@@ -121,13 +136,14 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         public static List <object>CallUIConnectorMethod(
             Guid ObjectID,
+            string AModuleName,
             string UIConnectorClass,
             string methodname,
             SortedList <string, object>parameters, string expectedReturnType)
         {
             parameters.Add("UIConnectorObjectID", ObjectID);
 
-            return CallWebConnector(UIConnectorClass + "." + methodname, parameters, expectedReturnType);
+            return CallWebConnector(AModuleName, UIConnectorClass + "." + methodname, parameters, expectedReturnType);
         }
 
         /// <summary>
@@ -135,6 +151,7 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         public static object ReadUIConnectorProperty(
             Guid ObjectID,
+            string AModuleName,
             string UIConnectorClass,
             string propertyname,
             string expectedReturnType)
@@ -142,7 +159,7 @@ namespace Ict.Common.Remoting.Client
             SortedList <string, object>parameters = new SortedList <string, object>();
             parameters.Add("UIConnectorObjectID", ObjectID);
 
-            return CallWebConnector(UIConnectorClass + ".Get" + propertyname, parameters, expectedReturnType)[0];
+            return CallWebConnector(AModuleName, UIConnectorClass + ".Get" + propertyname, parameters, expectedReturnType)[0];
         }
 
         /// <summary>
@@ -150,6 +167,7 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         public static void WriteUIConnectorProperty(
             Guid ObjectID,
+            string AModuleName,
             string UIConnectorClass,
             string propertyname,
             object value)
@@ -158,20 +176,21 @@ namespace Ict.Common.Remoting.Client
             parameters.Add("UIConnectorObjectID", ObjectID);
             parameters.Add("value", value);
 
-            CallWebConnector(UIConnectorClass + ".Set" + propertyname, parameters, "void");
+            CallWebConnector(AModuleName, UIConnectorClass + ".Set" + propertyname, parameters, "void");
         }
 
         /// <summary>
         /// create a UIConnector on the server
         /// </summary>
         public static Guid CreateUIConnector(
+            string AModuleName,
             string classname,
             SortedList <string, object>parameters)
         {
             SortedList <string, string>Parameters =
                 ConvertParameters(parameters);
 
-            string result = THTTPUtils.ReadWebsite(ServerURL + "/" + classname, Parameters);
+            string result = THTTPUtils.ReadWebsite(ServerURL + "/server" + AModuleName + ".asmx/" + classname, Parameters);
 
             result = TrimResult(result);
 
@@ -183,13 +202,14 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         public static Guid GetDependantUIConnector(
             Guid ParentObjectID,
+            string AModuleName,
             string UIConnectorClass,
             string propertyname)
         {
             SortedList <string, object>Parameters = new SortedList <string, object>();
             Parameters.Add("UIConnectorObjectID", ParentObjectID);
 
-            string result = CallWebConnector(UIConnectorClass + ".Get" + propertyname, Parameters, "System.String")[0].ToString();
+            string result = CallWebConnector(AModuleName, UIConnectorClass + ".Get" + propertyname, Parameters, "System.String")[0].ToString();
 
             return Guid.Parse(result);
         }
@@ -202,7 +222,7 @@ namespace Ict.Common.Remoting.Client
             SortedList <string, object>Parameters = new SortedList <string, object>();
             Parameters.Add("UIConnectorObjectID", ObjectID);
 
-            CallWebConnector("DisconnectUIConnector", Parameters, "void");
+            CallWebConnector("SessionManager", "DisconnectUIConnector", Parameters, "void");
         }
     }
 }

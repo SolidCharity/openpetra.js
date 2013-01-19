@@ -126,7 +126,7 @@ public class GenerateServerGlue
     /// <summary>
     /// insert a method call
     /// </summary>
-    private static void InsertMethodCall(ProcessTemplate snippet, TypeDeclaration connectorClass, MethodDeclaration m)
+    private static void InsertMethodCall(ProcessTemplate snippet, TypeDeclaration connectorClass, MethodDeclaration m, ref List <string>AMethodNames)
     {
         string ParameterDefinition = string.Empty;
         string ActualParameters = string.Empty;
@@ -207,7 +207,8 @@ public class GenerateServerGlue
 
             if (((ParameterModifiers.Ref & p.ParamModifier) > 0) || ((ParameterModifiers.Out & p.ParamModifier) > 0))
             {
-                returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObject(" + p.ParameterName + ")";
+                returnCode +=
+                    (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObjectWithType(" + p.ParameterName + ")";
             }
         }
 
@@ -217,7 +218,7 @@ public class GenerateServerGlue
         {
             if (returntype != "void")
             {
-                returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObject(Result)";
+                returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObjectWithType(Result)";
             }
 
             returntype = "string";
@@ -251,6 +252,19 @@ public class GenerateServerGlue
             snippet.SetCodelet("RETURN", returntype != "void" ? "return " + returnCode + ";" : string.Empty);
         }
 
+        // avoid duplicate names for webservice methods
+        string methodname = m.Name;
+        int methodcounter = 1;
+
+        while (AMethodNames.Contains(methodname))
+        {
+            methodcounter++;
+            methodname = m.Name + methodcounter.ToString();
+        }
+
+        AMethodNames.Add(methodname);
+
+        snippet.SetCodelet("UNIQUEMETHODNAME", methodname);
         snippet.SetCodelet("METHODNAME", m.Name);
         snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
         snippet.SetCodelet("RETURNTYPE", returntype);
@@ -266,6 +280,8 @@ public class GenerateServerGlue
 
     static private void WriteWebConnector(string connectorname, TypeDeclaration connectorClass, ProcessTemplate Template)
     {
+        List <string>MethodNames = new List <string>();
+
         foreach (MethodDeclaration m in CSParser.GetMethods(connectorClass))
         {
             if (TCollectConnectorInterfaces.IgnoreMethod(m.Attributes, m.Modifier))
@@ -282,7 +298,7 @@ public class GenerateServerGlue
 
             ProcessTemplate snippet = Template.GetSnippet("WEBCONNECTOR");
 
-            InsertMethodCall(snippet, connectorClass, m);
+            InsertMethodCall(snippet, connectorClass, m, ref MethodNames);
 
             Template.InsertSnippet("WEBCONNECTORS", snippet);
         }

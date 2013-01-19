@@ -66,6 +66,20 @@ namespace Ict.Common.Remoting.Shared
                                         ));
         }
 
+        /// serialize any object. depending on the type of the object, it will serialized in binary format
+        static public string SerializeObjectWithType(object o)
+        {
+            bool binary =
+                !(o.GetType() == typeof(string)
+                  || o.GetType() == typeof(Int16)
+                  || o.GetType() == typeof(Int32)
+                  || o.GetType() == typeof(Int64)
+                  || o.GetType() == typeof(bool));
+            string result = SerializeObject(o, binary);
+
+            return result + ":" + (binary ? "binary" : o.GetType().ToString());
+        }
+
         /// <summary>
         /// reverse of SerializeObject
         /// </summary>
@@ -91,17 +105,12 @@ namespace Ict.Common.Remoting.Shared
             {
                 return s;
             }
-            else if (type == "binary")
+            else // if (type == "binary" || true)
             {
                 MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(s));
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 BinaryFormatter binaryFormatter = new BinaryFormatter();
                 return binaryFormatter.Deserialize(memoryStream);
-            }
-            else
-            {
-                TLogging.Log("HttpConnector.DeserializeObject: unexpeced type: " + type);
-                return null;
             }
         }
     }

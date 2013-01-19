@@ -63,10 +63,7 @@ namespace Ict.Petra.Server.MReporting.UIConnectors
         {
             get
             {
-                return (IAsynchronousExecutionProgress)TCreateRemotableObject.CreateRemotableObject(
-                    typeof(IAsynchronousExecutionProgress),
-                    typeof(TAsynchronousExecutionProgressRemote),
-                    FAsyncExecProgress);
+                return null; // TODORemoting
             }
         }
 

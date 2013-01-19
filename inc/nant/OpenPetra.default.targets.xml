@@ -40,7 +40,7 @@
 
 <target name="initConfigFiles" description="write and overwrite the config files for client, server and testing, and the version.txt">
   <property name="templateFile" value="${dir.incdir.template.etc}/Server-${DBMS.Type}.config"/>
-  <property name="configFile" value="${ServerConfigFile}"/>
+  <property name="configFile" value="${dir.delivery}/web.config"/>
   <call target="initConfigFiles-internal"/>
 
   <property name="templateFile" value="${dir.incdir.template.etc}/ServerAdmin.config"/>
@@ -67,60 +67,81 @@
   <mkdir dir="${dir.log}" failonerror="false"/>
 </target>
 
-<target name="startPetraServer" depends="initConfigFiles" description="Starts a local Petra Server">
-  <if test="${platform::is-windows()}">
-    <exec program="cmd.exe" 
-          workingdir="${dir.bin}"
-          commandline="-RunWithoutMenu:false -C:${ServerConfigFile}"
-          spawn="true">
-       <environment>
-          <variable name="LANGUAGE" value="${SelectedLanguage}"/>
-       </environment>
-       <arg value="/c" />
-       <arg value="start" />
-       <arg value="cmd" /> <!-- This window stays open after the process finishes -->
-       <arg value="/k" />
-       <arg value="PetraServerConsole.exe" />
-       <arg value="-RunWithoutMenu:false" />
-       <arg value="-C:${ServerConfigFile}" />
-    </exec>
-  </if>
-
-  <if test="${not platform::is-windows()}">
-     <!-- TODO: Open a xterm with OpenPetra Server? -->
-    <exec program="${MonoExecutable.file}" 
-          workingdir="${dir.bin}"
-          commandline="PetraServerConsole.exe -RunWithoutMenu:true -C:${ServerConfigFile}"
-          spawn="true">
-    <!--      todo: install newer version of nant that knows spawn;
-               unfortunately, RunWithoutMenu:false would not work, because there is no extra window opened, and System.Console.ReadLine fails -->
-     <environment>
-        <variable name="LANGUAGE" value="${SelectedLanguage}"/>
-     </environment>
-    </exec>
-  </if>
+<target name="startPetraServer" description="Starts a local Petra Server">
+    <call target="startServer"/>
 </target>
 
-<target name="stopPetraServer" depends="initConfigFiles" description="stop the local Petra Server">
-  <if test="${platform::is-windows()}" >
-      <exec program="PetraServerAdminConsole.exe" 
-            basedir="${dir.bin}" 
-            workingdir="${dir.bin}"
-            commandline="-Command:Stop -C:${ServerAdminConfigFile}"/>
+<target name="startServer" depends="initConfigFiles" description="Starts a local Petra Server">
+  <copy todir="${dir.delivery}" overwrite="true">
+    <fileset basedir="${dir.csharp}/ICT/Petra/Server/app/WebService/">
+      <include name="*.asmx" />
+    </fileset>
+  </copy>
+
+  <if test="${'win32'==platform::get-name()}" >
+    <if test="${file::exists(MonoBinPath+'/xsp4.bat')}">
+      <delete file="${dir.bin}/Mono.Security.dll"/>
+      <exec program="cmd.exe" 
+              workingdir="${dir.delivery}"
+              commandline="/C start xsp4.bat --verbose --root . --port ${Server.Port} --applications /:."
+              spawn="true">
+        <environment>
+          <variable name="PATH" path="${MonoBinPath};${environment::get-variable('PATH')}"/>
+          <variable name="MONO_PATH" path="${MonoBinPath}\..\lib\mono\4.0"/>
+          <variable name="MONO_OPTIONS" value="--debug"/>
+          <!-- see http://www.mono-project.com/IOMap -->
+          <!-- <variable name="MONO_IOMAP" value="all"/> -->
+        </environment>
+      </exec>
+    </if>
+    <if test="${not file::exists(MonoBinPath+'/xsp4.bat')}">
+      <!-- copy Mono.Security.dll for pgsql driver -->
+      <copy file="${path::combine(dir.3rdParty, 'Npgsql/Mono.Security.dll')}"
+          tofile="${path::combine(dir.bin, 'Mono.Security.dll')}"
+          overwrite="false"/>
+
+      <copy file="${path::combine(dir.root, 'setup/tools/SimpleASPHost/SimpleHost.exe')}"
+          tofile="${path::combine(dir.delivery, 'SimpleHost.exe')}" 
+          overwrite="false"/>
+
+<echo file="${dir.delivery}/SimpleHost.exe.config">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;configuration>
+    &lt;startup>
+        &lt;supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0" />
+    &lt;/startup>
+&lt;/configuration>
+</echo>
+
+      <exec program="cmd.exe" 
+              workingdir="${dir.delivery}"
+              spawn="true">
+           <arg value="/c" />
+           <arg value="start" />
+           <arg value="cmd" /> <!-- This window stays open after the process finishes -->
+           <arg value="/k" />
+           <arg value="${dir.delivery}/SimpleHost.exe ${Server.Port}" />
+      </exec>
+    </if>
   </if>
-  <if test="${not platform::is-windows()}">
-      <exec program="${MonoExecutable.file}" 
-              workingdir="${dir.bin}"
-              commandline="PetraServerAdminConsole.exe -Command:Stop -C:${ServerAdminConfigFile}"
+  <if test="${'unix'==platform::get-name()}" >
+      <echo message="in your browser, go to http://localhost:${Server.Port}/"/>
+      <exec program="xsp4" 
+              workingdir="${dir.delivery}"
+              commandline="--verbose --root . --port ${Server.Port} --applications /:."
               spawn="false">
-         <environment>
-            <variable name="LANGUAGE" value="${SelectedLanguage}"/>
-         </environment>
+        <environment>
+          <variable name="PATH" path="${environment::get-variable('PATH')};${MonoBinPath}"/>
+          <variable name="MONO_PATH" path="${MonoBinPath}\..\lib\mono\4.0"/>
+          <variable name="MONO_OPTIONS" value="--debug"/>
+        </environment>
       </exec>
   </if>
 </target>
 
-<target name="startPetraClient" depends="initConfigFiles" description="start the Petra Client"> 
+<target name="startPetraClient" description="start the OpenPetra Client">
+    <call target="startClient"/>
+</target>
+<target name="startClient" depends="initConfigFiles" description="start the OpenPetra Client"> 
   <if test="${platform::is-windows()}">
     <exec program="cmd.exe" 
           workingdir="${dir.bin}"
@@ -148,7 +169,7 @@
   </if>
 </target> 
 
-<target name="start" depends="initConfigFiles, startPetraServer, startPetraClient">
+<target name="start" depends="initConfigFiles, startServer, startClient">
 </target>
 
 </project>

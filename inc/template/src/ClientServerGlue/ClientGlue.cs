@@ -56,7 +56,7 @@ public {#RETURNTYPE} {#METHODNAME}({#PARAMETERDEFINITION})
 {
     SortedList<string, object> ActualParameters = new SortedList<string, object>();
     {#ADDACTUALPARAMETERS}
-    List<object> Result = THttpConnector.CallWebConnector("{#WEBCONNECTORCLASS}.{#METHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
+    List<object> Result = THttpConnector.CallWebConnector("M{#TOPLEVELMODULE}", "{#WEBCONNECTORCLASS}.{#UNIQUEMETHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
     {#ASSIGNRESULTANDRETURN}
 }
 
@@ -106,7 +106,7 @@ public {#UICONNECTORCLASSNAME}({#PARAMETERDEFINITION})
 {
     SortedList<string, object> ActualParameters = new SortedList<string, object>();
     {#ADDACTUALPARAMETERS}
-    FObjectID = THttpConnector.CreateUIConnector("{#UICONNECTORCLASSNAME}", ActualParameters);
+    FObjectID = THttpConnector.CreateUIConnector("M{#TOPLEVELMODULE}", "{#UICONNECTORCLASSNAME}", ActualParameters);
 }
 
 {##UICONNECTORMETHOD}
@@ -115,7 +115,7 @@ public {#RETURNTYPE} {#METHODNAME}({#PARAMETERDEFINITION})
 {
     SortedList<string, object> ActualParameters = new SortedList<string, object>();
     {#ADDACTUALPARAMETERS}
-    List<object> Result = THttpConnector.CallUIConnectorMethod(FObjectID, "{#UICONNECTORCLASSNAME}", "{#METHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
+    List<object> Result = THttpConnector.CallUIConnectorMethod(FObjectID, "M{#TOPLEVELMODULE}", "{#UICONNECTORCLASSNAME}", "{#UNIQUEMETHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
     {#ASSIGNRESULTANDRETURN}
 }
 
@@ -132,7 +132,7 @@ public {#TYPE} {#NAME}
 {#IFDEF SETTER}
     set
     {
-        THttpConnector.WriteUIConnectorProperty(FObjectID, "{#UICONNECTORCLASSNAME}", "{#NAME}", value);
+        THttpConnector.WriteUIConnectorProperty(FObjectID, "M{#TOPLEVELMODULE}", "{#UICONNECTORCLASSNAME}", "{#NAME}", value);
     }
 {#ENDIF SETTER}
 }

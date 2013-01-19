@@ -102,10 +102,7 @@ namespace Ict.Petra.Server.MPartner.Extracts.UIConnectors
                     throw FSubmitException;
                 }
 
-                return (IAsynchronousExecutionProgress)TCreateRemotableObject.CreateRemotableObject(
-                    typeof(IAsynchronousExecutionProgress),
-                    typeof(TAsynchronousExecutionProgressRemote),
-                    FAsyncExecProgress);
+                return null; // TODORemoting
             }
         }
 
