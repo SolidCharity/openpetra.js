@@ -58,6 +58,11 @@ namespace Ict.Common.Remoting.Shared
         /// serialize any object. depending on the type of the object, it will serialized in binary format
         static public string SerializeObject(object o)
         {
+            if (o == null)
+            {
+                return "null";
+            }
+            
             return SerializeObject(o, !(o.GetType() == typeof(string)
                                         || o.GetType() == typeof(Int16)
                                         || o.GetType() == typeof(Int32)
@@ -85,6 +90,10 @@ namespace Ict.Common.Remoting.Shared
         /// </summary>
         static public object DeserializeObject(string s, string type)
         {
+            if (s == "null")
+            {
+                return null;
+            }
             if (type == "System.Int64")
             {
                 return Convert.ToInt64(s);

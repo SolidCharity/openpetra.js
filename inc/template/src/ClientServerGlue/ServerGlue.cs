@@ -51,9 +51,17 @@ public class TM{#TOPLEVELMODULE}WebService : WebService
 public {#RETURNTYPE} {#WEBCONNECTORCLASS}_{#UNIQUEMETHODNAME}({#PARAMETERDEFINITION})
 {
     {#CHECKUSERMODULEPERMISSIONS}
-    {#LOCALVARIABLES}
-    {#LOCALRETURN}{#WEBCONNECTORCLASS}.{#METHODNAME}({#ACTUALPARAMETERS});
-    {#RETURN}
+    try
+    {
+        {#LOCALVARIABLES}
+        {#LOCALRETURN}{#WEBCONNECTORCLASS}.{#METHODNAME}({#ACTUALPARAMETERS});
+        {#RETURN}
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
 }
 
 {##CHECKUSERMODULEPERMISSIONS}
