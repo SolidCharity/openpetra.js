@@ -111,6 +111,7 @@ namespace Ict.Tools.GenerateGlue
                 interfaces.CreateFiles(namespaceRoot, OutputDir + "/Shared/lib/Interfaces", cmd.GetOptValue("TemplateDir"));
                 GenerateClientGlue.GenerateCode(namespaceRoot, OutputDir + "/Client/app/Core/Remoteobjects", cmd.GetOptValue("TemplateDir"));
                 GenerateClientGlue.GenerateConnectorCode(OutputDir + "/../Common/Remoting/Client", cmd.GetOptValue("TemplateDir"));
+                GenerateServerGlue.GenerateCode(namespaceRoot, OutputDir + "/Server/app/WebService", cmd.GetOptValue("TemplateDir"));
             }
             catch (Exception e)
             {

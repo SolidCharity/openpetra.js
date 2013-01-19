@@ -60,8 +60,6 @@ namespace PetraWebService
 ///             R6030
 ///             - CRT not initialized
 /// Solution: run xsp with ms.net, or use sqlite with managed version only and native sqlite
-///
-/// TODO: generate soap functions with nant generateGlue from interfaces/instantiators?
 /// </summary>
 [WebService(Namespace = "http://www.openpetra.org/webservices/")]
 [ScriptService]

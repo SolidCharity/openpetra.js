@@ -57,7 +57,7 @@ public class GenerateClientGlue
             expectedreturntype = "list";
         }
         else if ((returntype == "System.Int64") || (returntype == "System.Int32") || (returntype == "System.Int16")
-                 || (returntype == "System.String"))
+                 || (returntype == "System.String") || (returntype == "System.Boolean"))
         {
             expectedreturntype = returntype;
         }
@@ -69,6 +69,9 @@ public class GenerateClientGlue
         return expectedreturntype;
     }
 
+    /// <summary>
+    /// insert a method call
+    /// </summary>
     private static void InsertMethodCall(ProcessTemplate snippet, TypeDeclaration connectorClass, MethodDeclaration m)
     {
         string ParameterDefinition = string.Empty;

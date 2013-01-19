@@ -85,6 +85,10 @@ namespace Ict.Common.Remoting.Client
             {
                 return Convert.ToInt16(s);
             }
+            else if (type == "System.Boolean")
+            {
+                return Convert.ToBoolean(s);
+            }
             else if (type == "System.String")
             {
                 return s;
@@ -115,6 +119,7 @@ namespace Ict.Common.Remoting.Client
                           || o.GetType() == typeof(Int16)
                           || o.GetType() == typeof(Int32)
                           || o.GetType() == typeof(Int64)
+                          || o.GetType() == typeof(bool)
                           )));
             }
 
@@ -142,7 +147,7 @@ namespace Ict.Common.Remoting.Client
         {
             SortedList <string, string>Parameters = ConvertParameters(parameters);
 
-            string result = THTTPUtils.ReadWebsite(ServerURL + "/" + methodname, Parameters);
+            string result = THTTPUtils.ReadWebsite(ServerURL + "/" + methodname.Replace(".", "_"), Parameters);
 
             if (expectedReturnType == "void")
             {
