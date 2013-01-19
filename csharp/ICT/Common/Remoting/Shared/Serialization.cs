@@ -62,7 +62,7 @@ namespace Ict.Common.Remoting.Shared
             {
                 return "null";
             }
-            
+
             return SerializeObject(o, !(o.GetType() == typeof(string)
                                         || o.GetType() == typeof(Int16)
                                         || o.GetType() == typeof(Int32)
@@ -94,6 +94,7 @@ namespace Ict.Common.Remoting.Shared
             {
                 return null;
             }
+
             if (type == "System.Int64")
             {
                 return Convert.ToInt64(s);
