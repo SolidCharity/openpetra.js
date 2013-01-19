@@ -189,7 +189,7 @@ namespace Ict.Petra.Client.App.Core
                 DataTable TmpDT;
 
                 // Refresh the Cacheble DataTable on the Serverside and return it
-                TRemote.MPartner.Subscriptions.Cacheable.WebConnectors.RefreshCacheableTable(ACacheableTable, out TmpDT);
+                TmpDT = TRemote.MPartner.Subscriptions.Cacheable.WebConnectors.RefreshCacheableTableAndGet(ACacheableTable);
                 UCacheableTablesManager.AddOrRefreshCachedTable(TmpDT, -1);
 
                 // Update the cached DataTable file
@@ -225,7 +225,7 @@ namespace Ict.Petra.Client.App.Core
                 DataTable TmpDT;
 
                 // Refresh the Cacheble DataTable on the Serverside and return it
-                TRemote.MPartner.Mailing.Cacheable.WebConnectors.RefreshCacheableTable(ACacheableTable, out TmpDT);
+                TmpDT = TRemote.MPartner.Mailing.Cacheable.WebConnectors.RefreshCacheableTableAndGet(ACacheableTable);
                 UCacheableTablesManager.AddOrRefreshCachedTable(TmpDT, -1);
 
                 // Update the cached DataTable file
@@ -244,7 +244,7 @@ namespace Ict.Petra.Client.App.Core
                 DataTable TmpDT;
 
                 // Refresh the Cacheble DataTable on the Serverside and return it
-                TRemote.MPartner.Partner.Cacheable.WebConnectors.RefreshCacheableTable(ACacheableTable, out TmpDT);
+                TmpDT = TRemote.MPartner.Partner.Cacheable.WebConnectors.RefreshCacheableTableAndGet(ACacheableTable);
                 UCacheableTablesManager.AddOrRefreshCachedTable(TmpDT, -1);
 
                 // Update the cached DataTable file
@@ -376,7 +376,7 @@ namespace Ict.Petra.Client.App.Core
                 DataTable TmpDT;
 
                 // Refresh the Cacheble DataTable on the Serverside and return it
-                TRemote.MFinance.Cacheable.WebConnectors.RefreshCacheableTable(ACacheableTable, out TmpDT);
+                TmpDT = TRemote.MFinance.Cacheable.WebConnectors.RefreshCacheableTableAndGet(ACacheableTable);
                 UCacheableTablesManager.AddOrRefreshCachedTable(TmpDT, -1);
 
                 // Update the cached DataTable file
@@ -561,7 +561,7 @@ namespace Ict.Petra.Client.App.Core
                 DataTable TmpDT;
 
                 // Refresh the Cacheable DataTable on the Serverside and return it
-                TRemote.MSysMan.Cacheable.WebConnectors.RefreshCacheableTable(ACacheableTable, out TmpDT);
+                TmpDT = TRemote.MSysMan.Cacheable.WebConnectors.RefreshCacheableTableAndGet(ACacheableTable);
                 UCacheableTablesManager.AddOrRefreshCachedTable(TmpDT, -1);
 
                 // Update the cached DataTable file

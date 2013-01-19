@@ -40,3 +40,11 @@ public interface {#INTERFACENAME} : IInterface
     set;
 {#ENDIF SETTER}
 }
+
+{##DUMMYINTERFACE}
+/// <summary>needed to make the namespace valid</summary>
+public interface DummyInterface : IInterface
+{
+    /// dummy
+    int Dummy();
+}

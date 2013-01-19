@@ -52,61 +52,6 @@ namespace Ict.Common.Remoting.Client
             ServerURL = AServerURL;
         }
 
-        /// <summary>
-        /// serialize any object. if it is a complex type, use Base64
-        /// </summary>
-        static public string SerializeObject(object o, bool binary)
-        {
-            if (!binary)
-            {
-                return o.ToString();
-            }
-
-            MemoryStream memoryStream = new MemoryStream();
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            binaryFormatter.Serialize(memoryStream, o);
-            return Convert.ToBase64String(memoryStream.ToArray());
-        }
-
-        /// <summary>
-        /// reverse of SerializeObject
-        /// </summary>
-        static public object DeserializeObject(string s, string type)
-        {
-            if (type == "System.Int64")
-            {
-                return Convert.ToInt64(s);
-            }
-            else if (type == "System.Int32")
-            {
-                return Convert.ToInt32(s);
-            }
-            else if (type == "System.Int16")
-            {
-                return Convert.ToInt16(s);
-            }
-            else if (type == "System.Boolean")
-            {
-                return Convert.ToBoolean(s);
-            }
-            else if (type == "System.String")
-            {
-                return s;
-            }
-            else if (type == "binary")
-            {
-                MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(s));
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-                return binaryFormatter.Deserialize(memoryStream);
-            }
-            else
-            {
-                TLogging.Log("HttpConnector.DeserializeObject: unexpeced type: " + type);
-                return null;
-            }
-        }
-
         private static SortedList <string, string>ConvertParameters(SortedList <string, object>parameters)
         {
             SortedList <string, string>result = new SortedList <string, string>();
@@ -114,13 +59,7 @@ namespace Ict.Common.Remoting.Client
             foreach (string param in parameters.Keys)
             {
                 object o = parameters[param];
-                result.Add(param, SerializeObject(o,
-                        !(o.GetType() == typeof(string)
-                          || o.GetType() == typeof(Int16)
-                          || o.GetType() == typeof(Int32)
-                          || o.GetType() == typeof(Int64)
-                          || o.GetType() == typeof(bool)
-                          )));
+                result.Add(param, THttpBinarySerializer.SerializeObject(o));
             }
 
             return result;
@@ -166,12 +105,12 @@ namespace Ict.Common.Remoting.Client
                 foreach (string o in resultlist)
                 {
                     string[] typeAndVal = o.Split(new char[] { ':' });
-                    resultObjects.Add(DeserializeObject(typeAndVal[0], typeAndVal[1]));
+                    resultObjects.Add(THttpBinarySerializer.DeserializeObject(typeAndVal[0], typeAndVal[1]));
                 }
             }
             else
             {
-                resultObjects.Add(DeserializeObject(result, expectedReturnType));
+                resultObjects.Add(THttpBinarySerializer.DeserializeObject(result, expectedReturnType));
             }
 
             return resultObjects;
@@ -236,7 +175,7 @@ namespace Ict.Common.Remoting.Client
 
             result = TrimResult(result);
 
-            return Guid.Parse(DeserializeObject(result, "System.String").ToString());
+            return Guid.Parse(THttpBinarySerializer.DeserializeObject(result, "System.String").ToString());
         }
 
         /// <summary>

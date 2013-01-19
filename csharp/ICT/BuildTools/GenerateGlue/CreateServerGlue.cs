@@ -138,11 +138,18 @@ public class GenerateServerGlue
         {
             string parametertype = p.TypeReference.ToString();
 
-            parametertype = parametertype == "string" || parametertype == "String" ? "System.String" : parametertype;
-            parametertype = parametertype == "bool" || parametertype == "Boolean" ? "System.Boolean" : parametertype;
-            parametertype = parametertype.Contains("Int32") || parametertype == "int" ? "System.Int32" : parametertype;
-            parametertype = parametertype.Contains("Int16") || parametertype == "short" ? "System.Int16" : parametertype;
-            parametertype = parametertype.Contains("Int64") || parametertype == "long" ? "System.Int64" : parametertype;
+            // check if the parametertype is not a generic type, eg. dictionary or list
+            if (!parametertype.Contains("<"))
+            {
+                parametertype = parametertype == "string" || parametertype == "String" ? "System.String" : parametertype;
+                parametertype = parametertype == "bool" || parametertype == "Boolean" ? "System.Boolean" : parametertype;
+                parametertype = parametertype.Contains("Int32") || parametertype == "int" ? "System.Int32" : parametertype;
+                parametertype = parametertype.Contains("Int16") || parametertype == "short" ? "System.Int16" : parametertype;
+                parametertype = parametertype.Contains("Int64") || parametertype == "long" ? "System.Int64" : parametertype;
+            }
+
+            bool BinaryParameter = !((parametertype == "System.Int64") || (parametertype == "System.Int32") || (parametertype == "System.Int16")
+                                     || (parametertype == "System.String") || (parametertype == "System.Boolean"));
 
             if (ActualParameters.Length > 0)
             {
@@ -157,38 +164,50 @@ public class GenerateServerGlue
                     ParameterDefinition += ", ";
                 }
 
-                if (((parametertype == "System.Int64") || (parametertype == "System.Int32") || (parametertype == "System.Int16")
-                     || (parametertype == "System.String") || (parametertype == "System.Boolean")))
+                if (!BinaryParameter)
                 {
                     ParameterDefinition += parametertype + " " + p.ParameterName;
-                    ActualParameters += p.ParameterName;
                 }
                 else
                 {
                     ParameterDefinition += "string " + p.ParameterName;
-                    ActualParameters += "(" + parametertype + ")THttpConnector.DeserializeObject(" + p.ParameterName + ",\"binary\")";
                 }
             }
 
             if ((ParameterModifiers.Out & p.ParamModifier) != 0)
             {
                 snippet.AddToCodelet("LOCALVARIABLES", parametertype + " " + p.ParameterName + ";" + Environment.NewLine);
+                ActualParameters += "out " + p.ParameterName;
+            }
+            else if ((ParameterModifiers.Ref & p.ParamModifier) != 0)
+            {
+                if (BinaryParameter)
+                {
+                    snippet.AddToCodelet("LOCALVARIABLES", parametertype + " Local" + p.ParameterName + " = " +
+                        " (" + parametertype + ")THttpBinarySerializer.DeserializeObject(" + p.ParameterName + ",\"binary\");" +
+                        Environment.NewLine);
+                    ActualParameters += "ref Local" + p.ParameterName;
+                }
+                else
+                {
+                    ActualParameters += "ref " + p.ParameterName;
+                }
+            }
+            else
+            {
+                if (BinaryParameter)
+                {
+                    ActualParameters += "(" + parametertype + ")THttpBinarySerializer.DeserializeObject(" + p.ParameterName + ",\"binary\")";
+                }
+                else
+                {
+                    ActualParameters += p.ParameterName;
+                }
             }
 
             if (((ParameterModifiers.Ref & p.ParamModifier) > 0) || ((ParameterModifiers.Out & p.ParamModifier) > 0))
             {
-                returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpConnector.SerializeObject(" + p.ParameterName + ")";
-
-                if ((ParameterModifiers.Ref & p.ParamModifier) > 0)
-                {
-                    ActualParameters += "ref ";
-                }
-                else if ((ParameterModifiers.Out & p.ParamModifier) > 0)
-                {
-                    ActualParameters += "out ";
-                }
-
-                ActualParameters += p.ParameterName;
+                returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObject(" + p.ParameterName + ")";
             }
         }
 
@@ -198,16 +217,16 @@ public class GenerateServerGlue
         {
             if (returntype != "void")
             {
-                returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpConnector.SerializeObject(Result)";
+                returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObject(Result)";
             }
 
             returntype = "string";
         }
         else if (!((returntype == "System.Int64") || (returntype == "System.Int32") || (returntype == "System.Int16")
-                   || (returntype == "System.String") || (returntype == "System.Boolean")))
+                   || (returntype == "System.String") || (returntype == "System.Boolean")) && (returntype != "void"))
         {
             returntype = "string";
-            returnCode = "THttpConnector.SerializeObject(Result)";
+            returnCode = "THttpBinarySerializer.SerializeObject(Result)";
         }
 
         string localreturn = AutoGenerationTools.TypeToString(m.TypeReference, "");

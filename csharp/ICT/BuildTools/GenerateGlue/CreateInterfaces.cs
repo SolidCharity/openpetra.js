@@ -406,6 +406,11 @@ public class CreateInterfaces
         Template.SetCodelet("INTERFACES", string.Empty);
         WriteNamespaces(Template, tn, InterfaceNames, CSFiles);
 
+        if (Template.FCodelets["INTERFACES"].Length == 0)
+        {
+            Template.InsertSnippet("INTERFACES", Template.GetSnippet("DUMMYINTERFACE"));
+        }
+
         Template.FinishWriting(OutputFile, ".cs", true);
     }
 
