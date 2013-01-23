@@ -208,7 +208,10 @@ public class GenerateServerGlue
             if (((ParameterModifiers.Ref & p.ParamModifier) > 0) || ((ParameterModifiers.Out & p.ParamModifier) > 0))
             {
                 returnCode +=
-                    (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObjectWithType(" + p.ParameterName + ")";
+                    (returnCode.Length > 0 ? "+\",\"+" : string.Empty) +
+                    "THttpBinarySerializer.SerializeObjectWithType(" +
+                    (((ParameterModifiers.Ref & p.ParamModifier) > 0 && BinaryParameter) ? "Local" : string.Empty) +
+                    p.ParameterName + ")";
             }
         }
 

@@ -48,6 +48,7 @@ using Ict.Common.Verification;
 using Ict.Petra.Shared.MFinance.AP.Data;
 using Jayrock.Json;
 using Ict.Petra.Server.MPartner.Import;
+using Ict.Petra.Server.CallForwarding;
 using Ict.Petra.Shared;
 
 namespace Ict.Petra.Server.app.WebService
@@ -55,190 +56,193 @@ namespace Ict.Petra.Server.app.WebService
 /// <summary>
 /// this publishes the SOAP web services of OpenPetra.org
 /// </summary>
-[WebService(Namespace = "http://www.openpetra.org/webservices/SessionManager")]
-[ScriptService]
-public class TOpenPetraOrgSessionManager : System.Web.Services.WebService
-{
-    /// <summary>
-    /// static: only initialised once for the whole server
-    /// </summary>
-    static TServerManager TheServerManager = null;
-
-    /// <summary>
-    /// constructor, which is called for each http request
-    /// </summary>
-    public TOpenPetraOrgSessionManager() : base()
+    [WebService(Namespace = "http://www.openpetra.org/webservices/SessionManager")]
+    [ScriptService]
+    public class TOpenPetraOrgSessionManager : System.Web.Services.WebService
     {
-        if (TLogging.DebugLevel >= 4)
+        /// <summary>
+        /// static: only initialised once for the whole server
+        /// </summary>
+        static TServerManager TheServerManager = null;
+
+        /// <summary>
+        /// constructor, which is called for each http request
+        /// </summary>
+        public TOpenPetraOrgSessionManager() : base()
         {
-            TLogging.Log(HttpContext.Current.Request.PathInfo);
+            if (TLogging.DebugLevel >= 4)
+            {
+                TLogging.Log(HttpContext.Current.Request.PathInfo);
+            }
+
+            TOpenPetraOrgSessionManager.Init();
         }
 
-        TOpenPetraOrgSessionManager.Init();
-    }
-
-    /// <summary>
-    /// initialise the server once for everyone
-    /// </summary>
-    public static bool Init()
-    {
-        if (TheServerManager == null)
+        /// <summary>
+        /// initialise the server once for everyone
+        /// </summary>
+        public static bool Init()
         {
-            // make sure the correct config file is used
-            new TAppSettingsManager(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + "web.config");
-            new TSrvSetting();
-            new TLogging(TSrvSetting.ServerLogFile);
-            TLogging.DebugLevel = TAppSettingsManager.GetInt16("Server.DebugLevel", 0);
+            if (TheServerManager == null)
+            {
+                // make sure the correct config file is used
+                new TAppSettingsManager(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + "web.config");
+                new TSrvSetting();
+                new TLogging(TSrvSetting.ServerLogFile);
+                TLogging.DebugLevel = TAppSettingsManager.GetInt16("Server.DebugLevel", 0);
 
-            DBAccess.SetFunctionForRetrievingCurrentObjectFromWebSession(SetDatabaseForSession,
-                GetDatabaseFromSession);
+                DBAccess.SetFunctionForRetrievingCurrentObjectFromWebSession(SetDatabaseForSession,
+                    GetDatabaseFromSession);
 
-            UserInfo.SetFunctionForRetrievingCurrentObjectFromWebSession(SetUserInfoForSession,
-                GetUserInfoFromSession);
+                UserInfo.SetFunctionForRetrievingCurrentObjectFromWebSession(SetUserInfoForSession,
+                    GetUserInfoFromSession);
 
-            Catalog.Init();
+                Catalog.Init();
 
-            TheServerManager = new TServerManager();
+                TheServerManager = new TServerManager();
+                try
+                {
+                    TheServerManager.EstablishDBConnection();
+
+                    TSystemDefaultsCache.GSystemDefaultsCache = new TSystemDefaultsCache();
+                    DomainManager.GSiteKey = TSystemDefaultsCache.GSystemDefaultsCache.GetInt64Default(
+                        Ict.Petra.Shared.SharedConstants.SYSDEFAULT_SITEKEY);
+
+                    // initialise the cached tables
+                    new TCallForwarding();
+                }
+                catch (Exception e)
+                {
+                    TLogging.Log(e.Message);
+                    TLogging.Log(e.StackTrace);
+                    throw;
+                }
+
+                TLogging.Log("Server has been initialised");
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool LoginInternal(string username, string password)
+        {
+            Int32 ProcessID;
+            bool ASystemEnabled;
+
             try
             {
-                TheServerManager.EstablishDBConnection();
+                TClientManager.PerformLoginChecks(
+                    username.ToUpper(), password.Trim(), "WEB", "127.0.0.1", out ProcessID, out ASystemEnabled);
+                Session["LoggedIn"] = true;
 
-                TSystemDefaultsCache.GSystemDefaultsCache = new TSystemDefaultsCache();
-                DomainManager.GSiteKey = TSystemDefaultsCache.GSystemDefaultsCache.GetInt64Default(
-                    Ict.Petra.Shared.SharedConstants.SYSDEFAULT_SITEKEY);
+                DBAccess.GDBAccessObj.UserID = username.ToUpper();
+
+                TheServerManager.AddDBConnection(DBAccess.GDBAccessObj);
+
+                return true;
             }
             catch (Exception e)
             {
                 TLogging.Log(e.Message);
                 TLogging.Log(e.StackTrace);
-                throw;
+                Session["LoggedIn"] = false;
+                Ict.Common.DB.DBAccess.GDBAccessObj.RollbackTransaction();
+                DBAccess.GDBAccessObj.CloseDBConnection();
+                return false;
+            }
+        }
+
+        /// <summary>Login a user</summary>
+        [WebMethod(EnableSession = true)]
+        public bool Login(string username, string password)
+        {
+            bool loggedIn = LoginInternal(username, password);
+
+            return loggedIn;
+        }
+
+        static private TDataBase GetDatabaseFromSession()
+        {
+            if (HttpContext.Current.Session["DBAccessObj"] == null)
+            {
+                if (TheServerManager == null)
+                {
+                    TLogging.Log("GetDatabaseFromSession : TheServerManager is null");
+                }
+                else
+                {
+                    // disconnect web user after 2 minutes of inactivity. should disconnect itself already earlier
+                    TheServerManager.DisconnectTimedoutDatabaseConnections(2 * 60, "ANONYMOUS");
+
+                    // disconnect normal users after 3 hours of inactivity
+                    TheServerManager.DisconnectTimedoutDatabaseConnections(3 * 60 * 60, "");
+
+                    TheServerManager.EstablishDBConnection();
+                }
             }
 
-            TLogging.Log("Server has been initialised");
-
-            return true;
+            return (TDataBase)HttpContext.Current.Session["DBAccessObj"];
         }
 
-        return false;
-    }
-
-    private bool LoginInternal(string username, string password)
-    {
-        Int32 ProcessID;
-        bool ASystemEnabled;
-
-        try
+        static private void SetDatabaseForSession(TDataBase database)
         {
-            TClientManager.PerformLoginChecks(
-                username.ToUpper(), password.Trim(), "WEB", "127.0.0.1", out ProcessID, out ASystemEnabled);
-            Session["LoggedIn"] = true;
-
-            DBAccess.GDBAccessObj.UserID = username.ToUpper();
-
-            TheServerManager.AddDBConnection(DBAccess.GDBAccessObj);
-
-            return true;
+            HttpContext.Current.Session["DBAccessObj"] = database;
         }
-        catch (Exception e)
+
+        static private TPetraPrincipal GetUserInfoFromSession()
         {
-            TLogging.Log(e.Message);
-            TLogging.Log(e.StackTrace);
-            Session["LoggedIn"] = false;
-            Ict.Common.DB.DBAccess.GDBAccessObj.RollbackTransaction();
-            DBAccess.GDBAccessObj.CloseDBConnection();
+            return (TPetraPrincipal)HttpContext.Current.Session["UserInfo"];
+        }
+
+        static private void SetUserInfoForSession(TPetraPrincipal userinfo)
+        {
+            HttpContext.Current.Session["UserInfo"] = userinfo;
+        }
+
+        /// <summary>check if the user has logged in successfully</summary>
+        [WebMethod(EnableSession = true)]
+        public bool IsUserLoggedIn()
+        {
+            object loggedIn = Session["LoggedIn"];
+
+            if ((null != loggedIn) && ((bool)loggedIn == true))
+            {
+                return true;
+            }
+
             return false;
         }
-    }
 
-    /// <summary>Login a user</summary>
-    [WebMethod(EnableSession = true)]
-    public bool Login(string username, string password)
-    {
-        bool loggedIn = LoginInternal(username, password);
-
-        return loggedIn;
-    }
-
-    static private TDataBase GetDatabaseFromSession()
-    {
-        if (HttpContext.Current.Session["DBAccessObj"] == null)
+        /// <summary>log the user out</summary>
+        [WebMethod(EnableSession = true)]
+        public bool Logout()
         {
-            if (TheServerManager == null)
+            TLogging.Log("Logout from a session", TLoggingType.ToLogfile | TLoggingType.ToConsole);
+
+            if (DBAccess.GDBAccessObj != null)
             {
-                TLogging.Log("GetDatabaseFromSession : TheServerManager is null");
+                DBAccess.GDBAccessObj.CloseDBConnection();
             }
-            else
-            {
-                // disconnect web user after 2 minutes of inactivity. should disconnect itself already earlier
-                TheServerManager.DisconnectTimedoutDatabaseConnections(2 * 60, "ANONYMOUS");
 
-                // disconnect normal users after 3 hours of inactivity
-                TheServerManager.DisconnectTimedoutDatabaseConnections(3 * 60 * 60, "");
+            // Session Abandon causes problems in Mono 2.10.x see https://bugzilla.novell.com/show_bug.cgi?id=669807
+            // TODO Session.Abandon();
+            Session.Clear();
 
-                TheServerManager.EstablishDBConnection();
-            }
-        }
-
-        return (TDataBase)HttpContext.Current.Session["DBAccessObj"];
-    }
-
-    static private void SetDatabaseForSession(TDataBase database)
-    {
-        HttpContext.Current.Session["DBAccessObj"] = database;
-    }
-
-    static private TPetraPrincipal GetUserInfoFromSession()
-    {
-        return (TPetraPrincipal)HttpContext.Current.Session["UserInfo"];
-    }
-
-    static private void SetUserInfoForSession(TPetraPrincipal userinfo)
-    {
-        HttpContext.Current.Session["UserInfo"] = userinfo;
-    }
-
-    /// <summary>check if the user has logged in successfully</summary>
-    [WebMethod(EnableSession = true)]
-    public bool IsUserLoggedIn()
-    {
-        object loggedIn = Session["LoggedIn"];
-
-        if ((null != loggedIn) && ((bool)loggedIn == true))
-        {
             return true;
         }
 
-        return false;
-    }
-
-    /// <summary>log the user out</summary>
-    [WebMethod(EnableSession = true)]
-    public bool Logout()
-    {
-        TLogging.Log("Logout from a session", TLoggingType.ToLogfile | TLoggingType.ToConsole);
-
-        if (DBAccess.GDBAccessObj != null)
+        /// <summary>get user information</summary>
+        [WebMethod(EnableSession = true)]
+        public string GetUserInfo()
         {
-            DBAccess.GDBAccessObj.CloseDBConnection();
+            if (UserInfo.GUserInfo == null)
+            {
+                return THttpBinarySerializer.SerializeObject(false);
+            }
+
+            return THttpBinarySerializer.SerializeObject(UserInfo.GUserInfo, true);
         }
-
-        // Session Abandon causes problems in Mono 2.10.x see https://bugzilla.novell.com/show_bug.cgi?id=669807
-        // TODO Session.Abandon();
-        Session.Clear();
-
-        return true;
     }
-
-    /// <summary>get user information</summary>
-    [WebMethod(EnableSession = true)]
-    public string GetUserInfo()
-    {
-        if (UserInfo.GUserInfo == null)
-        {
-            return THttpBinarySerializer.SerializeObject(false);
-        }
-
-        return THttpBinarySerializer.SerializeObject(UserInfo.GUserInfo, true);
-    }
-}
 }

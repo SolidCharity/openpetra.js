@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -169,7 +169,6 @@ namespace Ict.Common.Verification
         /// Data Validation Run ID.
         /// </summary>
         protected System.Guid FDataValidationRunID;
-
 
         /// <summary>
         /// We need this constructor so that inherited Classes can get by not having a default constructor...
@@ -455,6 +454,7 @@ namespace Ict.Common.Verification
     /// verification in a Form or UserControl on the Client side.
     /// It is made to be stored in the TVerificationResultCollection.
     /// </summary>
+    [Serializable]
     public class TScreenVerificationResult : TVerificationResult, IResultInterface
     {
         /// <summary>
@@ -465,6 +465,7 @@ namespace Ict.Common.Verification
         /// <summary>
         /// specify the control that failed the verification
         /// </summary>
+        [NonSerializedAttribute()]
         private Control FResultControl;
 
         /// <summary>

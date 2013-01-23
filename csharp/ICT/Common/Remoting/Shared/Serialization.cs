@@ -51,7 +51,16 @@ namespace Ict.Common.Remoting.Shared
 
             MemoryStream memoryStream = new MemoryStream();
             BinaryFormatter binaryFormatter = new BinaryFormatter();
-            binaryFormatter.Serialize(memoryStream, o);
+            try
+            {
+                binaryFormatter.Serialize(memoryStream, o);
+            }
+            catch (Exception e)
+            {
+                TLogging.Log("cannot serialize object of type " + o.GetType().ToString());
+
+                TLogging.Log(e.ToString());
+            }
             return Convert.ToBase64String(memoryStream.ToArray());
         }
 
@@ -74,6 +83,11 @@ namespace Ict.Common.Remoting.Shared
         /// serialize any object. depending on the type of the object, it will serialized in binary format
         static public string SerializeObjectWithType(object o)
         {
+            if (o == null)
+            {
+                return "null:void";
+            }
+
             bool binary =
                 !(o.GetType() == typeof(string)
                   || o.GetType() == typeof(Int16)
