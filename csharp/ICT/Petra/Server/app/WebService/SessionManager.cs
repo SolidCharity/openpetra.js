@@ -50,14 +50,14 @@ using Jayrock.Json;
 using Ict.Petra.Server.MPartner.Import;
 using Ict.Petra.Shared;
 
-namespace OpenPetraWebService
+namespace Ict.Petra.Server.app.WebService
 {
 /// <summary>
 /// this publishes the SOAP web services of OpenPetra.org
 /// </summary>
 [WebService(Namespace = "http://www.openpetra.org/webservices/SessionManager")]
 [ScriptService]
-public class TOpenPetraOrgSessionManager : WebService
+public class TOpenPetraOrgSessionManager : System.Web.Services.WebService
 {
     /// <summary>
     /// static: only initialised once for the whole server
@@ -69,6 +69,11 @@ public class TOpenPetraOrgSessionManager : WebService
     /// </summary>
     public TOpenPetraOrgSessionManager() : base()
     {
+        if (TLogging.DebugLevel >= 4)
+        {
+            TLogging.Log(HttpContext.Current.Request.PathInfo);
+        }
+
         TOpenPetraOrgSessionManager.Init();
     }
 

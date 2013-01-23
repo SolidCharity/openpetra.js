@@ -24,14 +24,14 @@ using Ict.Petra.Shared;
 using Ict.Petra.Server.App.Core.Security;
 {#USINGNAMESPACES}
 
-namespace OpenPetraWebService
+namespace Ict.Petra.Server.app.WebService
 {
 /// <summary>
 /// this publishes the SOAP web services of OpenPetra.org for module {#TOPLEVELMODULE}
 /// </summary>
 [WebService(Namespace = "http://www.openpetra.org/webservices/M{#TOPLEVELMODULE}")]
 [ScriptService]
-public class TM{#TOPLEVELMODULE}WebService : WebService
+public class TM{#TOPLEVELMODULE}WebService : System.Web.Services.WebService
 {
     /// <summary>
     /// constructor, which is called for each http request

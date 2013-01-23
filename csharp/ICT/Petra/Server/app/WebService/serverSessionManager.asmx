@@ -1,1 +1,1 @@
-<%@ WebService Language="C#" Class="OpenPetraWebService.TOpenPetraOrgSessionManager" %>
+<%@ WebService Language="C#" Class="Ict.Petra.Server.app.WebService.TOpenPetraOrgSessionManager" %>

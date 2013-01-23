@@ -1,1 +1,1 @@
-<%@ WebService Language="C#" Class="OpenPetraWebService.TMReportingWebService" %>
+<%@ WebService Language="C#" Class="Ict.Petra.Server.app.WebService.TMReportingWebService" %>
