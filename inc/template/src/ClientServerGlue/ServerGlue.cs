@@ -22,6 +22,7 @@ using Ict.Common.Verification;
 using Ict.Common.Remoting.Shared;
 using Ict.Petra.Shared;
 using Ict.Petra.Server.App.Core.Security;
+using Ict.Petra.Server.App.Core;
 {#USINGNAMESPACES}
 
 namespace Ict.Petra.Server.app.WebService
@@ -46,11 +47,11 @@ public class TM{#TOPLEVELMODULE}WebService : System.Web.Services.WebService
     /// disconnect an UIConnector object
     public void DisconnectUIConnector(string UIConnectorObjectID)
     {
-        string ObjectID = UIConnectorObjectID + " " + GClientID.ClientID;
+        string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
 
         if (FUIConnectors.ContainsKey(ObjectID))
         {
-            FUIConnectors[ObjectID].Dispose();
+            // FUIConnectors[ObjectID].Dispose();
             FUIConnectors.Remove(ObjectID);
         }
     }
@@ -90,8 +91,8 @@ public System.String Create_{#UNIQUEMETHODNAME}({#PARAMETERDEFINITION})
 {
     {#CHECKUSERMODULEPERMISSIONS}
     
-    System.Guid ObjectID = new Guid();
-    FUIConnectors.Add(ObjectID.ToString() + " " + GClientID.ClientID, new {#UICONNECTORCLASS}({#ACTUALPARAMETERS}));
+    System.Guid ObjectID = Guid.NewGuid();
+    FUIConnectors.Add(ObjectID.ToString() + " " + DomainManager.GClientID, new {#UICONNECTORCLASS}({#ACTUALPARAMETERS}));
     
     return ObjectID.ToString();
 }
@@ -101,11 +102,11 @@ public System.String Create_{#UNIQUEMETHODNAME}({#PARAMETERDEFINITION})
 [WebMethod(EnableSession = true)]
 public {#RETURNTYPE} {#UICONNECTORCLASS}_{#UNIQUEMETHODNAME}(string UIConnectorObjectID{#PARAMETERDEFINITION})
 {
-    string ObjectID = UIConnectorObjectID + " " + GClientID.ClientID;
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
 
     if (!FUIConnectors.ContainsKey(ObjectID))
     {
-        TLogging.Log("Trying to call {#UICONNECTORCLASS}_{#METHODNAME}, but the object with this ObjectID does not exist");
+        TLogging.Log("Trying to call {#UICONNECTORCLASS}_{#METHODNAME}, but the object with this ObjectID " + ObjectID + " does not exist");
         throw new Exception("this object does not exist anymore!");
     }
 
