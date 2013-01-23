@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -883,16 +883,15 @@ namespace Ict.Petra.Shared
                 WriteLockTakenOut = true;
                 TLogging.LogAtLevel(10, "TCacheableTablesManager.AddCachedTableInternal grabbed a WriterLock.");
 
+                if (ACacheableTable.DataSet != null)
+                {
+                    // TODORemoting: should we solve this problem in a better way?
+                    // TLogging.Log("TCacheableTablesManager: warning: table " + ACacheableTable.TableName + " already belongs to " + ACacheableTable.DataSet.DataSetName);
+                    ACacheableTable = ACacheableTable.Copy();
+                }
+
                 // add the passed in DataTable to the Cache DataSet
-                try
-                {
-                    UDataCacheDataSet.Tables.Add((DataTable)ACacheableTable);
-                }
-                catch (System.InvalidCastException)
-                {
-                    // problem with Mono: https://bugzilla.novell.com/show_bug.cgi?id=521951 Cannot cast from source type to destination type
-                    // it happens after the table has been added, so should not cause any problems
-                }
+                UDataCacheDataSet.Tables.Add(ACacheableTable);
 
                 UDataCacheDataSet.Tables[ACacheableTable.TableName].TableName = ACacheableTableName;
 
