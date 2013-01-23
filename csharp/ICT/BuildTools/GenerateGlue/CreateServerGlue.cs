@@ -123,9 +123,12 @@ public class GenerateServerGlue
         return new ProcessTemplate();
     }
 
-    private static void PrepareParametersForMethod(ProcessTemplate snippet,
+    private static void PrepareParametersForMethod(
+        ProcessTemplate snippet,
         TypeReference AReturnType,
-        List <ParameterDeclarationExpression>AParameters)
+        List <ParameterDeclarationExpression>AParameters,
+        string AMethodName,
+        ref List <string>AMethodNames)
     {
         string ParameterDefinition = string.Empty;
         string ActualParameters = string.Empty;
@@ -262,6 +265,20 @@ public class GenerateServerGlue
 
         snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
         snippet.SetCodelet("ACTUALPARAMETERS", ActualParameters);
+
+        // avoid duplicate names for webservice methods
+        string methodname = AMethodName;
+        int methodcounter = 1;
+
+        while (AMethodNames.Contains(methodname))
+        {
+            methodcounter++;
+            methodname = AMethodName + methodcounter.ToString();
+        }
+
+        AMethodNames.Add(methodname);
+
+        snippet.SetCodelet("UNIQUEMETHODNAME", methodname);
     }
 
     /// <summary>
@@ -272,21 +289,8 @@ public class GenerateServerGlue
         MethodDeclaration m,
         ref List <string>AMethodNames)
     {
-        PrepareParametersForMethod(snippet, m.TypeReference, m.Parameters);
+        PrepareParametersForMethod(snippet, m.TypeReference, m.Parameters, m.Name, ref AMethodNames);
 
-        // avoid duplicate names for webservice methods
-        string methodname = m.Name;
-        int methodcounter = 1;
-
-        while (AMethodNames.Contains(methodname))
-        {
-            methodcounter++;
-            methodname = m.Name + methodcounter.ToString();
-        }
-
-        AMethodNames.Add(methodname);
-
-        snippet.SetCodelet("UNIQUEMETHODNAME", methodname);
         snippet.SetCodelet("METHODNAME", m.Name);
         snippet.SetCodelet("WEBCONNECTORCLASS", connectorClass.Name);
         snippet.InsertSnippet("CHECKUSERMODULEPERMISSIONS",
@@ -324,7 +328,7 @@ public class GenerateServerGlue
 
     static private void WriteUIConnector(string connectorname, TypeDeclaration connectorClass, ProcessTemplate Template)
     {
-        int constructorCounter = 0;
+        List <string>MethodNames = new List <string>();
 
         foreach (ConstructorDeclaration m in CSParser.GetConstructors(connectorClass))
         {
@@ -340,20 +344,41 @@ public class GenerateServerGlue
                 FUsingNamespaces.Add(connectorNamespaceName, connectorNamespaceName);
             }
 
-            constructorCounter++;
+            ProcessTemplate snippet = Template.GetSnippet("UICONNECTORCONSTRUCTOR");
 
-            ProcessTemplate snippet = Template.GetSnippet("UICONNECTOR");
-
-            snippet.SetCodelet("CREATEMETHODNAME", connectorClass.Name + ((constructorCounter > 1) ? constructorCounter.ToString() : string.Empty));
             snippet.SetCodelet("UICONNECTORCLASS", connectorClass.Name);
             snippet.SetCodelet("CHECKUSERMODULEPERMISSIONS", "// TODO CHECKUSERMODULEPERMISSIONS");
 
-            PrepareParametersForMethod(snippet, null, m.Parameters);
+            PrepareParametersForMethod(snippet, null, m.Parameters, m.Name, ref MethodNames);
 
             Template.InsertSnippet("UICONNECTORS", snippet);
         }
 
-        // TODO Methods and Properties
+        // foreach public method create a method
+        foreach (MethodDeclaration m in CSParser.GetMethods(connectorClass))
+        {
+            if (TCollectConnectorInterfaces.IgnoreMethod(m.Attributes, m.Modifier))
+            {
+                continue;
+            }
+
+            ProcessTemplate snippet = Template.GetSnippet("UICONNECTORMETHOD");
+
+            snippet.SetCodelet("METHODNAME", m.Name);
+            snippet.SetCodelet("UICONNECTORCLASS", connectorClass.Name);
+            snippet.SetCodelet("CHECKUSERMODULEPERMISSIONS", "// TODO CHECKUSERMODULEPERMISSIONS");
+
+            PrepareParametersForMethod(snippet, m.TypeReference, m.Parameters, m.Name, ref MethodNames);
+
+            if (snippet.FCodelets["PARAMETERDEFINITION"].Length > 0)
+            {
+                snippet.AddToCodeletPrepend("PARAMETERDEFINITION", ", ");
+            }
+
+            Template.InsertSnippet("UICONNECTORS", snippet);
+        }
+
+        // TODO Properties???
     }
 
     static private void CreateServerGlue(TNamespace tn, SortedList <string, TypeDeclaration>connectors, string AOutputPath)

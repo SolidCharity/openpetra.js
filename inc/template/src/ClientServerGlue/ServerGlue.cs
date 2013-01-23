@@ -83,10 +83,10 @@ public {#RETURNTYPE} {#WEBCONNECTORCLASS}_{#UNIQUEMETHODNAME}({#PARAMETERDEFINIT
 {##CHECKUSERMODULEPERMISSIONS}
 TModuleAccessManager.CheckUserPermissionsForMethod(typeof({#CONNECTORWITHNAMESPACE}), "{#METHODNAME}", "{#PARAMETERTYPES}"{#LEDGERNUMBER});
 
-{##UICONNECTOR}
+{##UICONNECTORCONSTRUCTOR}
 /// create a new UIConnector
 [WebMethod(EnableSession = true)]
-public System.String Create_{#CREATEMETHODNAME}({#PARAMETERDEFINITION})
+public System.String Create_{#UNIQUEMETHODNAME}({#PARAMETERDEFINITION})
 {
     {#CHECKUSERMODULEPERMISSIONS}
     
@@ -94,4 +94,30 @@ public System.String Create_{#CREATEMETHODNAME}({#PARAMETERDEFINITION})
     FUIConnectors.Add(ObjectID.ToString() + " " + GClientID.ClientID, new {#UICONNECTORCLASS}({#ACTUALPARAMETERS}));
     
     return ObjectID.ToString();
+}
+
+{##UICONNECTORMETHOD}
+/// access a UIConnector method
+[WebMethod(EnableSession = true)]
+public {#RETURNTYPE} {#UICONNECTORCLASS}_{#UNIQUEMETHODNAME}(string UIConnectorObjectID{#PARAMETERDEFINITION})
+{
+    string ObjectID = UIConnectorObjectID + " " + GClientID.ClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call {#UICONNECTORCLASS}_{#METHODNAME}, but the object with this ObjectID does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        {#LOCALVARIABLES}
+        {#LOCALRETURN}(({#UICONNECTORCLASS})FUIConnectors[ObjectID]).{#METHODNAME}({#ACTUALPARAMETERS});
+        {#RETURN}
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
 }
