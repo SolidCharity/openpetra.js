@@ -217,12 +217,12 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// disconnect an object from the server, freeing up memory on the server
         /// </summary>
-        public static void Disconnect(Guid ObjectID)
+        public static void DisconnectUIConnector(string AModuleName, Guid ObjectID)
         {
             SortedList <string, object>Parameters = new SortedList <string, object>();
-            Parameters.Add("UIConnectorObjectID", ObjectID);
+            Parameters.Add("UIConnectorObjectID", ObjectID.ToString());
 
-            CallWebConnector("SessionManager", "DisconnectUIConnector", Parameters, "void");
+            CallWebConnector(AModuleName, "DisconnectUIConnector", Parameters, "void");
         }
     }
 }

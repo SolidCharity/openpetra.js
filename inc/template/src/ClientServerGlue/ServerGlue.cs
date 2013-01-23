@@ -43,6 +43,18 @@ public class TM{#TOPLEVELMODULE}WebService : System.Web.Services.WebService
         TOpenPetraOrgSessionManager.Init();
     }
 
+    /// disconnect an UIConnector object
+    public void DisconnectUIConnector(string UIConnectorObjectID)
+    {
+        string ObjectID = UIConnectorObjectID + " " + GClientID.ClientID;
+
+        if (FUIConnectors.ContainsKey(ObjectID))
+        {
+            FUIConnectors[ObjectID].Dispose();
+            FUIConnectors.Remove(ObjectID);
+        }
+    }
+
     {#WEBCONNECTORS}
 
     {#UICONNECTORS}

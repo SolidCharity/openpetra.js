@@ -51,7 +51,7 @@ namespace Ict.Common.Remoting.Client
         /// dispose the object on the server as well
         public void Dispose()
         {
-            THttpConnector.Disconnect(FObjectID);
+            THttpConnector.DisconnectUIConnector("SessionManager", FObjectID);
         }
 
         /// <summary>
