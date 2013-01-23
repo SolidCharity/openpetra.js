@@ -123,10 +123,9 @@ public class GenerateServerGlue
         return new ProcessTemplate();
     }
 
-    /// <summary>
-    /// insert a method call
-    /// </summary>
-    private static void InsertMethodCall(ProcessTemplate snippet, TypeDeclaration connectorClass, MethodDeclaration m, ref List <string>AMethodNames)
+    private static void PrepareParametersForMethod(ProcessTemplate snippet,
+        TypeReference AReturnType,
+        List <ParameterDeclarationExpression>AParameters)
     {
         string ParameterDefinition = string.Empty;
         string ActualParameters = string.Empty;
@@ -134,7 +133,7 @@ public class GenerateServerGlue
         snippet.SetCodelet("LOCALVARIABLES", string.Empty);
         string returnCode = string.Empty;
 
-        foreach (ParameterDeclarationExpression p in m.Parameters)
+        foreach (ParameterDeclarationExpression p in AParameters)
         {
             string parametertype = p.TypeReference.ToString();
 
@@ -215,45 +214,65 @@ public class GenerateServerGlue
             }
         }
 
-        string returntype = AutoGenerationTools.TypeToString(m.TypeReference, "");
-
-        if (returnCode.Length > 0)
+        if (AReturnType != null)
         {
-            if (returntype != "void")
+            string returntype = AutoGenerationTools.TypeToString(AReturnType, "");
+
+            if (returnCode.Length > 0)
             {
-                returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObjectWithType(Result)";
+                if (returntype != "void")
+                {
+                    returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObjectWithType(Result)";
+                }
+
+                returntype = "string";
+            }
+            else if (!((returntype == "System.Int64") || (returntype == "System.Int32") || (returntype == "System.Int16")
+                       || (returntype == "System.String") || (returntype == "System.Boolean")) && (returntype != "void"))
+            {
+                returntype = "string";
+                returnCode = "THttpBinarySerializer.SerializeObject(Result)";
             }
 
-            returntype = "string";
-        }
-        else if (!((returntype == "System.Int64") || (returntype == "System.Int32") || (returntype == "System.Int16")
-                   || (returntype == "System.String") || (returntype == "System.Boolean")) && (returntype != "void"))
-        {
-            returntype = "string";
-            returnCode = "THttpBinarySerializer.SerializeObject(Result)";
+            string localreturn = AutoGenerationTools.TypeToString(AReturnType, "");
+
+            if (localreturn == "void")
+            {
+                localreturn = string.Empty;
+            }
+            else if (returnCode.Length > 0)
+            {
+                localreturn += " Result = ";
+            }
+            else
+            {
+                localreturn = "return ";
+            }
+
+            snippet.SetCodelet("RETURN", string.Empty);
+
+            if (returnCode.Length > 0)
+            {
+                snippet.SetCodelet("RETURN", returntype != "void" ? "return " + returnCode + ";" : string.Empty);
+            }
+
+            snippet.SetCodelet("RETURNTYPE", returntype);
+            snippet.SetCodelet("LOCALRETURN", localreturn);
         }
 
-        string localreturn = AutoGenerationTools.TypeToString(m.TypeReference, "");
+        snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
+        snippet.SetCodelet("ACTUALPARAMETERS", ActualParameters);
+    }
 
-        if (localreturn == "void")
-        {
-            localreturn = string.Empty;
-        }
-        else if (returnCode.Length > 0)
-        {
-            localreturn += " Result = ";
-        }
-        else
-        {
-            localreturn = "return ";
-        }
-
-        snippet.SetCodelet("RETURN", string.Empty);
-
-        if (returnCode.Length > 0)
-        {
-            snippet.SetCodelet("RETURN", returntype != "void" ? "return " + returnCode + ";" : string.Empty);
-        }
+    /// <summary>
+    /// insert a method call
+    /// </summary>
+    private static void InsertWebConnectorMethodCall(ProcessTemplate snippet,
+        TypeDeclaration connectorClass,
+        MethodDeclaration m,
+        ref List <string>AMethodNames)
+    {
+        PrepareParametersForMethod(snippet, m.TypeReference, m.Parameters);
 
         // avoid duplicate names for webservice methods
         string methodname = m.Name;
@@ -269,11 +288,7 @@ public class GenerateServerGlue
 
         snippet.SetCodelet("UNIQUEMETHODNAME", methodname);
         snippet.SetCodelet("METHODNAME", m.Name);
-        snippet.SetCodelet("PARAMETERDEFINITION", ParameterDefinition);
-        snippet.SetCodelet("RETURNTYPE", returntype);
-        snippet.SetCodelet("LOCALRETURN", localreturn);
         snippet.SetCodelet("WEBCONNECTORCLASS", connectorClass.Name);
-        snippet.SetCodelet("ACTUALPARAMETERS", ActualParameters);
         snippet.InsertSnippet("CHECKUSERMODULEPERMISSIONS",
             CreateModuleAccessPermissionCheck(
                 snippet,
@@ -301,10 +316,44 @@ public class GenerateServerGlue
 
             ProcessTemplate snippet = Template.GetSnippet("WEBCONNECTOR");
 
-            InsertMethodCall(snippet, connectorClass, m, ref MethodNames);
+            InsertWebConnectorMethodCall(snippet, connectorClass, m, ref MethodNames);
 
             Template.InsertSnippet("WEBCONNECTORS", snippet);
         }
+    }
+
+    static private void WriteUIConnector(string connectorname, TypeDeclaration connectorClass, ProcessTemplate Template)
+    {
+        int constructorCounter = 0;
+
+        foreach (ConstructorDeclaration m in CSParser.GetConstructors(connectorClass))
+        {
+            if (TCollectConnectorInterfaces.IgnoreMethod(m.Attributes, m.Modifier))
+            {
+                continue;
+            }
+
+            string connectorNamespaceName = ((NamespaceDeclaration)connectorClass.Parent).Name;
+
+            if (!FUsingNamespaces.ContainsKey(connectorNamespaceName))
+            {
+                FUsingNamespaces.Add(connectorNamespaceName, connectorNamespaceName);
+            }
+
+            constructorCounter++;
+
+            ProcessTemplate snippet = Template.GetSnippet("UICONNECTOR");
+
+            snippet.SetCodelet("CREATEMETHODNAME", connectorClass.Name + ((constructorCounter > 1) ? constructorCounter.ToString() : string.Empty));
+            snippet.SetCodelet("UICONNECTORCLASS", connectorClass.Name);
+            snippet.SetCodelet("CHECKUSERMODULEPERMISSIONS", "// TODO CHECKUSERMODULEPERMISSIONS");
+
+            PrepareParametersForMethod(snippet, null, m.Parameters);
+
+            Template.InsertSnippet("UICONNECTORS", snippet);
+        }
+
+        // TODO Methods and Properties
     }
 
     static private void CreateServerGlue(TNamespace tn, SortedList <string, TypeDeclaration>connectors, string AOutputPath)
@@ -323,6 +372,7 @@ public class GenerateServerGlue
 
         Template.SetCodelet("TOPLEVELMODULE", tn.Name);
         Template.SetCodelet("WEBCONNECTORS", string.Empty);
+        Template.SetCodelet("UICONNECTORS", string.Empty);
 
         string InterfacePath = Path.GetFullPath(AOutputPath).Replace(Path.DirectorySeparatorChar, '/');
         InterfacePath = InterfacePath.Substring(0, InterfacePath.IndexOf("csharp/ICT/Petra")) + "csharp/ICT/Petra/Shared/lib/Interfaces";
@@ -334,7 +384,7 @@ public class GenerateServerGlue
         {
             if (connector.Contains(":"))
             {
-                // TODO UIConnector
+                WriteUIConnector(connector, connectors[connector], Template);
             }
             else
             {

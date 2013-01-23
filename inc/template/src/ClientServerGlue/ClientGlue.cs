@@ -106,7 +106,7 @@ public {#UICONNECTORCLASSNAME}({#PARAMETERDEFINITION})
 {
     SortedList<string, object> ActualParameters = new SortedList<string, object>();
     {#ADDACTUALPARAMETERS}
-    FObjectID = THttpConnector.CreateUIConnector("M{#TOPLEVELMODULE}", "{#UICONNECTORCLASSNAME}", ActualParameters);
+    FObjectID = THttpConnector.CreateUIConnector("M{#TOPLEVELMODULE}", "{#METHODNAME}", ActualParameters);
 }
 
 {##UICONNECTORMETHOD}

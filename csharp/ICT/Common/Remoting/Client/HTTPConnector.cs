@@ -190,7 +190,7 @@ namespace Ict.Common.Remoting.Client
             SortedList <string, string>Parameters =
                 ConvertParameters(parameters);
 
-            string result = THTTPUtils.ReadWebsite(ServerURL + "/server" + AModuleName + ".asmx/" + classname, Parameters);
+            string result = THTTPUtils.ReadWebsite(ServerURL + "/server" + AModuleName + ".asmx/Create_" + classname, Parameters);
 
             result = TrimResult(result);
 

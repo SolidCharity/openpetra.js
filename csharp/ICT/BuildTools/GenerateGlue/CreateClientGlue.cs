@@ -44,6 +44,7 @@ namespace GenerateGlue
 public class GenerateClientGlue
 {
     static private string FTemplateDir = string.Empty;
+    static private bool FCompileForStandalone = false;
     static SortedList <string, string>FUsingNamespaces = null;
     static bool FModuleHasUIConnector = false;
     static List <string>FUIConnectorsAdded = null;
@@ -161,7 +162,7 @@ public class GenerateClientGlue
 
                 ProcessTemplate snippet;
 
-                if (TAppSettingsManager.GetValue("compileForStandalone", "no", false) == "yes")
+                if (FCompileForStandalone)
                 {
                     if (!FUsingNamespaces.ContainsKey(ConnectorNamespace))
                     {
@@ -254,12 +255,16 @@ public class GenerateClientGlue
         snippet.SetCodelet("UICONNECTORCLASSNAME", connectorClass.Name);
         snippet.SetCodelet("CONSTRUCTORS", string.Empty);
 
+        int constructorCounter = 0;
+
         foreach (ConstructorDeclaration m in CSParser.GetConstructors(connectorClass))
         {
             if (TCollectConnectorInterfaces.IgnoreMethod(m.Attributes, m.Modifier))
             {
                 continue;
             }
+
+            constructorCounter++;
 
             ProcessTemplate snippetConstructor = ATemplate.GetSnippet("UICONNECTORCONSTRUCTOR");
 
@@ -284,6 +289,15 @@ public class GenerateClientGlue
                     "ActualParameters.Add(\"" + p.ParameterName + "\", " +
                     p.ParameterName + ");" + Environment.NewLine);
             }
+
+            string methodname = m.Name;
+
+            if (constructorCounter > 1)
+            {
+                methodname += constructorCounter.ToString();
+            }
+
+            snippetConstructor.SetCodelet("METHODNAME", methodname);
 
             snippet.InsertSnippet("CONSTRUCTORS", snippetConstructor);
         }
@@ -318,7 +332,7 @@ public class GenerateClientGlue
 
                 FModuleHasUIConnector = true;
 
-                if (TAppSettingsManager.GetValue("compileForStandalone", "no", false) == "yes")
+                if (FCompileForStandalone)
                 {
                     if (!FUsingNamespaces.ContainsKey(ConnectorNamespace))
                     {
@@ -353,7 +367,7 @@ public class GenerateClientGlue
 
                 snippet.SetCodelet("UICONNECTORCLASS", string.Empty);
 
-                if (TAppSettingsManager.GetValue("compileForStandalone", "no", false) != "yes")
+                if (!FCompileForStandalone)
                 {
                     if (!FUIConnectorsAdded.Contains(connectorClass.Name))
                     {
@@ -464,7 +478,7 @@ public class GenerateClientGlue
         Template.SetCodelet("GPLFILEHEADER", ProcessTemplate.LoadEmptyFileComment(FTemplateDir));
         Template.SetCodelet("USINGNAMESPACES", string.Empty);
 
-        if (TAppSettingsManager.GetValue("compileForStandalone", "no", false) == "yes")
+        if (FCompileForStandalone)
         {
             Template.AddToCodelet("USINGNAMESPACES", "using Ict.Common.Remoting.Server;" + Environment.NewLine);
             Template.AddToCodelet("USINGNAMESPACES", "using Ict.Petra.Server.App.Core;" + Environment.NewLine);
@@ -485,6 +499,7 @@ public class GenerateClientGlue
     static public void GenerateCode(TNamespace ANamespaces, String AOutputPath, String ATemplateDir)
     {
         FTemplateDir = ATemplateDir;
+        FCompileForStandalone = TAppSettingsManager.GetValue("compileForStandalone", "no", false) == "yes";
 
         foreach (TNamespace tn in ANamespaces.Children.Values)
         {

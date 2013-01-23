@@ -33,6 +33,8 @@ namespace Ict.Petra.Server.app.WebService
 [ScriptService]
 public class TM{#TOPLEVELMODULE}WebService : System.Web.Services.WebService
 {
+    private static SortedList<string, object> FUIConnectors = new SortedList<string, object>();
+
     /// <summary>
     /// constructor, which is called for each http request
     /// </summary>
@@ -42,6 +44,8 @@ public class TM{#TOPLEVELMODULE}WebService : System.Web.Services.WebService
     }
 
     {#WEBCONNECTORS}
+
+    {#UICONNECTORS}
 }
 }
 
@@ -66,3 +70,16 @@ public {#RETURNTYPE} {#WEBCONNECTORCLASS}_{#UNIQUEMETHODNAME}({#PARAMETERDEFINIT
 
 {##CHECKUSERMODULEPERMISSIONS}
 TModuleAccessManager.CheckUserPermissionsForMethod(typeof({#CONNECTORWITHNAMESPACE}), "{#METHODNAME}", "{#PARAMETERTYPES}"{#LEDGERNUMBER});
+
+{##UICONNECTOR}
+/// create a new UIConnector
+[WebMethod(EnableSession = true)]
+public System.String Create_{#CREATEMETHODNAME}({#PARAMETERDEFINITION})
+{
+    {#CHECKUSERMODULEPERMISSIONS}
+    
+    System.Guid ObjectID = new Guid();
+    FUIConnectors.Add(ObjectID.ToString() + " " + GClientID.ClientID, new {#UICONNECTORCLASS}({#ACTUALPARAMETERS}));
+    
+    return ObjectID.ToString();
+}
