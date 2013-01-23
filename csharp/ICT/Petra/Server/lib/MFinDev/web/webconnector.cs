@@ -23,7 +23,7 @@
 //
 using System;
 using Ict.Petra.Server.App.Core.Security;
-    
+
 namespace Ict.Petra.Server.MFinDev.WebConnectors
 {
     /// <summary>
