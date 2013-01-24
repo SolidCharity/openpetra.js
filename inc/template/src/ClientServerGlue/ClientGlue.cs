@@ -56,7 +56,7 @@ public {#RETURNTYPE} {#METHODNAME}({#PARAMETERDEFINITION})
 {
     SortedList<string, object> ActualParameters = new SortedList<string, object>();
     {#ADDACTUALPARAMETERS}
-    List<object> Result = THttpConnector.CallWebConnector("M{#TOPLEVELMODULE}", "{#WEBCONNECTORCLASS}.{#UNIQUEMETHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
+    {#RESULT}THttpConnector.CallWebConnector("M{#TOPLEVELMODULE}", "{#WEBCONNECTORCLASS}.{#UNIQUEMETHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
     {#ASSIGNRESULTANDRETURN}
 }
 
@@ -115,7 +115,7 @@ public {#RETURNTYPE} {#METHODNAME}({#PARAMETERDEFINITION})
 {
     SortedList<string, object> ActualParameters = new SortedList<string, object>();
     {#ADDACTUALPARAMETERS}
-    List<object> Result = THttpConnector.CallUIConnectorMethod(FObjectID, "M{#TOPLEVELMODULE}", "{#UICONNECTORCLASSNAME}", "{#UNIQUEMETHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
+    {#RESULT}THttpConnector.CallUIConnectorMethod(FObjectID, "M{#TOPLEVELMODULE}", "{#UICONNECTORCLASSNAME}", "{#UNIQUEMETHODNAME}", ActualParameters, "{#EXPECTEDRETURNTYPE}");
     {#ASSIGNRESULTANDRETURN}
 }
 

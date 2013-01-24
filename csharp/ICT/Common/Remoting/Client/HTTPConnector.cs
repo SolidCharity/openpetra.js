@@ -98,15 +98,15 @@ namespace Ict.Common.Remoting.Client
 
             string result = THTTPUtils.PostRequest(ServerURL + "/server" + AModuleName + ".asmx/" + methodname.Replace(".", "_"), Parameters);
 
+            if (expectedReturnType == "void")
+            {
+                // did we get a positive response at all? yes, otherwise we would have gotten an exception
+                return null;
+            }
+
             if ((result == null) || (result.Length == 0))
             {
                 throw new Exception("invalid response from the server");
-            }
-
-            if (expectedReturnType == "void")
-            {
-                // TODO check if we got a positive response at all
-                return null;
             }
 
             result = TrimResult(result);

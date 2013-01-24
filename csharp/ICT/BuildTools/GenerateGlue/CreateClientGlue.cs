@@ -67,7 +67,7 @@ public class GenerateClientGlue
             expectedreturntype = "list";
         }
         else if ((returntype == "System.Int64") || (returntype == "System.Int32") || (returntype == "System.Int16")
-                 || (returntype == "System.String") || (returntype == "System.Boolean"))
+                 || (returntype == "System.String") || (returntype == "System.Boolean") || (returntype == "void"))
         {
             expectedreturntype = returntype;
         }
@@ -147,6 +147,12 @@ public class GenerateClientGlue
         string expectedreturntype = GetExpectedReturnType(ResultCounter, returntype);
 
         snippet.SetCodelet("EXPECTEDRETURNTYPE", expectedreturntype);
+        snippet.SetCodelet("RESULT", string.Empty);
+
+        if ((returntype != "void") || (ResultCounter > 0))
+        {
+            snippet.SetCodelet("RESULT", "List<object> Result = ");
+        }
 
         if (returntype != "void")
         {
@@ -220,7 +226,7 @@ public class GenerateClientGlue
             template.InsertSnippet("METHODSANDPROPERTIES", methodSnippet);
         }
 
-        // foreach public method create a method
+        // foreach public property create a method
         foreach (PropertyDeclaration p in CSParser.GetProperties(t))
         {
             if (TCollectConnectorInterfaces.IgnoreMethod(p.Attributes, p.Modifier))
