@@ -252,13 +252,13 @@ public class GenerateClientGlue
                         "GETTER",
                         "return new T" + type.Substring(
                             1) +
-                        "(THttpConnector.GetDependantUIConnector(FObjectID, \"M{#TOPLEVELMODULE}\", \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\"));");
+                        "(\"M{#TOPLEVELMODULE}\", Guid.Parse(THttpConnector.ReadUIConnectorProperty(FObjectID, \"M{#TOPLEVELMODULE}\", \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\", \"string\").ToString()));");
                 }
                 else
                 {
                     propertySnippet.SetCodelet(
                         "GETTER",
-                        "return ({#TYPE}) THttpConnector.ReadUIConnectorProperty(FObjectID, \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\", \"{#EXPECTEDRETURNTYPE}\");");
+                        "return ({#TYPE}) THttpConnector.ReadUIConnectorProperty(FObjectID, \"M{#TOPLEVELMODULE}\", \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\", \"{#EXPECTEDRETURNTYPE}\");");
                 }
             }
 

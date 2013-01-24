@@ -38,7 +38,6 @@ namespace Ict.Common.Remoting.Shared
         String ProgressInformation
         {
             get;
-            set;
         }
 
         /// <summary>
@@ -47,7 +46,6 @@ namespace Ict.Common.Remoting.Shared
         Int16 ProgressPercentage
         {
             get;
-            set;
         }
 
         /// <summary>
@@ -56,7 +54,6 @@ namespace Ict.Common.Remoting.Shared
         TAsyncExecProgressState ProgressState
         {
             get;
-            set;
         }
 
         /// <summary>
@@ -65,7 +62,6 @@ namespace Ict.Common.Remoting.Shared
         object Result
         {
             get;
-            set;
         }
 
         /// <summary>

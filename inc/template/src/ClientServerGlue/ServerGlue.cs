@@ -122,3 +122,205 @@ public {#RETURNTYPE} {#UICONNECTORCLASS}_{#UNIQUEMETHODNAME}(string UIConnectorO
         throw new Exception("Please check server log file");
     }
 }
+
+{##UICONNECTORPROPERTY}
+{#IFDEF SETTER}
+/// access a UIConnector property, set value
+[WebMethod(EnableSession = true)]
+public void {#UICONNECTORCLASS}_Set{#PROPERTYNAME}(string UIConnectorObjectID, {#ENCODEDTYPE} AValue)
+{
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call {#UICONNECTORCLASS}_Set{#PROPERTYNAME}, but the object with this ObjectID " + ObjectID + " does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        (({#UICONNECTORCLASS})FUIConnectors[ObjectID]).{#PROPERTYNAME} = {#ACTUALPARAMETERS};
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
+}
+{#ENDIF SETTER}
+{#IFDEF GETTER}
+/// access a UIConnector property, get value
+[WebMethod(EnableSession = true)]
+public {#ENCODEDTYPE} {#UICONNECTORCLASS}_Get{#PROPERTYNAME}(string UIConnectorObjectID)
+{
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call {#UICONNECTORCLASS}_Get{#PROPERTYNAME}, but the object with this ObjectID " + ObjectID + " does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        {#GETTER}
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
+}
+{#ENDIF GETTER}
+
+{##GETSUBUICONNECTOR}
+if (!FUIConnectors.ContainsKey(UIConnectorObjectID + "{#PROPERTYNAME} " + DomainManager.GClientID))
+{
+    FUIConnectors.Add(UIConnectorObjectID + "{#PROPERTYNAME} " + DomainManager.GClientID, 
+       (({#UICONNECTORCLASS})FUIConnectors[ObjectID]).{#PROPERTYNAME});
+}
+
+return UIConnectorObjectID + "{#PROPERTYNAME}";
+
+{##ASYNCEXECPROCESSCONNECTOR}
+/// get ProgressInformation
+[WebMethod(EnableSession = true)]
+public System.String TAsynchronousExecutionProgress_GetProgressInformation(string UIConnectorObjectID)
+{
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call TAsynchronousExecutionProgress_GetProgressInformation, but the object with this ObjectID " + ObjectID + " does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        return ((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).ProgressInformation;
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
+}
+
+/// get ProgressPercentage
+[WebMethod(EnableSession = true)]
+public Int16 TAsynchronousExecutionProgress_GetProgressPercentage(string UIConnectorObjectID)
+{
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call TAsynchronousExecutionProgress_GetProgressPercentage, but the object with this ObjectID " + ObjectID + " does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        return ((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).ProgressPercentage;
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
+}
+
+/// get ProgressPercentage
+[WebMethod(EnableSession = true)]
+public string TAsynchronousExecutionProgress_GetProgressState(string UIConnectorObjectID)
+{
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call TAsynchronousExecutionProgress_GetProgressState, but the object with this ObjectID " + ObjectID + " does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        return THttpBinarySerializer.SerializeObjectWithType(((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).ProgressState);
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
+}
+
+/// get Result
+[WebMethod(EnableSession = true)]
+public string TAsynchronousExecutionProgress_GetResult(string UIConnectorObjectID)
+{
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call TAsynchronousExecutionProgress_GetResult, but the object with this ObjectID " + ObjectID + " does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        return THttpBinarySerializer.SerializeObjectWithType(((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).Result);
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
+}
+
+/// Get all 3 properties in one call
+[WebMethod(EnableSession = true)]
+public string TAsynchronousExecutionProgress_ProgressCombinedInfo(string UIConnectorObjectID)
+{
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call TAsynchronousExecutionProgress_ProgressCombinedInfo, but the object with this ObjectID " + ObjectID + " does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        TAsyncExecProgressState ProgressState;
+        Int16 ProgressPercentage;
+        String ProgressInformation;
+        ((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).ProgressCombinedInfo(out ProgressState, out ProgressPercentage, out ProgressInformation);
+        return THttpBinarySerializer.SerializeObjectWithType(ProgressState)+","+THttpBinarySerializer.SerializeObjectWithType(ProgressPercentage)+","+THttpBinarySerializer.SerializeObjectWithType(ProgressInformation);
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
+}
+
+/// Cancel
+[WebMethod(EnableSession = true)]
+public void TAsynchronousExecutionProgress_Cancel(string UIConnectorObjectID)
+{
+    string ObjectID = UIConnectorObjectID + " " + DomainManager.GClientID;
+
+    if (!FUIConnectors.ContainsKey(ObjectID))
+    {
+        TLogging.Log("Trying to call TAsynchronousExecutionProgress_Cancel, but the object with this ObjectID " + ObjectID + " does not exist");
+        throw new Exception("this object does not exist anymore!");
+    }
+
+    try
+    {
+        ((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).Cancel();
+    }
+    catch (Exception e)
+    {
+        TLogging.Log(e.ToString());
+        throw new Exception("Please check server log file");
+    }
+}

@@ -81,7 +81,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
         {
             get
             {
-                return null; // TODORemoting
+                return FPartnerFind.AsyncExecProgress;
             }
         }
 

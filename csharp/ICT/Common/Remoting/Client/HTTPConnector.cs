@@ -198,23 +198,6 @@ namespace Ict.Common.Remoting.Client
         }
 
         /// <summary>
-        /// create a UIConnector on the server, that depends on another UIConnector object
-        /// </summary>
-        public static Guid GetDependantUIConnector(
-            Guid ParentObjectID,
-            string AModuleName,
-            string UIConnectorClass,
-            string propertyname)
-        {
-            SortedList <string, object>Parameters = new SortedList <string, object>();
-            Parameters.Add("UIConnectorObjectID", ParentObjectID);
-
-            string result = CallWebConnector(AModuleName, UIConnectorClass + ".Get" + propertyname, Parameters, "System.String")[0].ToString();
-
-            return Guid.Parse(result);
-        }
-
-        /// <summary>
         /// disconnect an object from the server, freeing up memory on the server
         /// </summary>
         public static void DisconnectUIConnector(string AModuleName, Guid ObjectID)

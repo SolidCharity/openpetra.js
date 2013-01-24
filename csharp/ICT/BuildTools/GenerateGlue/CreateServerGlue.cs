@@ -45,6 +45,7 @@ public class GenerateServerGlue
 {
     static private string FTemplateDir = string.Empty;
     static SortedList <string, string>FUsingNamespaces = null;
+    static bool FContainsAsynchronousExecutionProgress = false;
 
     static private ProcessTemplate CreateModuleAccessPermissionCheck(ProcessTemplate ATemplate,
         string AConnectorClassWithNamespace,
@@ -387,7 +388,74 @@ public class GenerateServerGlue
             Template.InsertSnippet("UICONNECTORS", snippet);
         }
 
-        // TODO Properties???
+        // foreach public property create a method
+        foreach (PropertyDeclaration p in CSParser.GetProperties(connectorClass))
+        {
+            if (TCollectConnectorInterfaces.IgnoreMethod(p.Attributes, p.Modifier))
+            {
+                continue;
+            }
+
+            string propertytype = p.TypeReference.ToString();
+
+            // check if the parametertype is not a generic type, eg. dictionary or list
+            if (!propertytype.Contains("<"))
+            {
+                propertytype = propertytype == "string" || propertytype == "String" ? "System.String" : propertytype;
+                propertytype = propertytype == "bool" || propertytype == "Boolean" ? "System.Boolean" : propertytype;
+                propertytype = propertytype.Contains("Int32") || propertytype == "int" ? "System.Int32" : propertytype;
+                propertytype = propertytype.Contains("Int16") || propertytype == "short" ? "System.Int16" : propertytype;
+                propertytype = propertytype.Contains("Int64") || propertytype == "long" ? "System.Int64" : propertytype;
+            }
+
+            bool BinaryParameter = !((propertytype == "System.Int64") || (propertytype == "System.Int32") || (propertytype == "System.Int16")
+                                     || (propertytype == "System.String") || (propertytype == "System.Boolean"));
+
+            string EncodedType = propertytype;
+            string EncodeReturnType = string.Empty;
+            string ActualValue = "AValue";
+
+            if (BinaryParameter)
+            {
+                EncodedType = "System.String";
+                EncodeReturnType = "THttpBinarySerializer.SerializeObjectWithType";
+                ActualValue = "(" + propertytype + ")THttpBinarySerializer.DeserializeObject(AValue)";
+            }
+
+            ProcessTemplate propertySnippet = Template.GetSnippet("UICONNECTORPROPERTY");
+            propertySnippet.SetCodelet("UICONNECTORCLASS", connectorClass.Name);
+            propertySnippet.SetCodelet("ENCODEDTYPE", EncodedType);
+            propertySnippet.SetCodelet("PROPERTYNAME", p.Name);
+
+            if (p.HasGetRegion)
+            {
+                if (p.TypeReference.ToString().StartsWith("I"))
+                {
+                    if (p.TypeReference.ToString() == "IAsynchronousExecutionProgress")
+                    {
+                        FContainsAsynchronousExecutionProgress = true;
+                    }
+
+                    // return the ObjectID of the Sub-UIConnector
+                    propertySnippet.InsertSnippet("GETTER", Template.GetSnippet("GETSUBUICONNECTOR"));
+                    propertySnippet.SetCodelet("ENCODEDTYPE", "System.String");
+                }
+                else
+                {
+                    propertySnippet.SetCodelet("GETTER",
+                        "return {#ENCODERETURNTYPE}((({#UICONNECTORCLASS})FUIConnectors[ObjectID]).{#PROPERTYNAME});");
+                    propertySnippet.SetCodelet("ENCODERETURNTYPE", EncodeReturnType);
+                }
+            }
+
+            if (p.HasSetRegion)
+            {
+                propertySnippet.SetCodelet("SETTER", "true");
+                propertySnippet.SetCodelet("ACTUALPARAMETERS", ActualValue);
+            }
+
+            Template.InsertSnippet("UICONNECTORS", propertySnippet);
+        }
     }
 
     static private void CreateServerGlue(TNamespace tn, SortedList <string, TypeDeclaration>connectors, string AOutputPath)
@@ -413,6 +481,7 @@ public class GenerateServerGlue
         Template.AddToCodelet("USINGNAMESPACES", CreateInterfaces.AddNamespacesFromYmlFile(InterfacePath, tn.Name));
 
         FUsingNamespaces = new SortedList <string, string>();
+        FContainsAsynchronousExecutionProgress = false;
 
         foreach (string connector in connectors.Keys)
         {
@@ -423,6 +492,16 @@ public class GenerateServerGlue
             else
             {
                 WriteWebConnector(connector, connectors[connector], Template);
+            }
+        }
+
+        if (FContainsAsynchronousExecutionProgress)
+        {
+            Template.InsertSnippet("UICONNECTORS", Template.GetSnippet("ASYNCEXECPROCESSCONNECTOR"));
+
+            if (!FUsingNamespaces.ContainsKey("Ict.Petra.Server.MCommon"))
+            {
+                FUsingNamespaces.Add("Ict.Petra.Server.MCommon", "Ict.Petra.Server.MCommon");
             }
         }
 

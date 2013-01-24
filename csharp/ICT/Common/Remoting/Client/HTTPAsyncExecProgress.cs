@@ -35,11 +35,13 @@ namespace Ict.Common.Remoting.Client
     public class TAsynchronousExecutionProgress : IAsynchronousExecutionProgress, IDisposable
     {
         private Guid FObjectID = new Guid();
+        private string FModule = string.Empty;
 
         /// constructor, this UIConnector is created from the property of another UIConnector
-        public TAsynchronousExecutionProgress(Guid ObjectID)
+        public TAsynchronousExecutionProgress(string AModule, Guid ObjectID)
         {
             FObjectID = ObjectID;
+            FModule = AModule;
         }
 
         /// desctructor
@@ -51,7 +53,7 @@ namespace Ict.Common.Remoting.Client
         /// dispose the object on the server as well
         public void Dispose()
         {
-            THttpConnector.DisconnectUIConnector("SessionManager", FObjectID);
+            THttpConnector.DisconnectUIConnector(FModule, FObjectID);
         }
 
         /// <summary>
@@ -62,14 +64,10 @@ namespace Ict.Common.Remoting.Client
             get
             {
                 return (string)THttpConnector.ReadUIConnectorProperty(FObjectID,
-                    "SessionManager",
+                    FModule,
                     "TAsynchronousExecutionProgress",
                     "ProgressInformation",
                     "System.String");
-            }
-            set
-            {
-                THttpConnector.WriteUIConnectorProperty(FObjectID, "SessionManager", "TAsynchronousExecutionProgress", "ProgressInformation", value);
             }
         }
 
@@ -81,14 +79,10 @@ namespace Ict.Common.Remoting.Client
             get
             {
                 return (Int16)THttpConnector.ReadUIConnectorProperty(FObjectID,
-                    "SessionManager",
+                    FModule,
                     "TAsynchronousExecutionProgress",
                     "ProgressPercentage",
                     "System.Int16");
-            }
-            set
-            {
-                THttpConnector.WriteUIConnectorProperty(FObjectID, "SessionManager", "TAsynchronousExecutionProgress", "ProgressPercentage", value);
             }
         }
 
@@ -100,14 +94,10 @@ namespace Ict.Common.Remoting.Client
             get
             {
                 return (TAsyncExecProgressState)THttpConnector.ReadUIConnectorProperty(FObjectID,
-                    "SessionManager",
+                    FModule,
                     "TAsynchronousExecutionProgress",
                     "ProgressState",
                     "binary");
-            }
-            set
-            {
-                THttpConnector.WriteUIConnectorProperty(FObjectID, "SessionManager", "TAsynchronousExecutionProgress", "ProgressState", value);
             }
         }
 
@@ -118,11 +108,7 @@ namespace Ict.Common.Remoting.Client
         {
             get
             {
-                return THttpConnector.ReadUIConnectorProperty(FObjectID, "SessionManager", "TAsynchronousExecutionProgress", "Result", "binary");
-            }
-            set
-            {
-                THttpConnector.WriteUIConnectorProperty(FObjectID, "SessionManager", "TAsynchronousExecutionProgress", "Result", value);
+                return THttpConnector.ReadUIConnectorProperty(FObjectID, FModule, "TAsynchronousExecutionProgress", "Result", "binary");
             }
         }
 
@@ -136,7 +122,7 @@ namespace Ict.Common.Remoting.Client
         {
             SortedList <string, object>ActualParameters = new SortedList <string, object>();
             List <object>Result = THttpConnector.CallUIConnectorMethod(FObjectID,
-                "SessionManager",
+                FModule,
                 "TAsynchronousExecutionProgress",
                 "ProgressCombinedInfo",
                 ActualParameters,
@@ -152,8 +138,8 @@ namespace Ict.Common.Remoting.Client
         public void Cancel()
         {
             SortedList <string, object>ActualParameters = new SortedList <string, object>();
-            List <object>Result = THttpConnector.CallUIConnectorMethod(FObjectID,
-                "SessionManager",
+            THttpConnector.CallUIConnectorMethod(FObjectID,
+                FModule,
                 "TAsynchronousExecutionProgress",
                 "Cancel",
                 ActualParameters,
