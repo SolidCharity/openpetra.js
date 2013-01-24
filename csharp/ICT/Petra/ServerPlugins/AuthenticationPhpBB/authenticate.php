@@ -43,8 +43,8 @@ function decrypt($data, $iv) {
 $mycr = new mycrypt();
 // make sure the path of secretkey.dat cannot be accessed from the outside
 $mycr->init($SecretKeyFile);
-$msg = base64_decode($_GET["msg"]);
-$iv = base64_decode($_GET["msg2"]);
+$msg = base64_decode($_POST["msg"]);
+$iv = base64_decode($_POST["msg2"]);
 $clearmsg = $mycr->decrypt($msg, $iv);
 $pos = strpos($clearmsg, ";");
 $username = substr($clearmsg, 0, $pos);

@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -23,6 +23,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using Ict.Common;
 using Ict.Common.IO;
 using Ict.Common.Remoting.Server;
@@ -54,10 +55,10 @@ namespace Plugin.AuthenticationPhpBB
 
             // url is for example: http://forum.example.org/OpenPetraLogin/authenticate.php
             string url = TAppSettingsManager.GetValue("UserAuthenticationMethod.Url", "");
-            SortedList <string, string>parameters = new SortedList <string, string>();
+            NameValueCollection parameters = new NameValueCollection();
             parameters.Add("msg", encryptedMessage);
             parameters.Add("msg2", ivMessage);
-            string resultWebsite = THTTPUtils.ReadWebsite(url, parameters);
+            string resultWebsite = THTTPUtils.PostRequest(url, parameters);
             try
             {
                 string result = EncryptionRijndael.Decrypt(key,
