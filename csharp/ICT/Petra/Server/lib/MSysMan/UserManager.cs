@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -504,7 +504,7 @@ namespace Ict.Petra.Server.MSysMan.Security.UserManager.WebConnectors
         [RequireModulePermission("NONE")]
         public static void SignalReloadCachedUserInfo(String AUserID)
         {
-            Ict.Petra.Server.App.Core.DomainManager.ClientTaskAddToOtherClient(AUserID,
+            DomainManager.ClientTaskAddToOtherClient(AUserID,
                 SharedConstants.CLIENTTASKGROUP_USERINFOREFRESH,
                 "",
                 1);
