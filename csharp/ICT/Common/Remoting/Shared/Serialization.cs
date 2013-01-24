@@ -94,6 +94,12 @@ namespace Ict.Common.Remoting.Shared
                   || o.GetType() == typeof(Int32)
                   || o.GetType() == typeof(Int64)
                   || o.GetType() == typeof(bool));
+
+            if ((o.GetType() == typeof(string)) && (((string)o).IndexOfAny(new char[] { ',', ':' }) > -1))
+            {
+                binary = true;
+            }
+
             string result = SerializeObject(o, binary);
 
             return result + ":" + (binary ? "binary" : o.GetType().ToString());
@@ -107,6 +113,12 @@ namespace Ict.Common.Remoting.Shared
             if (s == "null")
             {
                 return null;
+            }
+
+            if (s.EndsWith(":binary"))
+            {
+                type = "binary";
+                s = s.Substring(0, s.Length - ":binary".Length);
             }
 
             if (type == "System.Int64")

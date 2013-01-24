@@ -148,7 +148,7 @@ namespace Ict.Petra.Server.app.WebService
 
                 TheServerManager.AddDBConnection(DBAccess.GDBAccessObj);
 
-                int ClientID;
+                Int32 ClientID;
 
                 lock (_lockerClientID)
                 {

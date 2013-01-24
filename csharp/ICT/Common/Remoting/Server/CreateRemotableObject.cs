@@ -47,8 +47,8 @@ namespace Ict.Common.Remoting.Server
             string ObjectURI = TConfigurableMBRObject.BuildRandomURI(ObjectToRemote.GetType().ToString());
 
             // we need to add the service in the main domain
-            DomainManagerBase.UClientManagerCallForwarderRef.AddCrossDomainService(
-                DomainManagerBase.GClientID.ToString(), ObjectURI, ObjectToRemote);
+            DomainManager.UClientManagerCallForwarderRef.AddCrossDomainService(
+                DomainManager.GClientID.ToString(), ObjectURI, ObjectToRemote);
 
             try
             {

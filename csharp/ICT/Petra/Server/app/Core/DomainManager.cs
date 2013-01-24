@@ -34,13 +34,6 @@ using Ict.Petra.Server.App.Core.Security;
 namespace Ict.Petra.Server.App.Core
 {
     /// <summary>
-    /// collection of static functions and variables for the appdomain management
-    /// </summary>
-    public class DomainManager : DomainManagerBase
-    {
-    }
-
-    /// <summary>
     /// Sets up .NET Remoting for this AppDomain, remotes a simple object which
     /// can be called to from outside, sets up and remotes the Server-side .NET
     /// Remoting Sponsor and opens a DB connection for the AppDomain.
@@ -101,7 +94,7 @@ namespace Ict.Petra.Server.App.Core
         /// <param name="AUserInfo">An instantiated PetraPrincipal Object, containing User
         /// information
         /// </param>
-        public TClientDomainManager(Int16 AClientID,
+        public TClientDomainManager(Int32 AClientID,
             TClientServerConnectionType AClientServerConnectionType,
             TClientManager AClientManagerRef,
             TSystemDefaultsCache ASystemDefaultsCacheRef,

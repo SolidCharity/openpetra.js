@@ -42,7 +42,7 @@ namespace Ict.Common.Remoting.Server
     /// <summary>
     /// collection of static functions and variables for the appdomain management
     /// </summary>
-    public class DomainManagerBase
+    public class DomainManager
     {
         // TODORemoting those static variables need to be resolved
 
@@ -237,7 +237,7 @@ namespace Ict.Common.Remoting.Server
         {
             get
             {
-                return DomainManagerBase.ULastObjectRemotingAction;
+                return DomainManager.ULastObjectRemotingAction;
             }
         }
 
@@ -299,7 +299,7 @@ namespace Ict.Common.Remoting.Server
         /// this Object will cross AppDomains!)</param>
         /// <param name="AUserID"></param>
         /// <returns>void</returns>
-        public TClientDomainManagerBase(Int16 AClientID,
+        public TClientDomainManagerBase(Int32 AClientID,
             TClientServerConnectionType AClientServerConnectionType,
             TClientManager AClientManagerRef,
             string AUserID)
@@ -309,8 +309,8 @@ namespace Ict.Common.Remoting.Server
             FUserID = AUserID;
 
             // Console.WriteLine('TClientDomainManager.Create in AppDomain: ' + Thread.GetDomain().FriendlyName);
-            DomainManagerBase.GClientID = AClientID;
-            DomainManagerBase.UClientManagerCallForwarderRef = AClientManagerRef;
+            DomainManager.GClientID = AClientID;
+            DomainManager.UClientManagerCallForwarderRef = AClientManagerRef;
             FClientServerConnectionType = AClientServerConnectionType;
             FClientTasksManager = new TClientTasksManager();
             FTearDownAppDomainMonitor = new System.Object();
@@ -387,7 +387,7 @@ namespace Ict.Common.Remoting.Server
             // if TLogging.DL >= 5 then TLogging.Log('TClientDomainManager.StopClientAppDomain: before ChannelServices.UnregisterChannel(FTcpChannel)', [ToConsole, ToLogfile]);
             // ChannelServices.UnregisterChannel(FTcpChannel);
             // if TLogging.DL >= 5 then TLogging.Log('TClientDomainManager.StopClientAppDomain: after ChannelServices.UnregisterChannel(FTcpChannel)', [ToConsole, ToLogfile]);
-            DomainManagerBase.UClientManagerCallForwarderRef = null;
+            DomainManager.UClientManagerCallForwarderRef = null;
 
             if (TLogging.DL >= 5)
             {
@@ -462,7 +462,7 @@ namespace Ict.Common.Remoting.Server
                         // The AppDomain and all the objects that are instantiated in it cease
                         // to exist after the following call!!!
                         // > No further code can be executed in the AppDomain after that!
-                        DomainManagerBase.UClientManagerCallForwarderRef.DisconnectClient((short)DomainManagerBase.GClientID, out AReason);
+                        DomainManager.UClientManagerCallForwarderRef.DisconnectClient((short)DomainManager.GClientID, out AReason);
                         Monitor.Exit(FTearDownAppDomainMonitor);
                     }
                 }
