@@ -172,6 +172,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
             {
                 ThreadStart ThreadStartDelegate = new ThreadStart(FPagedDataSetObject.ExecuteQuery);
                 FFindThread = new Thread(ThreadStartDelegate);
+                FFindThread.Name = "PartnerLocationFind" + Guid.NewGuid().ToString();
                 FFindThread.Start();
             }
             catch (Exception)

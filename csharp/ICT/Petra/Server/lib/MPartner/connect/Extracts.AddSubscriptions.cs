@@ -136,6 +136,7 @@ namespace Ict.Petra.Server.MPartner.Extracts.UIConnectors
             FInspectDT = AInspectDT;
             ThreadStart ThreadStartDelegate = new ThreadStart(SubmitChangesInternal);
             TheThread = new Thread(ThreadStartDelegate);
+            TheThread.Name = "ExtractsAddSubscriptionsSubmitChanges" + Guid.NewGuid().ToString();
             TheThread.Start();
             TLogging.LogAtLevel(6, "TExtractsAddSubscriptionsUIConnector.SubmitChangesAsync thread started.");
         }

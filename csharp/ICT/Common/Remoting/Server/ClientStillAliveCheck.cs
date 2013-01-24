@@ -109,6 +109,7 @@ namespace Ict.Common.Remoting.Server
                 // Start ClientStillAliveCheckThread
                 UKeepServerAliveCheck = true;
                 UClientStillAliveCheckThread = new Thread(new ThreadStart(ClientStillAliveCheckThread));
+                UClientStillAliveCheckThread.Name = "ClientStillAliveCheckThread" + Guid.NewGuid().ToString();
                 UClientStillAliveCheckThread.IsBackground = true;
                 UClientStillAliveCheckThread.Start();
 

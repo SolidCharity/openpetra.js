@@ -279,6 +279,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
             try
             {
                 FFindThread = new Thread(new ThreadStart(FPagedDataSetObject.ExecuteQuery));
+                FFindThread.Name = "APFind" + Guid.NewGuid().ToString();
                 FFindThread.Start();
             }
             catch (Exception)
@@ -313,6 +314,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
             ThreadStart ThreadStartDelegate = new ThreadStart(FPagedDataSetObject.StopQuery);
 
             StopQueryThread = new Thread(ThreadStartDelegate);
+            StopQueryThread.Name = "APFindStopQuery" + Guid.NewGuid().ToString();
             StopQueryThread.Start();
 
             /* It might take some time until the executing query is cancelled by the DB,

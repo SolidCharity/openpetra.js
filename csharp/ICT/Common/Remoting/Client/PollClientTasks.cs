@@ -72,6 +72,7 @@ namespace Ict.Common.Remoting.Client
 
             // Start PollClientTasksThread
             TheThread = new Thread(new ThreadStart(PollClientTasksThread));
+            TheThread.Name = "PollClientTasksThread" + Guid.NewGuid().ToString();
             TheThread.Start();
         }
 
@@ -130,6 +131,7 @@ namespace Ict.Common.Remoting.Client
                         // without the risk of being interrupted!
                         ClientTasksQueueInstance = new TClientTasksQueue(FClientID, ClientTasksDataTable);
                         ClientTaskQueueThread = new Thread(new ThreadStart(ClientTasksQueueInstance.QueueClientTasks));
+                        ClientTaskQueueThread.Name = "ClientTaskQueueThread" + Guid.NewGuid().ToString();
                         ClientTaskQueueThread.Start();
                     }
                 }

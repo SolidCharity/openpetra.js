@@ -69,6 +69,7 @@ namespace Ict.Common.Remoting.Client
 
             // Start KeepAliveThread
             TheThread = new Thread(new ThreadStart(KeepAliveThread));
+            TheThread.Name = "KeepAliveThread" + Guid.NewGuid().ToString();
             TheThread.Start();
         }
 
