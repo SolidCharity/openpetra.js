@@ -26,6 +26,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace Ict.Common.IO
 {
@@ -131,31 +132,67 @@ namespace Ict.Common.IO
             return ReturnValue;
         }
 
-        /// <summary>
-        /// overload: encode all the values for the parameters and retrieve the website
-        /// </summary>
-        public static string ReadWebsite(string url, SortedList <string, string>AParameters)
+        private static void LogRequest(string url, NameValueCollection parameters)
         {
-            string urlWithParameters = url;
+            TLogging.Log(url);
 
-            bool firstParameter = true;
-
-            foreach (string parameterName in AParameters.Keys)
+            foreach (string k in parameters.Keys)
             {
-                if (firstParameter)
+                if (k.ToLower().Contains("password"))
                 {
-                    urlWithParameters += "?";
-                    firstParameter = false;
+                    TLogging.Log(" " + k + " = *****");
                 }
                 else
                 {
-                    urlWithParameters += "&";
+                    TLogging.Log(" " + k + " = " + parameters[k]);
                 }
+            }
+        }
 
-                urlWithParameters += parameterName + "=" + Uri.EscapeDataString(AParameters[parameterName]);
+        /// <summary>
+        /// post a request to a website. used for Connectors
+        /// </summary>
+        public static string PostRequest(string url, NameValueCollection parameters)
+        {
+            string ReturnValue = null;
+
+            // see http://blogs.msdn.com/b/carloc/archive/2007/02/13/webclient-2-0-class-not-working-under-win2000-with-https.aspx
+            // it seems we need to specify SSL3 instead of TLS
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
+
+            byte[] buf;
+
+            if (FWebClient == null)
+            {
+                FWebClient = new WebClientWithSession();
             }
 
-            return ReadWebsite(urlWithParameters);
+            if (TLogging.DebugLevel > 0)
+            {
+                LogRequest(url, parameters);
+            }
+
+            try
+            {
+                buf = FWebClient.UploadValues(url, parameters);
+
+                if ((buf != null) && (buf.Length > 0))
+                {
+                    ReturnValue = Encoding.ASCII.GetString(buf, 0, buf.Length);
+                }
+                else
+                {
+                    TLogging.Log("server did not return anything? timeout?");
+                }
+            }
+            catch (System.Net.WebException e)
+            {
+                TLogging.Log("Trying to download: ");
+                LogRequest(url, parameters);
+                TLogging.Log(e.Message);
+            }
+
+            return ReturnValue;
         }
 
         /// <summary>

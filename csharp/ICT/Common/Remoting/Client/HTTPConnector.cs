@@ -52,9 +52,9 @@ namespace Ict.Common.Remoting.Client
             ServerURL = AServerURL;
         }
 
-        private static SortedList <string, string>ConvertParameters(SortedList <string, object>parameters)
+        private static NameValueCollection ConvertParameters(SortedList <string, object>parameters)
         {
-            SortedList <string, string>result = new SortedList <string, string>();
+            NameValueCollection result = new NameValueCollection();
 
             if (parameters == null)
             {
@@ -94,9 +94,9 @@ namespace Ict.Common.Remoting.Client
             string methodname,
             SortedList <string, object>parameters, string expectedReturnType)
         {
-            SortedList <string, string>Parameters = ConvertParameters(parameters);
+            NameValueCollection Parameters = ConvertParameters(parameters);
 
-            string result = THTTPUtils.ReadWebsite(ServerURL + "/server" + AModuleName + ".asmx/" + methodname.Replace(".", "_"), Parameters);
+            string result = THTTPUtils.PostRequest(ServerURL + "/server" + AModuleName + ".asmx/" + methodname.Replace(".", "_"), Parameters);
 
             if ((result == null) || (result.Length == 0))
             {
@@ -141,7 +141,7 @@ namespace Ict.Common.Remoting.Client
             string methodname,
             SortedList <string, object>parameters, string expectedReturnType)
         {
-            parameters.Add("UIConnectorObjectID", ObjectID);
+            parameters.Add("UIConnectorObjectID", ObjectID.ToString());
 
             return CallWebConnector(AModuleName, UIConnectorClass + "." + methodname, parameters, expectedReturnType);
         }
@@ -187,10 +187,10 @@ namespace Ict.Common.Remoting.Client
             string classname,
             SortedList <string, object>parameters)
         {
-            SortedList <string, string>Parameters =
+            NameValueCollection Parameters =
                 ConvertParameters(parameters);
 
-            string result = THTTPUtils.ReadWebsite(ServerURL + "/server" + AModuleName + ".asmx/Create_" + classname, Parameters);
+            string result = THTTPUtils.PostRequest(ServerURL + "/server" + AModuleName + ".asmx/Create_" + classname, Parameters);
 
             result = TrimResult(result);
 
