@@ -65,6 +65,7 @@ namespace Ict.Petra.Server.app.WebService
         /// static: only initialised once for the whole server
         /// </summary>
         static TServerManager TheServerManager = null;
+        static TClientManager TheClientManager = null;
 
         /// <summary>
         /// constructor, which is called for each http request
@@ -101,6 +102,8 @@ namespace Ict.Petra.Server.app.WebService
                 Catalog.Init();
 
                 TheServerManager = new TServerManager();
+                TheClientManager = new TClientManager();
+
                 try
                 {
                     TheServerManager.EstablishDBConnection();
@@ -127,6 +130,9 @@ namespace Ict.Petra.Server.app.WebService
             return false;
         }
 
+        static readonly object _lockerClientID = new object();
+        static Int32 FNextClientID = 1;
+
         private bool LoginInternal(string username, string password)
         {
             Int32 ProcessID;
@@ -141,6 +147,22 @@ namespace Ict.Petra.Server.app.WebService
                 DBAccess.GDBAccessObj.UserID = username.ToUpper();
 
                 TheServerManager.AddDBConnection(DBAccess.GDBAccessObj);
+
+                int ClientID;
+
+                lock (_lockerClientID)
+                {
+                    ClientID = FNextClientID;
+                    FNextClientID++;
+                }
+
+                Session["ClientDomainManager"] = new TClientDomainManager(
+                    ClientID,
+                    TClientServerConnectionType.csctRemote,
+                    TheClientManager,
+                    TSystemDefaultsCache.GSystemDefaultsCache,
+                    TCacheableTablesManager.GCacheableTablesManager,
+                    UserInfo.GUserInfo);
 
                 return true;
             }

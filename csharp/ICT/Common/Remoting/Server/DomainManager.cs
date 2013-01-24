@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -44,6 +44,8 @@ namespace Ict.Common.Remoting.Server
     /// </summary>
     public class DomainManagerBase
     {
+        // TODORemoting those static variables need to be resolved
+
         /// <summary>used internally to store the ClientID for which this AppDomain was created</summary>
         public static Int32 GClientID;
 
@@ -51,7 +53,7 @@ namespace Ict.Common.Remoting.Server
         public static Int64 GSiteKey;
 
         /// <summary>used internally to hold a proxy reference to the ClientManager in the Server's Default AppDomain</summary>
-        public static TClientManagerCallForwarder UClientManagerCallForwarderRef;
+        public static TClientManager UClientManagerCallForwarderRef;
 
         /// <summary>tells when the last remoteable object was marshaled (remoted).</summary>
         public static DateTime ULastObjectRemotingAction;
@@ -297,9 +299,9 @@ namespace Ict.Common.Remoting.Server
         /// this Object will cross AppDomains!)</param>
         /// <param name="AUserID"></param>
         /// <returns>void</returns>
-        public TClientDomainManagerBase(String AClientID,
+        public TClientDomainManagerBase(Int16 AClientID,
             TClientServerConnectionType AClientServerConnectionType,
-            TClientManagerCallForwarder AClientManagerRef,
+            TClientManager AClientManagerRef,
             string AUserID)
         {
             new TAppSettingsManager(false);
@@ -307,7 +309,7 @@ namespace Ict.Common.Remoting.Server
             FUserID = AUserID;
 
             // Console.WriteLine('TClientDomainManager.Create in AppDomain: ' + Thread.GetDomain().FriendlyName);
-            DomainManagerBase.GClientID = Convert.ToInt16(AClientID);
+            DomainManagerBase.GClientID = AClientID;
             DomainManagerBase.UClientManagerCallForwarderRef = AClientManagerRef;
             FClientServerConnectionType = AClientServerConnectionType;
             FClientTasksManager = new TClientTasksManager();
@@ -460,7 +462,7 @@ namespace Ict.Common.Remoting.Server
                         // The AppDomain and all the objects that are instantiated in it cease
                         // to exist after the following call!!!
                         // > No further code can be executed in the AppDomain after that!
-                        DomainManagerBase.UClientManagerCallForwarderRef.DisconnectClient((short)DomainManagerBase.GClientID, AReason);
+                        DomainManagerBase.UClientManagerCallForwarderRef.DisconnectClient((short)DomainManagerBase.GClientID, out AReason);
                         Monitor.Exit(FTearDownAppDomainMonitor);
                     }
                 }

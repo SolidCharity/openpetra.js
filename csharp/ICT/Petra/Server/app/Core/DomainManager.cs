@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -101,9 +101,9 @@ namespace Ict.Petra.Server.App.Core
         /// <param name="AUserInfo">An instantiated PetraPrincipal Object, containing User
         /// information
         /// </param>
-        public TClientDomainManager(String AClientID,
+        public TClientDomainManager(Int16 AClientID,
             TClientServerConnectionType AClientServerConnectionType,
-            TClientManagerCallForwarder AClientManagerRef,
+            TClientManager AClientManagerRef,
             TSystemDefaultsCache ASystemDefaultsCacheRef,
             TCacheableTablesManager ACacheableTablesManagerRef,
             IPrincipal AUserInfo) :
