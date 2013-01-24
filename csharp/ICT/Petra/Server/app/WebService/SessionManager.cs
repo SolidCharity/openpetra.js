@@ -29,6 +29,7 @@ using System.Web.Script.Services;
 using System.ServiceModel.Web;
 using System.ServiceModel;
 using System.Data;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Principal;
@@ -163,8 +164,31 @@ namespace Ict.Petra.Server.app.WebService
             return loggedIn;
         }
 
+        /// <summary>
+        /// TODO: we should only use one database object per request, and not have global variables for database connections
+        /// </summary>
+        private static SortedList <string, TDataBase>FDatabaseObjects = new SortedList <string, TDataBase>();
+
         static private TDataBase GetDatabaseFromSession()
         {
+            // if another thread gets called, then the session object is null
+            if (HttpContext.Current == null)
+            {
+                if (Thread.CurrentThread.Name == null)
+                {
+                    throw new Exception(
+                        "TOpenPetraOrgSessionManager.GetDatabaseFromSession: we do need a name for the thread for managing the database connection");
+                }
+
+                if (!FDatabaseObjects.ContainsKey(Thread.CurrentThread.Name))
+                {
+                    TDataBase db = new TDataBase();
+                    FDatabaseObjects.Add(Thread.CurrentThread.Name, db);
+                }
+
+                return FDatabaseObjects[Thread.CurrentThread.Name];
+            }
+
             if (HttpContext.Current.Session["DBAccessObj"] == null)
             {
                 if (TheServerManager == null)
@@ -188,6 +212,12 @@ namespace Ict.Petra.Server.app.WebService
 
         static private void SetDatabaseForSession(TDataBase database)
         {
+            if (Thread.CurrentThread.Name == null)
+            {
+                // TLogging.Log("there is a new thread for session " + HttpContext.Current.Session.SessionID);
+                System.Threading.Thread.CurrentThread.Name = "MainThread" + Guid.NewGuid().ToString();;
+            }
+
             HttpContext.Current.Session["DBAccessObj"] = database;
         }
 
