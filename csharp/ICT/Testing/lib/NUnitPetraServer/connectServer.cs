@@ -102,10 +102,10 @@ namespace Ict.Testing.NUnitPetraServer
             }
 
             TClientManager ClientManager = new TClientManager();
-            DomainManager.UClientManagerCallForwarderRef = new TClientManagerCallForwarder(ClientManager);
+            DomainManager.UClientManagerCallForwarderRef = ClientManager;
 
             // do the same as in Ict.Petra.Server.App.Main.TRemoteLoader.LoadDomainManagerAssembly
-            FDomain = new TClientDomainManager("0",
+            FDomain = new TClientDomainManager(0,
                 TClientServerConnectionType.csctLocal,
                 DomainManager.UClientManagerCallForwarderRef,
                 new TSystemDefaultsCache(),

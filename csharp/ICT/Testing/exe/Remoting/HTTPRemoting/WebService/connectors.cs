@@ -1,4 +1,4 @@
-//
+﻿//
 // DO NOT REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 //
 // @Authors:
@@ -42,39 +42,23 @@ using Tests.HTTPRemoting.Interface;
 namespace Tests.HTTPRemoting.Service
 {
     /// <summary>
-    /// the test service
+    /// sample webconnector
     /// </summary>
-    [WebService(Namespace = "http://www.openpetra.org/webservices/Sample")]
-    [ScriptService]
-    public class TMyService : WebService
+    public class TMyServiceWebConnector
     {
         /// <summary>
-        /// constructor, which is called for each http request
+        /// sample webconnector method
         /// </summary>
-        public TMyService() : base()
-        {
-            TOpenPetraOrgSessionManagerTest.Init();
-        }
-
-        /// <summary>
-        /// print hello world
-        /// </summary>
-        /// <param name="msg"></param>
-        [WebMethod(EnableSession = true)]
-        public string HelloWorld(string msg)
+        static public string HelloWorld(string msg)
         {
             TLogging.Log(msg);
             return "Hello from the server!!!";
         }
 
         /// <summary>
-        /// some tests for remoting DateTime objects
+        /// sample webconnector method
         /// </summary>
-        /// <param name="date"></param>
-        /// <param name="outDate"></param>
-        /// <returns></returns>
-        [WebMethod(EnableSession = true)]
-        public DateTime TestDateTime(DateTime date, out DateTime outDate)
+        static public DateTime TestDateTime(DateTime date, out DateTime outDate)
         {
             Console.WriteLine("ToShortDateString(): " + date.ToShortDateString());
             Console.WriteLine("ToUniversalTime(): " + date.ToUniversalTime());
@@ -88,38 +72,39 @@ namespace Tests.HTTPRemoting.Service
             outDate = date;
             return date;
         }
+
+        /// <summary>
+        /// sample webconnector method
+        /// </summary>
+        static public string HelloSubWorld()
+        {
+            return "HelloSubWorld from the server!!!";
+        }
     }
 
     /// <summary>
-    /// server manager for testing purposes
+    /// test of UIConnector
     /// </summary>
-    public class TOpenPetraOrgSessionManagerTest
+    public class TMyUIConnector : IMyUIConnector
     {
-        private static string TheServerManager = null;
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public TMyUIConnector()
+        {
+        }
+
+        private int FCounter = 0;
 
         /// <summary>
-        /// initialise the server once for everyone
+        /// test
         /// </summary>
-        public static bool Init()
+        public string HelloWorldUIConnector()
         {
-            if (TheServerManager == null)
-            {
-                // make sure the correct config file is used
-                new TAppSettingsManager(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + "web.config");
-                new TSrvSetting();
-                new TLogging(TSrvSetting.ServerLogFile);
-                TLogging.DebugLevel = TAppSettingsManager.GetInt16("Server.DebugLevel", 0);
-
-                Catalog.Init();
-
-                TheServerManager = "test";
-
-                TLogging.Log("Server has been initialised");
-
-                return true;
-            }
-
-            return false;
+            FCounter++;
+            string s = "HelloWorldUIConnector called this many times: " + FCounter.ToString();
+            TLogging.Log(s);
+            return s;
         }
     }
 }

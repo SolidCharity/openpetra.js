@@ -43,7 +43,10 @@ namespace Tests.HTTPRemoting.Client
     /// </summary>
     public class TRemote
     {
-        private class TMyService : IMyService
+        /// <summary>
+        /// my service class
+        /// </summary>
+        public class TMyService
         {
             /// print hello world
             public string HelloWorld(string msg)
@@ -61,20 +64,80 @@ namespace Tests.HTTPRemoting.Client
                 return DateTime.Now;
             }
 
+            private TMySubNamespace FMySubNamespace = new TMySubNamespace();
+
             /// get a subnamespace
-            public IMySubNamespace SubNamespace
+            public TMySubNamespace SubNamespace
             {
                 get
                 {
-                    // TODORemoting
-                    return null;
+                    return FMySubNamespace;
+                }
+            }
+
+            /// <summary> namespace definition </summary>
+            public class TMySubNamespace
+            {
+                /// get the UIConnector
+                public TMyUIConnector MyUIConnector()
+                {
+                    return new TMyUIConnector();
+                }
+
+                /// print hello sub world
+                public string HelloSubWorld(string msg)
+                {
+                    SortedList <string, object>ActualParameters = new SortedList <string, object>();
+                    ActualParameters.Add("msg", msg);
+                    List <object>Result = THttpConnector.CallWebConnector("Sample",
+                        "TMySubNamespace.HelloSubWorld",
+                        ActualParameters,
+                        "System.String");
+                    return Result[0].ToString();
+                }
+
+                /// the implementation of the UIConnector for the client
+                public class TMyUIConnector : IMyUIConnector, IDisposable
+                {
+                    private string FObjectID = String.Empty;
+
+                    /// constructor, create the object on the server
+                    public TMyUIConnector()
+                    {
+                        SortedList <string, object>ActualParameters = new SortedList <string, object>();
+                        FObjectID = THttpConnector.CreateUIConnector("Sample", "TMyUIConnector", ActualParameters);
+                    }
+
+                    /// desctructor
+                    ~TMyUIConnector()
+                    {
+                        Dispose();
+                    }
+
+                    /// dispose the object on the server as well
+                    public void Dispose()
+                    {
+                        THttpConnector.DisconnectUIConnector("Sample", FObjectID);
+                    }
+
+                    /// access the UIConnector Method
+                    public string HelloWorldUIConnector()
+                    {
+                        SortedList <string, object>ActualParameters = new SortedList <string, object>();
+                        return THttpConnector.CallUIConnectorMethod(FObjectID,
+                            "Sample",
+                            "TMyUIConnector",
+                            "HelloWorldUIConnector",
+                            ActualParameters,
+                            "System.String")[0].ToString();
+                    }
                 }
             }
         }
 
 
         /// <summary>Reference to the topmost level of the Petra Common Module Namespace</summary>
-        public static IMyService MyService
+        public static TMyService MyService
         {
             get
             {

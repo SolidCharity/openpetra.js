@@ -59,8 +59,8 @@ namespace Ict.Testing.HTTPRemoting.Client
 
                 Catalog.Init("en-GB", "en-GB");
 
-//                IMyUIConnector MyUIConnector = TRemote.MyService.SubNamespace.MyUIConnector();
-//                IMySubNamespace test = TRemote.MyService.SubNamespace;
+                IMyUIConnector MyUIConnector = TRemote.MyService.SubNamespace.MyUIConnector();
+                TRemote.TMyService.TMySubNamespace test = TRemote.MyService.SubNamespace;
 
                 while (true)
                 {
@@ -77,7 +77,7 @@ namespace Ict.Testing.HTTPRemoting.Client
 
                     try
                     {
-//                        TLogging.Log(test.HelloSubWorld("Hello SubWorld"));
+                        TLogging.Log(test.HelloSubWorld("Hello SubWorld"));
                     }
                     catch (Exception e)
                     {
@@ -86,7 +86,7 @@ namespace Ict.Testing.HTTPRemoting.Client
 
                     try
                     {
-//                        TLogging.Log(MyUIConnector.HelloWorldUIConnector());
+                        TLogging.Log(MyUIConnector.HelloWorldUIConnector());
                     }
                     catch (Exception e)
                     {

@@ -26,38 +26,10 @@ using Ict.Common.Remoting.Shared;
 
 namespace Tests.HTTPRemoting.Interface
 {
-    /// a simple service for testing purposes
-    public interface IMyService : IInterface
-    {
-        /// print hello world
-        string HelloWorld(string msg);
-
-        /// some tests for remoting DateTime objects
-        DateTime TestDateTime(DateTime date, out DateTime outDate);
-
-        /// get a subnamespace
-        IMySubNamespace SubNamespace
-        {
-            get;
-        }
-    }
-
     /// simple test of UIConnectors
     public interface IMyUIConnector : IInterface
     {
         /// test
         string HelloWorldUIConnector();
-    }
-
-    /// <summary>
-    /// sub namespace
-    /// </summary>
-    public interface IMySubNamespace : IInterface
-    {
-        /// get the UIConnector
-        IMyUIConnector MyUIConnector();
-
-        /// print hello sub world
-        string HelloSubWorld(string msg);
     }
 }
