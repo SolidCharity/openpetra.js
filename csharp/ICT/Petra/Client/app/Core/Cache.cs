@@ -357,6 +357,11 @@ namespace Ict.Petra.Client.App.Core
                         AFeesReceivableTable.GetLedgerNumberDBName(), ALedgerNumber, out DataTableType);
                         break;
 
+                    case TCacheableFinanceTablesEnum.ICHStewardshipList:
+                        ReturnValue = GetBasedOnLedger(TCacheableFinanceTablesEnum.ICHStewardshipList,
+                        AIchStewardshipTable.GetLedgerNumberDBName(), ALedgerNumber, out DataTableType);
+                        break;
+
                     default:
                         break;
                 }
