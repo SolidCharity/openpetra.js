@@ -53,6 +53,15 @@ public class GenerateClientGlue
     {
         string expectedreturntype = string.Empty;
 
+        if (!returntype.Contains("<"))
+        {
+            returntype = returntype == "string" || returntype == "String" ? "System.String" : returntype;
+            returntype = returntype == "bool" || returntype == "Boolean" ? "System.Boolean" : returntype;
+            returntype = returntype.Contains("Int32") || returntype == "int" ? "System.Int32" : returntype;
+            returntype = returntype.Contains("Int16") || returntype == "short" ? "System.Int16" : returntype;
+            returntype = returntype.Contains("Int64") || returntype == "long" ? "System.Int64" : returntype;
+        }
+
         if (ResultCounter > 0)
         {
             expectedreturntype = "list";
@@ -82,6 +91,15 @@ public class GenerateClientGlue
         AutoGenerationTools.FormatParameters(m.Parameters, out ActualParameters, out ParameterDefinition);
 
         string returntype = AutoGenerationTools.TypeToString(m.TypeReference, "");
+
+        if (!returntype.Contains("<"))
+        {
+            returntype = returntype == "string" || returntype == "String" ? "System.String" : returntype;
+            returntype = returntype == "bool" || returntype == "Boolean" ? "System.Boolean" : returntype;
+            returntype = returntype.Contains("Int32") || returntype == "int" ? "System.Int32" : returntype;
+            returntype = returntype.Contains("Int16") || returntype == "short" ? "System.Int16" : returntype;
+            returntype = returntype.Contains("Int64") || returntype == "long" ? "System.Int64" : returntype;
+        }
 
         snippet.SetCodelet("RETURN", returntype != "void" ? "return " : string.Empty);
 
