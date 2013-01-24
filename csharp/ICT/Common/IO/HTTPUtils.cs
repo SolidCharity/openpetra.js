@@ -149,23 +149,57 @@ namespace Ict.Common.IO
             }
         }
 
-        /// <summary>
-        /// post a request to a website. used for Connectors
-        /// </summary>
-        public static string PostRequest(string url, NameValueCollection parameters)
+        private static string WebClientUploadValues(string url, NameValueCollection parameters, int ANumberOfAttempts = 0)
         {
-            string ReturnValue = null;
-
-            // see http://blogs.msdn.com/b/carloc/archive/2007/02/13/webclient-2-0-class-not-working-under-win2000-with-https.aspx
-            // it seems we need to specify SSL3 instead of TLS
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
-
             byte[] buf;
 
             if (FWebClient == null)
             {
                 FWebClient = new WebClientWithSession();
             }
+
+            try
+            {
+                buf = FWebClient.UploadValues(url, parameters);
+            }
+            catch (System.NotSupportedException)
+            {
+                // System.NotSupportedException: WebClient does not support concurrent I/O operations
+                FWebClient = new WebClientWithSession(FWebClient.CookieContainer);
+                buf = FWebClient.UploadValues(url, parameters);
+            }
+            catch (System.Net.WebException)
+            {
+                if (ANumberOfAttempts > 0)
+                {
+                    // sleep for half a second
+                    System.Threading.Thread.Sleep(500);
+                    return WebClientUploadValues(url, parameters, ANumberOfAttempts - 1);
+                }
+
+                throw;
+            }
+
+            if ((buf != null) && (buf.Length > 0))
+            {
+                return Encoding.ASCII.GetString(buf, 0, buf.Length);
+            }
+            else
+            {
+                TLogging.Log("server did not return anything? timeout?");
+            }
+
+            return String.Empty;
+        }
+
+        /// <summary>
+        /// post a request to a website. used for Connectors
+        /// </summary>
+        public static string PostRequest(string url, NameValueCollection parameters)
+        {
+            // see http://blogs.msdn.com/b/carloc/archive/2007/02/13/webclient-2-0-class-not-working-under-win2000-with-https.aspx
+            // it seems we need to specify SSL3 instead of TLS
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
 
             if (TLogging.DebugLevel > 0)
             {
@@ -174,16 +208,7 @@ namespace Ict.Common.IO
 
             try
             {
-                buf = FWebClient.UploadValues(url, parameters);
-
-                if ((buf != null) && (buf.Length > 0))
-                {
-                    ReturnValue = Encoding.ASCII.GetString(buf, 0, buf.Length);
-                }
-                else
-                {
-                    TLogging.Log("server did not return anything? timeout?");
-                }
+                return WebClientUploadValues(url, parameters, 10);
             }
             catch (System.Net.WebException e)
             {
@@ -192,7 +217,7 @@ namespace Ict.Common.IO
                 TLogging.Log(e.Message);
             }
 
-            return ReturnValue;
+            return String.Empty;
         }
 
         /// <summary>
