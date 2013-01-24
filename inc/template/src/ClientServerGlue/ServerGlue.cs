@@ -243,7 +243,7 @@ public string TAsynchronousExecutionProgress_GetProgressState(string UIConnector
 
     try
     {
-        return THttpBinarySerializer.SerializeObjectWithType(((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).ProgressState);
+        return THttpBinarySerializer.SerializeObject(((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).ProgressState);
     }
     catch (Exception e)
     {
@@ -266,7 +266,7 @@ public string TAsynchronousExecutionProgress_GetResult(string UIConnectorObjectI
 
     try
     {
-        return THttpBinarySerializer.SerializeObjectWithType(((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).Result);
+        return THttpBinarySerializer.SerializeObject(((TAsynchronousExecutionProgress)FUIConnectors[ObjectID]).Result);
     }
     catch (Exception e)
     {

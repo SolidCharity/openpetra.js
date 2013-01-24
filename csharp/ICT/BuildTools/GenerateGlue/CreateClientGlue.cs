@@ -252,7 +252,7 @@ public class GenerateClientGlue
                         "GETTER",
                         "return new T" + type.Substring(
                             1) +
-                        "(\"M{#TOPLEVELMODULE}\", Guid.Parse(THttpConnector.ReadUIConnectorProperty(FObjectID, \"M{#TOPLEVELMODULE}\", \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\", \"string\").ToString()));");
+                        "(\"M{#TOPLEVELMODULE}\", THttpConnector.ReadUIConnectorProperty(FObjectID, \"M{#TOPLEVELMODULE}\", \"{#UICONNECTORCLASSNAME}\", \"{#NAME}\", \"System.String\").ToString());");
                 }
                 else
                 {

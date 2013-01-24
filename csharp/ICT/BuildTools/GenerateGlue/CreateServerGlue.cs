@@ -408,17 +408,17 @@ public class GenerateServerGlue
                 propertytype = propertytype.Contains("Int64") || propertytype == "long" ? "System.Int64" : propertytype;
             }
 
-            bool BinaryParameter = !((propertytype == "System.Int64") || (propertytype == "System.Int32") || (propertytype == "System.Int16")
-                                     || (propertytype == "System.String") || (propertytype == "System.Boolean"));
+            bool BinaryReturn = !((propertytype == "System.Int64") || (propertytype == "System.Int32") || (propertytype == "System.Int16")
+                                  || (propertytype == "System.String") || (propertytype == "System.Boolean"));
 
             string EncodedType = propertytype;
             string EncodeReturnType = string.Empty;
             string ActualValue = "AValue";
 
-            if (BinaryParameter)
+            if (BinaryReturn)
             {
                 EncodedType = "System.String";
-                EncodeReturnType = "THttpBinarySerializer.SerializeObjectWithType";
+                EncodeReturnType = "THttpBinarySerializer.SerializeObject";
                 ActualValue = "(" + propertytype + ")THttpBinarySerializer.DeserializeObject(AValue)";
             }
 

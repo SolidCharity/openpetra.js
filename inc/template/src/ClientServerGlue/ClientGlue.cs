@@ -81,7 +81,7 @@ public {#UICONNECTORINTERFACE} {#METHODNAME}({#PARAMETERDEFINITION})
 /// the implementation of the UIConnector for the client
 public class {#UICONNECTORCLASSNAME}: {#UICONNECTORINTERFACE}, IDisposable
 {
-    private Guid FObjectID = new Guid();
+    private string FObjectID = String.Empty;
 
     {#CONSTRUCTORS}
 

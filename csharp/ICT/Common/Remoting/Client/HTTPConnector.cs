@@ -135,7 +135,7 @@ namespace Ict.Common.Remoting.Client
         /// call a method of a UIConnector
         /// </summary>
         public static List <object>CallUIConnectorMethod(
-            Guid ObjectID,
+            string ObjectID,
             string AModuleName,
             string UIConnectorClass,
             string methodname,
@@ -150,7 +150,7 @@ namespace Ict.Common.Remoting.Client
         /// read a property of a UIConnector
         /// </summary>
         public static object ReadUIConnectorProperty(
-            Guid ObjectID,
+            string ObjectID,
             string AModuleName,
             string UIConnectorClass,
             string propertyname,
@@ -166,7 +166,7 @@ namespace Ict.Common.Remoting.Client
         /// write to a property of a UIConnector
         /// </summary>
         public static void WriteUIConnectorProperty(
-            Guid ObjectID,
+            string ObjectID,
             string AModuleName,
             string UIConnectorClass,
             string propertyname,
@@ -182,7 +182,7 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// create a UIConnector on the server
         /// </summary>
-        public static Guid CreateUIConnector(
+        public static string CreateUIConnector(
             string AModuleName,
             string classname,
             SortedList <string, object>parameters)
@@ -194,13 +194,13 @@ namespace Ict.Common.Remoting.Client
 
             result = TrimResult(result);
 
-            return Guid.Parse(THttpBinarySerializer.DeserializeObject(result, "System.String").ToString());
+            return THttpBinarySerializer.DeserializeObject(result, "System.String").ToString();
         }
 
         /// <summary>
         /// disconnect an object from the server, freeing up memory on the server
         /// </summary>
-        public static void DisconnectUIConnector(string AModuleName, Guid ObjectID)
+        public static void DisconnectUIConnector(string AModuleName, string ObjectID)
         {
             SortedList <string, object>Parameters = new SortedList <string, object>();
             Parameters.Add("UIConnectorObjectID", ObjectID.ToString());

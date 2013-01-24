@@ -34,11 +34,11 @@ namespace Ict.Common.Remoting.Client
     /// manually written client side for this special UIConnector
     public class TAsynchronousExecutionProgress : IAsynchronousExecutionProgress, IDisposable
     {
-        private Guid FObjectID = new Guid();
+        private string FObjectID = string.Empty;
         private string FModule = string.Empty;
 
         /// constructor, this UIConnector is created from the property of another UIConnector
-        public TAsynchronousExecutionProgress(string AModule, Guid ObjectID)
+        public TAsynchronousExecutionProgress(string AModule, string ObjectID)
         {
             FObjectID = ObjectID;
             FModule = AModule;
