@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Text;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -45,6 +46,21 @@ namespace Ict.Common.IO
             public WebClientWithSession(CookieContainer c)
             {
                 this.CookieContainer = c;
+
+                // see http://blogs.msdn.com/b/carloc/archive/2007/02/13/webclient-2-0-class-not-working-under-win2000-with-https.aspx
+                // it seems we need to specify SSL3 instead of TLS
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
+
+                if (TAppSettingsManager.GetValue("IgnoreServerCertificateValidation", "false", false) == "true")
+                {
+                    // when checking the validity of a SSL certificate, always pass
+                    // this only makes sense in a testing environment, with self signed certificates
+                    ServicePointManager.ServerCertificateValidationCallback =
+                        new RemoteCertificateValidationCallback(
+                            delegate
+                            { return true; }
+                            );
+                }
             }
 
             public CookieContainer CookieContainer {
@@ -77,10 +93,6 @@ namespace Ict.Common.IO
         public static string ReadWebsite(string url)
         {
             string ReturnValue = null;
-
-            // see http://blogs.msdn.com/b/carloc/archive/2007/02/13/webclient-2-0-class-not-working-under-win2000-with-https.aspx
-            // it seems we need to specify SSL3 instead of TLS
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
 
             byte[] buf;
 
@@ -197,10 +209,6 @@ namespace Ict.Common.IO
         /// </summary>
         public static string PostRequest(string url, NameValueCollection parameters)
         {
-            // see http://blogs.msdn.com/b/carloc/archive/2007/02/13/webclient-2-0-class-not-working-under-win2000-with-https.aspx
-            // it seems we need to specify SSL3 instead of TLS
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
-
             if (TLogging.DebugLevel > 0)
             {
                 LogRequest(url, parameters);
@@ -229,23 +237,22 @@ namespace Ict.Common.IO
         /// <returns></returns>
         public static Boolean DownloadFile(string url, string filename)
         {
-            // see http://blogs.msdn.com/b/carloc/archive/2007/02/13/webclient-2-0-class-not-working-under-win2000-with-https.aspx
-            // it seems we need to specify SSL3 instead of TLS
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
-
-            Boolean ReturnValue = false;
-            WebClient client = new WebClient();
+            if (FWebClient == null)
+            {
+                FWebClient = new WebClientWithSession();
+            }
 
             try
             {
-                client.DownloadFile(url, filename);
-                ReturnValue = true;
+                FWebClient.DownloadFile(url, filename);
+                return true;
             }
             catch (Exception e)
             {
                 TLogging.Log(e.Message + " url: " + url + " filename: " + filename);
             }
-            return ReturnValue;
+
+            return false;
         }
     }
 }
