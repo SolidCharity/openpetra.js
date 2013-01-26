@@ -87,8 +87,27 @@ namespace Ict.Petra.Server.app.WebService
         {
             if (TheServerManager == null)
             {
+                string configfilename = string.Empty;
+
                 // make sure the correct config file is used
-                new TAppSettingsManager(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + "web.config");
+                if (Environment.CommandLine.Contains("/appconfigfile="))
+                {
+                    // this happens when we use fastcgi-mono-server4
+                    configfilename = Environment.CommandLine.Substring(
+                        Environment.CommandLine.IndexOf("/appconfigfile=") + "/appconfigfile=".Length);
+
+                    if (configfilename.IndexOf(" ") != -1)
+                    {
+                        configfilename = configfilename.Substring(0, configfilename.IndexOf(" "));
+                    }
+                }
+                else
+                {
+                    // this is the normal behaviour when running with local http server
+                    configfilename = AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + "web.config";
+                }
+
+                new TAppSettingsManager(configfilename);
                 new TSrvSetting();
                 new TLogging(TSrvSetting.ServerLogFile);
                 TLogging.DebugLevel = TAppSettingsManager.GetInt16("Server.DebugLevel", 0);

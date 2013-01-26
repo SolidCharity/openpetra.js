@@ -51,6 +51,9 @@ namespace Ict.Common.IO
                 // it seems we need to specify SSL3 instead of TLS
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
 
+                // see http://stackoverflow.com/questions/566437/http-post-returns-the-error-417-expectation-failed-c
+                System.Net.ServicePointManager.Expect100Continue = false;
+
                 if (TAppSettingsManager.GetValue("IgnoreServerCertificateValidation", "false", false) == "true")
                 {
                     // when checking the validity of a SSL certificate, always pass

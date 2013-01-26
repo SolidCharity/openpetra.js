@@ -46,6 +46,11 @@ namespace Ict.Common.Remoting.Shared
         {
             if (!binary)
             {
+                if (o.GetType() == typeof(bool))
+                {
+                    return o.ToString().ToLower();
+                }
+
                 return o.ToString();
             }
 
