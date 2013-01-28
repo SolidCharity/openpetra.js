@@ -139,12 +139,6 @@ public class CreateInterfaces
                     continue;
                 }
 
-                if (!p.GetRegion.Block.ToString().Contains("TCreateRemotableObject"))
-                {
-                    TLogging.Log("Warning: properties in UIConnectors must use the class TCreateRemotableObject: " +
-                        AServerNamespace + "." + t.Name + "." + p.Name);
-                }
-
                 // don't write namespace hierarchy here
                 if (p.TypeReference.Type.IndexOf("Namespace") == -1)
                 {
