@@ -115,6 +115,19 @@ public class GenerateServerGlue
                         snippet.SetCodelet("PARAMETERTYPES", ParameterTypes);
                         return snippet;
                     }
+                    else if (attr.Name == "CheckServerAdminToken")
+                    {
+                        ProcessTemplate snippet = ATemplate.GetSnippet("CHECKSERVERADMINPERMISSION");
+                        string paramdefinition = "string AServerAdminSecurityToken";
+
+                        if (ATemplate.FCodelets["PARAMETERDEFINITION"].Length != 0)
+                        {
+                            paramdefinition += ", ";
+                        }
+
+                        ATemplate.AddToCodeletPrepend("PARAMETERDEFINITION", paramdefinition);
+                        return snippet;
+                    }
                 }
             }
         }

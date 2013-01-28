@@ -19,7 +19,7 @@ using Ict.Common.Remoting.Client;
 using Ict.Petra.Shared;
 {#USINGNAMESPACES}
 
-namespace Ict.Petra.Client.App.Core.RemoteObjects
+namespace {#REMOTEOBJECTSNAMESPACE}
 {
     /// the top level namespace for the module {#TOPLEVELMODULE}
     public class TM{#TOPLEVELMODULE}Namespace

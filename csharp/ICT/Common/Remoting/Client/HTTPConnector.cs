@@ -43,6 +43,24 @@ namespace Ict.Common.Remoting.Client
     {
         private static string ServerURL = string.Empty;
 
+        private static string FServerAdminSecurityToken = string.Empty;
+
+        /// <summary>
+        /// security token for access to serveradmin webconnector methods
+        /// </summary>
+        public static string ServerAdminSecurityToken
+        {
+            get
+            {
+                return FServerAdminSecurityToken;
+            }
+            set
+            {
+                FServerAdminSecurityToken = value;
+            }
+        }
+
+
         /// <summary>
         /// initialise the name of the server
         /// </summary>

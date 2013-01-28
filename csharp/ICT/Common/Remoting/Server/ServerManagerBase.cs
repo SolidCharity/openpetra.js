@@ -46,8 +46,13 @@ namespace Ict.Common.Remoting.Server
     /// <summary>
     /// some common implementations for IServerAdminInterface
     /// </summary>
-    public class TServerManagerBase : MarshalByRefObject, IServerAdminInterface
+    public class TServerManagerBase : IServerAdminInterface
     {
+        /// <summary>
+        /// static: only initialised once for the whole server
+        /// </summary>
+        public static IServerAdminInterface TheServerManager = null;
+
         /// <summary>Keeps track of the number of times this Class has been
         /// instantiated</summary>
         private Int32 FNumberServerManagerInstances;
@@ -199,6 +204,35 @@ namespace Ict.Common.Remoting.Server
         }
 
         /// <summary>
+        /// check if a file with this security token exists
+        /// </summary>
+        public static bool CheckServerAdminToken(string AServerAdminToken)
+        {
+            string TokenFilename = TAppSettingsManager.GetValue("Server.PathTemp") +
+                                   Path.DirectorySeparatorChar + "ServerAdminToken" + AServerAdminToken + ".txt";
+
+            if (File.Exists(TokenFilename))
+            {
+                using (StreamReader sr = new StreamReader(TokenFilename))
+                {
+                    string content = sr.ReadToEnd();
+                    sr.Close();
+
+                    if (content.Trim() == AServerAdminToken)
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                TLogging.Log("cannot find security token file " + TokenFilename);
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Ensures Logging and an 'ordered cooperative shutdown' in case an Unhandled Exception is
         /// thrown in Threads, ThreadPool work items or Finalizers anywhere in the PetraServer.
         /// </summary>
@@ -218,17 +252,6 @@ namespace Ict.Common.Remoting.Server
         {
             AppDomain.CurrentDomain.UnhandledException +=
                 new UnhandledExceptionEventHandler(ExceptionHandling.UnhandledExceptionHandler);
-        }
-
-        /// <summary>
-        /// Ensures that the TServerManager class is instantiated only once remotely and
-        /// doesn't get GCed
-        /// </summary>
-        /// <returns>An object of type ILease used to control the lifetime policy for this
-        /// instance.</returns>
-        public override object InitializeLifetimeService()
-        {
-            return null;
         }
 
         /// <summary>

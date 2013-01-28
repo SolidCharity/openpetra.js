@@ -68,6 +68,18 @@ namespace Ict.Petra.Server.App.Core
         private IUserManager FUserManager;
 
         /// <summary>
+        /// get a casted version of the static variable
+        /// </summary>
+        public static TServerManager TheCastedServerManager
+        {
+            get
+            {
+                return (TServerManager)TheServerManager;
+            }
+        }
+
+
+        /// <summary>
         /// Initialises Logging and parses Server settings from different sources.
         /// </summary>
         public TServerManager() : base()

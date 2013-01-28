@@ -85,6 +85,13 @@ public {#RETURNTYPE} {#WEBCONNECTORCLASS}_{#UNIQUEMETHODNAME}({#PARAMETERDEFINIT
 {##CHECKUSERMODULEPERMISSIONS}
 TModuleAccessManager.CheckUserPermissionsForMethod(typeof({#CONNECTORWITHNAMESPACE}), "{#METHODNAME}", "{#PARAMETERTYPES}"{#LEDGERNUMBER});
 
+{##CHECKSERVERADMINPERMISSION}
+if (!TServerManagerBase.CheckServerAdminToken(AServerAdminSecurityToken))
+{
+    TLogging.Log("invalid security token for serveradmin access");
+    throw new Exception("Please check server log file");
+}
+
 {##UICONNECTORCONSTRUCTOR}
 /// create a new UIConnector
 [WebMethod(EnableSession = true)]

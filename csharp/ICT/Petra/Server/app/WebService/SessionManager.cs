@@ -64,7 +64,6 @@ namespace Ict.Petra.Server.app.WebService
         /// <summary>
         /// static: only initialised once for the whole server
         /// </summary>
-        static TServerManager TheServerManager = null;
         static TClientManager TheClientManager = null;
 
         /// <summary>
@@ -85,7 +84,7 @@ namespace Ict.Petra.Server.app.WebService
         /// </summary>
         public static bool Init()
         {
-            if (TheServerManager == null)
+            if (TServerManager.TheServerManager == null)
             {
                 string configfilename = string.Empty;
 
@@ -120,12 +119,12 @@ namespace Ict.Petra.Server.app.WebService
 
                 Catalog.Init();
 
-                TheServerManager = new TServerManager();
+                TServerManager.TheServerManager = new TServerManager();
                 TheClientManager = new TClientManager();
 
                 try
                 {
-                    TheServerManager.EstablishDBConnection();
+                    TServerManager.TheCastedServerManager.EstablishDBConnection();
 
                     TSystemDefaultsCache.GSystemDefaultsCache = new TSystemDefaultsCache();
                     DomainManager.GSiteKey = TSystemDefaultsCache.GSystemDefaultsCache.GetInt64Default(
@@ -165,7 +164,7 @@ namespace Ict.Petra.Server.app.WebService
 
                 DBAccess.GDBAccessObj.UserID = username.ToUpper();
 
-                TheServerManager.AddDBConnection(DBAccess.GDBAccessObj);
+                TServerManager.TheCastedServerManager.AddDBConnection(DBAccess.GDBAccessObj);
 
                 Int32 ClientID;
 
@@ -232,19 +231,19 @@ namespace Ict.Petra.Server.app.WebService
 
             if (HttpContext.Current.Session["DBAccessObj"] == null)
             {
-                if (TheServerManager == null)
+                if (TServerManager.TheServerManager == null)
                 {
                     TLogging.Log("GetDatabaseFromSession : TheServerManager is null");
                 }
                 else
                 {
                     // disconnect web user after 2 minutes of inactivity. should disconnect itself already earlier
-                    TheServerManager.DisconnectTimedoutDatabaseConnections(2 * 60, "ANONYMOUS");
+                    TServerManager.TheCastedServerManager.DisconnectTimedoutDatabaseConnections(2 * 60, "ANONYMOUS");
 
                     // disconnect normal users after 3 hours of inactivity
-                    TheServerManager.DisconnectTimedoutDatabaseConnections(3 * 60 * 60, "");
+                    TServerManager.TheCastedServerManager.DisconnectTimedoutDatabaseConnections(3 * 60 * 60, "");
 
-                    TheServerManager.EstablishDBConnection();
+                    TServerManager.TheCastedServerManager.EstablishDBConnection();
                 }
             }
 

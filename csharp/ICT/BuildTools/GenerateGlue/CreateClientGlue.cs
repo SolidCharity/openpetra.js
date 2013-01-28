@@ -79,6 +79,25 @@ public class GenerateClientGlue
         return expectedreturntype;
     }
 
+    private static bool CheckServerAdminToken(MethodDeclaration m)
+    {
+        if (m.Attributes != null)
+        {
+            foreach (AttributeSection attrSection in m.Attributes)
+            {
+                foreach (ICSharpCode.NRefactory.Ast.Attribute attr in attrSection.Attributes)
+                {
+                    if (attr.Name == "CheckServerAdminToken")
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>
     /// insert a method call
     /// </summary>
@@ -124,6 +143,13 @@ public class GenerateClientGlue
         snippet.SetCodelet("ADDACTUALPARAMETERS", string.Empty);
 
         int ResultCounter = 0;
+
+        if (CheckServerAdminToken(m))
+        {
+            snippet.AddToCodelet("ADDACTUALPARAMETERS",
+                "ActualParameters.Add(\"AServerAdminSecurityToken\", THttpConnector.ServerAdminSecurityToken" +
+                ");" + Environment.NewLine);
+        }
 
         foreach (ParameterDeclarationExpression p in m.Parameters)
         {
@@ -470,7 +496,14 @@ public class GenerateClientGlue
         InterfacePath = InterfacePath.Substring(0, InterfacePath.IndexOf("csharp/ICT/Petra")) + "csharp/ICT/Petra/Shared/lib/Interfaces";
         Template.AddToCodelet("USINGNAMESPACES", CreateInterfaces.AddNamespacesFromYmlFile(InterfacePath, tn.Name));
 
-        InsertSubNamespaces(Template, connectors, tn.Name, "Ict.Petra.Shared.M" + tn.Name, tn);
+        string SharedPathName = "Ict.Petra.Shared.M" + tn.Name;
+
+        if (SharedPathName.Contains("ServerAdmin"))
+        {
+            SharedPathName = "Ict.Petra.Server.App.Core." + tn.Name;
+        }
+
+        InsertSubNamespaces(Template, connectors, tn.Name, SharedPathName, tn);
 
         if (FModuleHasUIConnector)
         {
@@ -480,6 +513,15 @@ public class GenerateClientGlue
         foreach (string usingNamespace in FUsingNamespaces.Keys)
         {
             Template.AddToCodelet("USINGNAMESPACES", "using " + usingNamespace + ";" + Environment.NewLine);
+        }
+
+        if (OutputFile.Contains("ClientGlue.MServerAdmin"))
+        {
+            Template.SetCodelet("REMOTEOBJECTSNAMESPACE", "Ict.Petra.ServerAdmin.App.Core.RemoteObjects");
+        }
+        else
+        {
+            Template.SetCodelet("REMOTEOBJECTSNAMESPACE", "Ict.Petra.Client.App.Core.RemoteObjects");
         }
 
         Template.FinishWriting(OutputFile, ".cs", true);

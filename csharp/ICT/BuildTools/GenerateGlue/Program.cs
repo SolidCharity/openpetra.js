@@ -112,6 +112,15 @@ namespace Ict.Tools.GenerateGlue
                 GenerateClientGlue.GenerateCode(namespaceRoot, OutputDir + "/Client/app/Core/Remoteobjects", cmd.GetOptValue("TemplateDir"));
                 GenerateClientGlue.GenerateConnectorCode(OutputDir + "/../Common/Remoting/Client", cmd.GetOptValue("TemplateDir"));
                 GenerateServerGlue.GenerateCode(namespaceRoot, OutputDir + "/Server/app/WebService", cmd.GetOptValue("TemplateDir"));
+
+                namespaceRoot = new TNamespace();
+                TNamespace ServerAdminNamespace = new TNamespace("ServerAdmin");
+                namespaceRoot.Children.Add("ServerAdmin", ServerAdminNamespace);
+                TNamespace ServerAdminWebConnectorNamespace = new TNamespace("WebConnectors");
+                ServerAdminNamespace.Children.Add("WebConnectors", ServerAdminWebConnectorNamespace);
+
+                GenerateServerGlue.GenerateCode(namespaceRoot, OutputDir + "/Server/app/WebService", cmd.GetOptValue("TemplateDir"));
+                GenerateClientGlue.GenerateCode(namespaceRoot, OutputDir + "/ServerAdmin/app/Core", cmd.GetOptValue("TemplateDir"));
             }
             catch (Exception e)
             {

@@ -212,6 +212,11 @@ public class TCollectConnectorInterfaces
                 CSFiles = CSParser.GetCSFilesForDirectory(CSParser.ICTPath + "/Petra/Server/lib/M" + AModuleName,
                     SearchOption.AllDirectories);
             }
+            else if (AModuleName == "ServerAdmin")
+            {
+                CSFiles = CSParser.GetCSFilesForDirectory(CSParser.ICTPath + "/Petra/Server/app/Core",
+                    SearchOption.AllDirectories);
+            }
             else
             {
                 CSFiles = new List <CSParser>();
