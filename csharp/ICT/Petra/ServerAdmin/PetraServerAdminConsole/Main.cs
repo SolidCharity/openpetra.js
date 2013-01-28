@@ -22,15 +22,12 @@
 // along with OpenPetra.org.  If not, see <http://www.gnu.org/licenses/>.
 //
 using System;
-using System.Net.Sockets;
-using System.Runtime.Remoting;
 using Ict.Common;
 using Ict.Common.Remoting.Shared;
 using System.Reflection;
 using System.Diagnostics;
 using System.IO;
 using Ict.Common.Remoting.Client;
-using Ict.Petra.ServerAdmin.App.Core;
 using Ict.Petra.ServerAdmin.App.Core.RemoteObjects;
 
 namespace PetraServerAdminConsole
@@ -74,10 +71,7 @@ public class TAdminConsole
     /// <returns>true if shutdown was completed</returns>
     public static bool ShutDownControlled(bool AWithUserInteraction)
     {
-        bool ReturnValue;
-        bool ack;
-
-        ack = false;
+        bool ack = false;
 
         if (AWithUserInteraction == true)
         {
@@ -98,36 +92,31 @@ public class TAdminConsole
         if (ack == true)
         {
             TLogging.Log("CONTROLLED SHUTDOWN PROCEDURE INITIATED...");
-            try
+
+            if (!TRemote.StopServerControlled(true))
             {
-                if (!TRemote.StopServerControlled(true))
-                {
-                    Console.WriteLine("     Shutdown cancelled!");
-                    Console.Write(ServerAdminPrompt);
-                    ReturnValue = false;
-                }
+                Console.WriteLine("     Shutdown cancelled!");
+                Console.Write(ServerAdminPrompt);
+                return false;
             }
-            catch (SocketException)
+
+            if (AWithUserInteraction == true)
             {
-                if (AWithUserInteraction == true)
-                {
-                    Console.WriteLine();
-                    TLogging.Log("SERVER STOPPED!");
-                    Console.WriteLine();
-                    Console.Write("Press ENTER to end PETRAServerADMIN...");
-                    Console.ReadLine();
-                }
+                Console.WriteLine();
+                TLogging.Log("SERVER STOPPED!");
+                Console.WriteLine();
+                Console.Write("Press ENTER to end PETRAServerADMIN...");
+                Console.ReadLine();
+                return true;
             }
-            ReturnValue = true;
         }
         else
         {
             Console.WriteLine("     Shutdown cancelled!");
             Console.Write(ServerAdminPrompt);
-            ReturnValue = false;
         }
 
-        return ReturnValue;
+        return false;
     }
 
     /// <summary>
@@ -161,21 +150,17 @@ public class TAdminConsole
         if (ack == true)
         {
             TLogging.Log("SHUTDOWN PROCEDURE INITIATED...");
-            try
+            TRemote.StopServer();
+
+            if (AWithUserInteraction == true)
             {
-                TRemote.StopServer();
+                Console.WriteLine();
+                TLogging.Log("SERVER STOPPED!");
+                Console.WriteLine();
+                Console.Write("Press ENTER to end PETRAServerADMIN...");
+                Console.ReadLine();
             }
-            catch (SocketException)
-            {
-                if (AWithUserInteraction == true)
-                {
-                    Console.WriteLine();
-                    TLogging.Log("SERVER STOPPED!");
-                    Console.WriteLine();
-                    Console.Write("Press ENTER to end PETRAServerADMIN...");
-                    Console.ReadLine();
-                }
-            }
+
             ReturnValue = true;
         }
         else
@@ -628,31 +613,8 @@ public class TAdminConsole
         ATotalConnectedClients = -1;
         ACurrentlyConnectedClients = -1;
 
-        try
-        {
-            ATotalConnectedClients = TRemote.GetClientsConnectedTotal();
-            ACurrentlyConnectedClients = TRemote.GetClientsConnected();
-        }
-        catch (RemotingException remexp)
-        {
-            HandleConnectionError(remexp);
-
-            Environment.Exit(0);
-
-            // PetraServerAdminConsole application stops here !!!
-        }
-        catch (System.Net.Sockets.SocketException remexp)
-        {
-            HandleConnectionError(remexp);
-
-            Environment.Exit(0);
-
-            // PetraServerAdminConsole application stops here !!!
-        }
-        catch (System.Exception)
-        {
-            throw;
-        }
+        ATotalConnectedClients = TRemote.GetClientsConnectedTotal();
+        ACurrentlyConnectedClients = TRemote.GetClientsConnected();
     }
 
     private static string SecurityToken = string.Empty;
@@ -794,15 +756,6 @@ public class TAdminConsole
 
             // All exceptions that are raised are handled here
             // Note: ServerAdmin stops after handling these exceptions!!!
-        }
-        catch (RemotingException remexp)
-        {
-            if ((!SilentSysadm))
-            {
-                Console.WriteLine("RemotingException occured while connecting/communicating to PETRAServer: " + remexp.Message);
-            }
-
-            return;
         }
         catch (Exception exp)
         {

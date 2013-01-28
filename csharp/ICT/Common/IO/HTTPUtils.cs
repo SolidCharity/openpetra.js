@@ -199,10 +199,6 @@ namespace Ict.Common.IO
             {
                 return Encoding.ASCII.GetString(buf, 0, buf.Length);
             }
-            else
-            {
-                TLogging.Log("server did not return anything? timeout?");
-            }
 
             return String.Empty;
         }

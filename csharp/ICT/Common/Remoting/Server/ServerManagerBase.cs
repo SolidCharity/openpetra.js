@@ -390,6 +390,13 @@ CheckAllClientsDisconnected:
             return true;  // this will never get executed, but is necessary for that Method to compile...
         }
 
+        private void StopServerThread()
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(0.5));
+            TLogging.Log(Catalog.GetString("SHUTDOWN PROCEDURE FINISHED"));
+            Environment.Exit(0);
+        }
+
         /// <summary>
         /// Stops the Petra Server.
         /// A GC is invoked and waits for pending tasks before the application ends.
@@ -407,8 +414,8 @@ CheckAllClientsDisconnected:
             TLogging.Log("  " + Catalog.GetString("SHUTDOWN: Executing step 2 of 2..."));
             GC.WaitForPendingFinalizers();
 
-            TLogging.Log(Catalog.GetString("SHUTDOWN PROCEDURE FINISHED"));
-            Environment.Exit(0);
+
+            new Thread(StopServerThread).Start();
 
             // Server application stops here !!!
         }
