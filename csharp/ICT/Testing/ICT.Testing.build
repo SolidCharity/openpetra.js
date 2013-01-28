@@ -13,7 +13,7 @@
         <test assemblyname="${dir.bin}/Ict.Testing.lib.MFinance.GiftForm.dll" />
         <test assemblyname="${dir.bin}/Ict.Testing.lib.MFinance.GLForm.dll" />
 -->
-    <nant inheritall="false" target="stopPetraServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>    
+    <nant inheritall="false" target="stopServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>    
 </target>
 
 <target name="test-tools">

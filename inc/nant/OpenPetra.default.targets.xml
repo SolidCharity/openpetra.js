@@ -179,6 +179,29 @@
   </if>
 </target> 
 
+<target name="stopPetraServer" description="stop the local OpenPetra Server">
+    <call target="stopServer"/>
+</target>
+
+<target name="stopServer" depends="initConfigFiles-admin" description="stop the local OpenPetra Server">
+  <if test="${platform::is-windows()}" >
+      <exec program="PetraServerAdminConsole.exe" 
+            basedir="${dir.bin}" 
+            workingdir="${dir.bin}"
+            commandline="-Command:Stop -C:${ServerAdminConfigFile}"/>
+  </if>
+  <if test="${not platform::is-windows()}">
+      <exec program="${MonoExecutable.file}" 
+              workingdir="${dir.bin}"
+              commandline="PetraServerAdminConsole.exe -Command:Stop -C:${ServerAdminConfigFile}"
+              spawn="false">
+         <environment>
+            <variable name="LANGUAGE" value="${SelectedLanguage}"/>
+         </environment>
+      </exec>
+  </if>
+</target>
+
 <target name="startAdmin" depends="initConfigFiles-admin" description="start the OpenPetra Server Admin Console"> 
   <if test="${platform::is-windows()}" >
       <exec program="cmd.exe" 

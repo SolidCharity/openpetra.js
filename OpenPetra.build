@@ -23,10 +23,11 @@ list of available commands:
       nant compileProject -D:file=delivery/projects/sharpdevelop4/Ict.Testing.ControlTestBench.csproj 
   start: start both the local server and client
   startServer: run a local OpenPetra Server
+  stopServer: stop the local OpenPetra server
   startClient: run the OpenPetra Client
   deleteBakFiles: delete all backup files
   initConfigFiles: write and overwrite the config files for client, server and testing, and the version.txt
-  test: will run the NUnit tests
+  test: will run the NUnit tests (smaller tests: test-without-display, test-client)
 
 compat:
   createSQLStatements: generates the sql create table statements etc from the petra.xml
@@ -319,6 +320,11 @@ useful parameters
 <target name="test-without-display" depends="initConfigFiles">
   <loadtasks assembly="${Ict.Tools.NAntTasks.DLL}" unless="${task::exists('GenerateNamespaceMap')}"/>
   <nant inheritall="false" target="test-without-display" buildfile="${path::combine(dir.csharp, 'ICT/Testing/ICT.Testing.build')}" verbose="${verbose}"/>
+</target>
+
+<target name="test-client" depends="initConfigFiles">
+  <loadtasks assembly="${Ict.Tools.NAntTasks.DLL}" unless="${task::exists('GenerateNamespaceMap')}"/>
+  <nant inheritall="false" target="test-client" buildfile="${path::combine(dir.csharp, 'ICT/Testing/ICT.Testing.build')}" verbose="${verbose}"/>
 </target>
 
 </project>
