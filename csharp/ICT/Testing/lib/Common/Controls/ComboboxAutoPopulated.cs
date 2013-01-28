@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -56,7 +56,7 @@ namespace Tests.Common.Controls
         [SetUp]
         public void Init()
         {
-            new TLogging("TestCommonControls.log");
+            new TLogging("../../log/TestCommonControls.log");
 
             TPetraConnector.Connect("../../etc/TestClient.config");
             FLedgerNumber = Convert.ToInt32(TAppSettingsManager.GetValue("LedgerNumber"));

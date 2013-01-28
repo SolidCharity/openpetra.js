@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -47,7 +47,7 @@ namespace Ict.Common.IO.Testing
         [SetUp]
         public void Init()
         {
-            new TLogging("test.log");
+            new TLogging("../../log/test.log");
             new TAppSettingsManager("../../etc/TestClient.config");
             TLogging.DebugLevel = TAppSettingsManager.GetInt16("Client.DebugLevel", 0);
 
