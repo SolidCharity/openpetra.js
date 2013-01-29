@@ -1487,6 +1487,7 @@ namespace Ict.Petra.Shared
         public ECacheableTablesMgrException(String msg) : base(msg)
         {
         }
+
         #endregion
     }
 
@@ -1511,6 +1512,7 @@ namespace Ict.Petra.Shared
         public ECacheableTablesMgrTableNotUpToDateException(String msg) : base(msg)
         {
         }
+
         #endregion
     }
 }

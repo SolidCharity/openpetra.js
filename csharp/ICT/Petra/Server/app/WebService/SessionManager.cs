@@ -307,7 +307,7 @@ namespace Ict.Petra.Server.App.WebService
 
             return THttpBinarySerializer.SerializeObject(UserInfo.GUserInfo, true);
         }
-        
+
 #if TODORemoting
         void ConnectClient(String AUserName,
             String APassword,
@@ -341,7 +341,7 @@ namespace Ict.Petra.Server.App.WebService
          *
          */
         Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason);
- 
+
         /**
          * Can be called to queue a ClientTask for a certain Client.
          *
@@ -395,7 +395,7 @@ namespace Ict.Petra.Server.App.WebService
         /// </summary>
         /// <returns></returns>
         System.Int32 GCGetApproxMemory();
-        
 #endif
+
     }
 }

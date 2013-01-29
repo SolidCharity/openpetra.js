@@ -377,6 +377,7 @@ namespace Ict.Petra.Shared.Security
         public ELoginMessageAlreadySetException(String msg) : base(msg)
         {
         }
+
         #endregion
     }
 
@@ -401,6 +402,7 @@ namespace Ict.Petra.Shared.Security
         public EProcessIDAlreadySetException(String msg) : base(msg)
         {
         }
+
         #endregion
     }
 }

@@ -274,7 +274,7 @@ namespace Ict.Common.Remoting.Server
             FRandomAppDomainTearDownToken = random.Next(Int32.MinValue, Int32.MaxValue).ToString();
 
             // TODORemoting setup life time services
-            
+
             if (TLogging.DL >= 4)
             {
                 Console.WriteLine("Application domain: " + Thread.GetDomain().FriendlyName);
