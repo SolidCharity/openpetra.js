@@ -108,29 +108,4 @@ namespace Ict.Common.Remoting.Server
             return ReturnValue;
         }
     }
-
-    /**
-     * Used to pass in a reference to the ClientTasksManager. That is used by
-     * the PollClientTasks function. Since the TPollClientTasks Class is re-created
-     * with every Client call to PollClientTasks, this helper Class is needed to
-     * set a Unit-wide variable.
-     *
-     */
-    public class TPollClientTasksParameters
-    {
-        /// <summary>
-        /// constructors
-        /// </summary>
-        /// <param name="AClientTasksManager"></param>
-        public TPollClientTasksParameters(TClientTasksManager AClientTasksManager)
-        {
-            if (TLogging.DL >= 10)
-            {
-                Console.WriteLine("{0} TPollClientTasksParameters created", DateTime.Now);
-            }
-
-            TPollClientTasks.UClientTasksManager = AClientTasksManager;
-            TPollClientTasks.ULastPollingTime = DateTime.Now;
-        }
-    }
 }

@@ -222,17 +222,17 @@ namespace Ict.Petra.Server.MSysMan.Security.UserManager.WebConnectors
         /// </summary>
         /// <param name="AUserID"></param>
         /// <param name="APassword"></param>
-        /// <param name="AProcessID"></param>
         /// <param name="ASystemEnabled"></param>
         /// <returns></returns>
         [NoRemoting]
-        public static TPetraPrincipal PerformUserAuthentication(String AUserID, String APassword, out Int32 AProcessID, out Boolean ASystemEnabled)
+        public static TPetraPrincipal PerformUserAuthentication(String AUserID, String APassword, out Boolean ASystemEnabled)
         {
             TVerificationResultCollection VerificationResults;
             DateTime LoginDateTime;
             TPetraPrincipal PetraPrincipal = null;
 
-            AProcessID = -1;
+            Int32 AProcessID = -1;
+
             ASystemEnabled = true;
 
             string EmailAddress = AUserID;
@@ -504,11 +504,12 @@ namespace Ict.Petra.Server.MSysMan.Security.UserManager.WebConnectors
         [RequireModulePermission("NONE")]
         public static void SignalReloadCachedUserInfo(String AUserID)
         {
-            DomainManager.ClientTaskAddToOtherClient(AUserID,
+            TClientManager.QueueClientTask(AUserID,
                 SharedConstants.CLIENTTASKGROUP_USERINFOREFRESH,
                 "",
                 null, null, null, null,
-                1);
+                1,
+                -1);
         }
     }
 }
@@ -536,10 +537,9 @@ namespace Ict.Petra.Server.MSysMan.Maintenance.UserManagement
         /// authenticate a user
         /// </summary>
         public IPrincipal PerformUserAuthentication(string AUserName, string APassword,
-            out Int32 AProcessID,
             out Boolean ASystemEnabled)
         {
-            return TUserManagerWebConnector.PerformUserAuthentication(AUserName, APassword, out AProcessID, out ASystemEnabled);
+            return TUserManagerWebConnector.PerformUserAuthentication(AUserName, APassword, out ASystemEnabled);
         }
     }
 }

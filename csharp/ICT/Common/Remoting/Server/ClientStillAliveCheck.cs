@@ -2,9 +2,9 @@
 // DO NOT REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 //
 // @Authors:
-//       christiank
+//       christiank, timop
 //
-// Copyright 2004-2011 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -27,15 +27,12 @@ using System.Threading;
 
 namespace Ict.Common.Remoting.Server
 {
-    /// <summary>Delegate declaration</summary>
-    public delegate void TDelegateTearDownAppDomain(String AToken, String AReason);
-
     /// <summary>
-    /// The TClientStillAliveCheck Class monitors whether the connected PetraClient is still 'alive'.
+    /// The ClientStillAliveCheck Class monitors whether the connected PetraClient is still 'alive'.
     /// </summary>
     /// <remarks>
-    /// If this Class finds out that the connected PetraClient isn't 'alive'
-    /// anymore, it will initiate the tearing down of the Client's AppDomain!
+    /// If this Class finds out that the connected client isn't 'alive'
+    /// anymore, it will close the session of the client
     /// </remarks>
     public class ClientStillAliveCheck
     {
@@ -46,8 +43,6 @@ namespace Ict.Common.Remoting.Server
 
         #endregion
 
-        private static TDelegateTearDownAppDomain UTearDownAppDomain;
-        private static String UTearDownAppDomainToken;
         private static Thread UClientStillAliveCheckThread;
         private static Boolean UKeepServerAliveCheck;
         private static Int32 UClientStillAliveTimeout;
@@ -64,22 +59,18 @@ namespace Ict.Common.Remoting.Server
          * anymore, it will initiate the tearing down of the Client's AppDomain!!!
          *
          */
-        public class TClientStillAliveCheck : object
+        public class TClientStillAliveCheck
         {
-            /**
-             * Constructor for passing in parameters.
-             *
-             * @param AClientServerConnectionType Type of Client connection
-             * @param ATearDownAppDomain Delegate that is called once
-             * ClientStillAliveCheckThread finds out that the Client is no longer 'alive'
-             * @param ATearDownAppDomainToken Security Token. Prevents against unauthorized
-             * tearing down of the Client's AppDomain.
-             *
-             */
-            public TClientStillAliveCheck(TClientServerConnectionType AClientServerConnectionType,
-                TDelegateTearDownAppDomain ATearDownAppDomain,
-                String ATearDownAppDomainToken)
+            private TConnectedClient FClientObject;
+
+            /// <summary>
+            /// Constructor for passing in parameters.
+            /// </summary>
+            public TClientStillAliveCheck(TConnectedClient AConnectedClient,
+                TClientServerConnectionType AClientServerConnectionType)
             {
+                FClientObject = AConnectedClient;
+
                 Int32 ClientStillAliveTimeout;
 
                 if (TLogging.DL >= 10)
@@ -103,8 +94,6 @@ namespace Ict.Common.Remoting.Server
 
                 UClientStillAliveTimeout = ClientStillAliveTimeout;
                 UClientStillAliveCheckInterval = TSrvSetting.ClientKeepAliveCheckIntervalInSeconds;
-                UTearDownAppDomain = ATearDownAppDomain;
-                UTearDownAppDomainToken = ATearDownAppDomainToken;
 
                 // Start ClientStillAliveCheckThread
                 UKeepServerAliveCheck = true;
@@ -208,21 +197,7 @@ namespace Ict.Common.Remoting.Server
                          */
                         UKeepServerAliveCheck = false;
 
-                        if (UTearDownAppDomain != null)
-                        {
-                            UTearDownAppDomain(UTearDownAppDomainToken,
-                                String.Format(StrClientFailedToContact, Duration.Hours.ToString() + ':' + Duration.Minutes.ToString() + ':' +
-                                    Duration.Seconds.ToString()));
-                        }
-                        else
-                        {
-                            if (TLogging.DL >= 10)
-                            {
-                                Console.WriteLine(
-                                    "{0} TClientStillAliveCheck: FTearDownAppDomain was not assigned -> can't tear down Client's AppDomain!",
-                                    DateTime.Now);
-                            }
-                        }
+                        FClientObject.EndSession();
                     }
                 }
 

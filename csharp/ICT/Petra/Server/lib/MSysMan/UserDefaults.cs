@@ -918,16 +918,18 @@ namespace Ict.Petra.Server.MSysMan.Maintenance.UserDefaults.WebConnectors
                 if (AUserName == UserInfo.GUserInfo.UserID)
                 {
                     // Queue a ClientTask to the current User's PetraClient
-                    DomainManager.ClientTaskAdd(SharedConstants.CLIENTTASKGROUP_USERDEFAULTSREFRESH, "All", 1);
+                    DomainManager.CurrentClient.FTasksManager.ClientTaskAdd(
+                        SharedConstants.CLIENTTASKGROUP_USERDEFAULTSREFRESH, "All",
+                        null, null, null, null, 1);
                 }
                 else
                 {
                     // Queue a ClientTask to any but the current User's PetraClient
-                    DomainManager.ClientTaskAddToOtherClient(AUserName,
+                    TClientManager.QueueClientTask(AUserName,
                         SharedConstants.CLIENTTASKGROUP_USERDEFAULTSREFRESH,
                         "All",
                         null, null, null, null,
-                        1);
+                        1, DomainManager.GClientID);
                 }
             }
             else
@@ -944,25 +946,29 @@ namespace Ict.Petra.Server.MSysMan.Maintenance.UserDefaults.WebConnectors
                 if (AUserName == UserInfo.GUserInfo.UserID)
                 {
                     // Queue a ClientTask to the current User's PetraClient
-                    DomainManager.ClientTaskAdd(SharedConstants.CLIENTTASKGROUP_USERDEFAULTSREFRESH,
-                        SingleOrMultipleIndicator,
-                        AChangedUserDefaultCode,
-                        AChangedUserDefaultValue,
-                        AChangedUserDefaultModId,
-                        null,
-                        1);
+                    if (DomainManager.CurrentClient != null)
+                    {
+                        DomainManager.CurrentClient.FTasksManager.ClientTaskAdd(SharedConstants.CLIENTTASKGROUP_USERDEFAULTSREFRESH,
+                            SingleOrMultipleIndicator,
+                            AChangedUserDefaultCode,
+                            AChangedUserDefaultValue,
+                            AChangedUserDefaultModId,
+                            null,
+                            1);
+                    }
                 }
 
                 // Send the same ClientTask to all other running PetraClient instances where
                 // the same user is logged in!
-                DomainManager.ClientTaskAddToOtherClient(AUserName,
+                TClientManager.QueueClientTask(AUserName,
                     SharedConstants.CLIENTTASKGROUP_USERDEFAULTSREFRESH,
                     SingleOrMultipleIndicator,
                     AChangedUserDefaultCode,
                     AChangedUserDefaultValue,
                     AChangedUserDefaultModId,
                     null,
-                    1);
+                    1,
+                    DomainManager.GClientID);
             }
         }
 

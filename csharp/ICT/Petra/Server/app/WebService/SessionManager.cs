@@ -42,13 +42,7 @@ using Ict.Common.Remoting.Server;
 using Ict.Petra.Server.App.Core;
 using Ict.Petra.Server.App.Core.Security;
 using Ict.Petra.Shared.Security;
-using Ict.Petra.Shared.Interfaces.MFinance;
-using Ict.Petra.Server.MFinance.AP.UIConnectors;
-using Ict.Petra.Server.MConference.Applications;
 using Ict.Common.Verification;
-using Ict.Petra.Shared.MFinance.AP.Data;
-using Jayrock.Json;
-using Ict.Petra.Server.MPartner.Import;
 using Ict.Petra.Shared;
 using Ict.Petra.Server.App.Delegates;
 
@@ -71,7 +65,7 @@ namespace Ict.Petra.Server.App.WebService
                 TLogging.Log(HttpContext.Current.Request.PathInfo);
             }
 
-            TOpenPetraOrgSessionManager.Init();
+            Init();
         }
 
         /// <summary>
@@ -124,6 +118,8 @@ namespace Ict.Petra.Server.App.WebService
                     DomainManager.GSiteKey = TSystemDefaultsCache.GSystemDefaultsCache.GetInt64Default(
                         Ict.Petra.Shared.SharedConstants.SYSDEFAULT_SITEKEY);
 
+                    TLanguageCulture.Init();
+
                     // initialise the cached tables
                     TSetupDelegates.Init();
                 }
@@ -139,41 +135,43 @@ namespace Ict.Petra.Server.App.WebService
                 return true;
             }
 
+            if (DomainManager.CurrentClient != null)
+            {
+                DomainManager.CurrentClient.UpdateLastAccessTime();
+            }
+
             return false;
         }
 
-        static readonly object _lockerClientID = new object();
-        static Int32 FNextClientID = 1;
-
-        private bool LoginInternal(string username, string password)
+        private bool LoginInternal(string username, string password, Version AClientVersion)
         {
-            Int32 ProcessID;
-            bool ASystemEnabled;
+            Int32 ClientID;
+            string WelcomeMessage;
+            bool SystemEnabled;
+            IPrincipal ThisUserInfo;
 
             try
             {
-                TClientManager.PerformLoginChecks(
-                    username.ToUpper(), password.Trim(), "WEB", "127.0.0.1", out ProcessID, out ASystemEnabled);
+                TConnectedClient CurrentClient = TClientManager.ConnectClient(
+                    username.ToUpper(), password.Trim(),
+                    HttpContext.Current.Request.UserHostName,
+                    HttpContext.Current.Request.UserHostAddress,
+                    AClientVersion,
+                    TClientServerConnectionType.csctRemote,
+                    out ClientID,
+                    out WelcomeMessage,
+                    out SystemEnabled,
+                    out ThisUserInfo);
                 Session["LoggedIn"] = true;
+
+                // the following values are stored in the session object
+                DomainManager.GClientID = ClientID;
+                DomainManager.CurrentClient = CurrentClient;
+                UserInfo.GUserInfo = (TPetraPrincipal)ThisUserInfo;
 
                 DBAccess.GDBAccessObj.UserID = username.ToUpper();
 
                 TServerManager.TheCastedServerManager.AddDBConnection(DBAccess.GDBAccessObj);
-
-                Int32 ClientID;
-
-                lock (_lockerClientID)
-                {
-                    ClientID = FNextClientID;
-                    FNextClientID++;
-                }
-
-                Session["ClientDomainManager"] = new TClientDomainManager(
-                    ClientID,
-                    TClientServerConnectionType.csctRemote,
-                    TSystemDefaultsCache.GSystemDefaultsCache,
-                    TCacheableTablesManager.GCacheableTablesManager,
-                    UserInfo.GUserInfo);
 
                 return true;
             }
@@ -184,6 +182,7 @@ namespace Ict.Petra.Server.App.WebService
                 Session["LoggedIn"] = false;
                 Ict.Common.DB.DBAccess.GDBAccessObj.RollbackTransaction();
                 DBAccess.GDBAccessObj.CloseDBConnection();
+                Session.Clear();
                 return false;
             }
         }
@@ -192,7 +191,16 @@ namespace Ict.Petra.Server.App.WebService
         [WebMethod(EnableSession = true)]
         public bool Login(string username, string password)
         {
-            bool loggedIn = LoginInternal(username, password);
+            bool loggedIn = LoginInternal(username, password, new Version());
+
+            return loggedIn;
+        }
+
+        /// <summary>Login a user</summary>
+        [WebMethod(EnableSession = true)]
+        public bool LoginClient(string username, string password, string AClientVersion)
+        {
+            bool loggedIn = LoginInternal(username, password, Version.Parse(AClientVersion));
 
             return loggedIn;
         }
@@ -284,14 +292,7 @@ namespace Ict.Petra.Server.App.WebService
         {
             TLogging.Log("Logout from a session", TLoggingType.ToLogfile | TLoggingType.ToConsole);
 
-            if (DBAccess.GDBAccessObj != null)
-            {
-                DBAccess.GDBAccessObj.CloseDBConnection();
-            }
-
-            // Session Abandon causes problems in Mono 2.10.x see https://bugzilla.novell.com/show_bug.cgi?id=669807
-            // TODO Session.Abandon();
-            Session.Clear();
+            DomainManager.CurrentClient.EndSession();
 
             return true;
         }
@@ -396,6 +397,5 @@ namespace Ict.Petra.Server.App.WebService
         /// <returns></returns>
         System.Int32 GCGetApproxMemory();
 #endif
-
     }
 }

@@ -119,7 +119,6 @@ public class TOpenPetraOrg : WebService
 
     private bool LoginInternal(string username, string password)
     {
-        Int32 ProcessID;
         bool ASystemEnabled;
 
         try
@@ -127,7 +126,7 @@ public class TOpenPetraOrg : WebService
             InitServer();
 
             TClientManager.PerformLoginChecks(
-                username.ToUpper(), password.Trim(), "WEB", "127.0.0.1", out ProcessID, out ASystemEnabled);
+                username.ToUpper(), password.Trim(), "WEB", "127.0.0.1", out ASystemEnabled);
             Session["LoggedIn"] = true;
 
             DBAccess.GDBAccessObj.UserID = username.ToUpper();

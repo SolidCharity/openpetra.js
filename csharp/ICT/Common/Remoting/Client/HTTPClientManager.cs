@@ -64,6 +64,7 @@ namespace Ict.Common.Remoting.Client
             SortedList <string, object>Parameters = new SortedList <string, object>();
             Parameters.Add("username", AUserName);
             Parameters.Add("password", APassword);
+            // TODORemoting Parameters.Add("version", Version.ToString());
 
             if ((bool)THttpConnector.CallWebConnector("SessionManager", "Login", Parameters, "System.Boolean")[0] == false)
             {

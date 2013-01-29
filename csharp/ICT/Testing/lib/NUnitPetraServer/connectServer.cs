@@ -47,8 +47,6 @@ namespace Ict.Testing.NUnitPetraServer
     /// AutoLoginPasswd
     public class TPetraServerConnector
     {
-        private static TClientDomainManager FDomain = null;
-
         /// <summary>
         /// Initialize the Petra server and connect to the database.
         /// this overload looks for the config file itself
@@ -91,30 +89,27 @@ namespace Ict.Testing.NUnitPetraServer
                 TSrvSetting.DBUsername, TSrvSetting.DBPassword, "");
 
             bool SystemEnabled;
-            int ProcessID;
-            TPetraPrincipal UserInfo = (TPetraPrincipal)TClientManager.PerformLoginChecks(TAppSettingsManager.GetValue("AutoLogin").ToUpper(),
+            string WelcomeMessage;
+            IPrincipal ThisUserInfo;
+            Int32 ClientID;
+
+            TConnectedClient CurrentClient = TClientManager.ConnectClient(
+                TAppSettingsManager.GetValue("AutoLogin").ToUpper(),
                 TAppSettingsManager.GetValue("AutoLoginPasswd"),
-                "NUNITTEST", "127.0.0.1", out ProcessID, out SystemEnabled);
-
-            if (FDomain != null)
-            {
-                FDomain.StopClientAppDomain();
-            }
-
-            TClientManager ClientManager = new TClientManager();
-
-            // do the same as in Ict.Petra.Server.App.Main.TRemoteLoader.LoadDomainManagerAssembly
-            FDomain = new TClientDomainManager(0,
+                "NUNITTEST", "127.0.0.1",
+                new Version(),
                 TClientServerConnectionType.csctLocal,
-                new TSystemDefaultsCache(),
-                new TCacheableTablesManager(null),
-                UserInfo);
-            FDomain.InitAppDomain(TSrvSetting.ServerSettings);
+                out ClientID,
+                out WelcomeMessage,
+                out SystemEnabled,
+                out ThisUserInfo);
+
+            // the following values are stored in the session object
+            DomainManager.GClientID = ClientID;
+            DomainManager.CurrentClient = CurrentClient;
+            UserInfo.GUserInfo = (TPetraPrincipal)ThisUserInfo;
 
             TSetupDelegates.Init();
-
-            // we don't need to establish the database connection anymore
-            // FDomain.EstablishDBConnection();
 
             return ServerManager;
         }
@@ -124,9 +119,7 @@ namespace Ict.Testing.NUnitPetraServer
         /// </summary>
         public static void Disconnect()
         {
-            FDomain.CloseDBConnection();
-            FDomain.StopClientAppDomain();
-            FDomain = null;
+            DomainManager.CurrentClient.EndSession();
         }
     }
 }

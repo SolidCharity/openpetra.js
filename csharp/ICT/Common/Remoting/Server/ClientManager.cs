@@ -68,9 +68,6 @@ namespace Ict.Common.Remoting.Server
 
         #endregion
 
-        /// <summary>Holds reference to an instance of TClientManager (for calls inside a static function)</summary>
-        private static TClientManager UClientManagerObj;
-
         /// <summary>Holds reference to an instance of TSystemDefaultsCache (for System Defaults lookups)</summary>
         private static ISystemDefaultsCache USystemDefaultsCache;
 
@@ -82,13 +79,15 @@ namespace Ict.Common.Remoting.Server
         private static IMaintenanceLogonMessage UMaintenanceLogonMessage = null;
 
         /// <summary>Used for ThreadLocking a critical part of the Client Connection code to make sure that this code is executed by exactly one Client at any given time</summary>
-        private static System.Object UConnectClientMonitor;
+        private static System.Object UConnectClientMonitor = new System.Object();
 
-        /// Holds a TRunningAppDomain object for each Client that is currently connected to the Petra Server. IMPORTANT: to access this SortedList in a threadsave manner using an IDictionaryEnumerator, it is important that this is done only within a
-        /// <summary>block of code that is encapsulated using Monitor.TryEnter(UClientObjects.SyncRoot)!!!</summary>
-        private static SortedList UClientObjects;
-
-        private DateTime FStartTime;
+        /// <summary>
+        /// Holds a TConnectedClient object for each Client that is currently connected to the Petra Server.
+        /// IMPORTANT: to access this SortedList in a threadsave manner using an IDictionaryEnumerator,
+        /// it is important that this is done only within a
+        /// block of code that is encapsulated using Monitor.TryEnter(UClientObjects.SyncRoot)!!!
+        /// </summary>
+        private static SortedList UClientObjects = SortedList.Synchronized(new SortedList());
 
         /// <summary>Holds the total number of Clients that connected to the Petra Server since the start of the Petra Server.</summary>
         private static System.Int32 FClientsConnectedTotal;
@@ -117,9 +116,9 @@ namespace Ict.Common.Remoting.Server
                             // Iterate over all Clients and count the ones that are currently connected
                             while (ClientEnum.MoveNext())
                             {
-                                TRunningAppDomain app = ((TRunningAppDomain)ClientEnum.Value);
+                                TConnectedClient app = ((TConnectedClient)ClientEnum.Value);
 
-                                if ((app.FAppDomainStatus == TAppDomainStatus.adsActive) || (app.FAppDomainStatus == TAppDomainStatus.adsIdle))
+                                if ((app.FAppDomainStatus == TSessionStatus.adsActive) || (app.FAppDomainStatus == TSessionStatus.adsIdle))
                                 {
                                     ClientCounter++;
                                 }
@@ -276,21 +275,6 @@ namespace Ict.Common.Remoting.Server
         }
 
         /// <summary>
-        /// Initialises variables.
-        ///
-        /// </summary>
-        /// <returns>void</returns>
-        public TClientManager()
-        {
-            UClientObjects = SortedList.Synchronized(new SortedList());
-
-            // Console.WriteLine('UClientObjects.IsSynchronized: ' + UClientObjects.IsSynchronized.ToString);
-            FStartTime = DateTime.Now;
-            UConnectClientMonitor = new System.Object();
-            UClientManagerObj = this;
-        }
-
-        /// <summary>
         /// initialize variables that are initialized from classes specific to the server, eg. with access to OpenPetra database
         /// </summary>
         public static void InitializeStaticVariables(ISystemDefaultsCache ASystemDefaultsCache,
@@ -307,32 +291,18 @@ namespace Ict.Common.Remoting.Server
         }
 
         /// <summary>
-        /// destructor
-        /// </summary>
-        ~TClientManager()
-        {
-            if (TLogging.DL >= 5)
-            {
-                Console.WriteLine("TClientManager: Got collected after " + (new TimeSpan(
-                                                                                DateTime.Now.Ticks - FStartTime.Ticks)).ToString() + " seconds.");
-            }
-        }
-
-        /// <summary>
         /// public for stateless (webservice) authentication
         /// </summary>
         /// <param name="AUserName"></param>
         /// <param name="APassword"></param>
         /// <param name="AClientComputerName"></param>
         /// <param name="AClientIPAddress"></param>
-        /// <param name="AProcessID"></param>
         /// <param name="ASystemEnabled"></param>
         /// <returns></returns>
         static public IPrincipal PerformLoginChecks(String AUserName,
             String APassword,
             String AClientComputerName,
             String AClientIPAddress,
-            out Int32 AProcessID,
             out Boolean ASystemEnabled)
         {
             IPrincipal ReturnValue;
@@ -349,7 +319,6 @@ namespace Ict.Common.Remoting.Server
                 // This function call will throw Exceptions if the User cannot be authenticated
                 ReturnValue = UUserManager.PerformUserAuthentication(AUserName,
                     APassword,
-                    out AProcessID,
                     out ASystemEnabled);
             }
             catch (EUserNotExistantException)
@@ -411,7 +380,7 @@ namespace Ict.Common.Remoting.Server
             try
             {
                 if ((UClientObjects.Contains((object)AClientID))
-                    && (((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus != TAppDomainStatus.adsStopped))
+                    && (((TConnectedClient)UClientObjects[(object)AClientID]).SessionStatus != TSessionStatus.adsStopped))
                 {
                     // this.DisconnectClient would not work here since we are executing inside a static function...
                     ReturnValue = TClientManager.DisconnectClient(AClientID, out ACantDisconnectReason);
@@ -469,7 +438,7 @@ namespace Ict.Common.Remoting.Server
             System.Int32 AExceptClientID = -1)
         {
             Int32 ReturnValue;
-            TRunningAppDomain AppDomainEntry;
+            TConnectedClient SessionEntry;
             IDictionaryEnumerator ClientEnum;
 
             ReturnValue = -2;
@@ -492,14 +461,14 @@ namespace Ict.Common.Remoting.Server
                             // Iterate over all Clients that are currently connected
                             while (ClientEnum.MoveNext())
                             {
-                                AppDomainEntry = ((TRunningAppDomain)ClientEnum.Value);
+                                SessionEntry = ((TConnectedClient)ClientEnum.Value);
 
                                 // ...and the ClientID isn't the one to except from
-                                if ((AppDomainEntry.ClientID != AExceptClientID)
-                                    && ((AppDomainEntry.AppDomainStatus == TAppDomainStatus.adsActive)
-                                        || (AppDomainEntry.AppDomainStatus == TAppDomainStatus.adsIdle)))
+                                if ((SessionEntry.ClientID != AExceptClientID)
+                                    && ((SessionEntry.SessionStatus == TSessionStatus.adsActive)
+                                        || (SessionEntry.SessionStatus == TSessionStatus.adsIdle)))
                                 {
-                                    ReturnValue = AppDomainEntry.ClientAppDomainConnection.ClientTaskAdd(ATaskGroup,
+                                    ReturnValue = SessionEntry.FTasksManager.ClientTaskAdd(ATaskGroup,
                                         ATaskCode,
                                         ATaskParameter1,
                                         ATaskParameter2,
@@ -517,17 +486,17 @@ namespace Ict.Common.Remoting.Server
                 }
                 else
                 {
-                    AppDomainEntry = (TRunningAppDomain)UClientObjects[(object)AClientID];
+                    SessionEntry = (TConnectedClient)UClientObjects[(object)AClientID];
 
                     // Send Notification Message  if an AppDomain for the ClientID exists...
-                    if (AppDomainEntry != null)
+                    if (SessionEntry != null)
                     {
                         // ...and the ClientID isn't the one to except from
-                        if ((AppDomainEntry.ClientID != AExceptClientID)
-                            && ((AppDomainEntry.AppDomainStatus == TAppDomainStatus.adsActive)
-                                || (AppDomainEntry.AppDomainStatus == TAppDomainStatus.adsIdle)))
+                        if ((SessionEntry.ClientID != AExceptClientID)
+                            && ((SessionEntry.SessionStatus == TSessionStatus.adsActive)
+                                || (SessionEntry.SessionStatus == TSessionStatus.adsIdle)))
                         {
-                            ReturnValue = AppDomainEntry.ClientAppDomainConnection.ClientTaskAdd(ATaskGroup,
+                            ReturnValue = SessionEntry.FTasksManager.ClientTaskAdd(ATaskGroup,
                                 ATaskCode,
                                 ATaskParameter1,
                                 ATaskParameter2,
@@ -575,7 +544,6 @@ namespace Ict.Common.Remoting.Server
         {
             Int32 ReturnValue;
             IDictionaryEnumerator ClientEnum;
-            TRunningAppDomain AppDomainEntry;
 
             ReturnValue = -2;
             ClientEnum = UClientObjects.GetEnumerator();
@@ -587,24 +555,24 @@ namespace Ict.Common.Remoting.Server
                     // Iterate over all Clients that are currently connected
                     while (ClientEnum.MoveNext())
                     {
-                        AppDomainEntry = (TRunningAppDomain)ClientEnum.Value;
+                        TConnectedClient SessionEntry = (TConnectedClient)ClientEnum.Value;
 
                         // Process Clients whose UserID is the one we look for
-                        if (AppDomainEntry.UserID == AUserID)
+                        if (SessionEntry.UserID == AUserID)
                         {
                             // ...and the ClientID isn't the one to except from
-                            if ((AppDomainEntry.ClientID != AExceptClientID)
-                                && ((AppDomainEntry.AppDomainStatus == TAppDomainStatus.adsActive)
-                                    || (AppDomainEntry.AppDomainStatus == TAppDomainStatus.adsIdle)))
+                            if ((SessionEntry.ClientID != AExceptClientID)
+                                && ((SessionEntry.SessionStatus == TSessionStatus.adsActive)
+                                    || (SessionEntry.SessionStatus == TSessionStatus.adsIdle)))
                             {
                                 if (TLogging.DL >= 5)
                                 {
                                     Console.WriteLine(
                                         "TClientManager.QueueClientTask: queuing Task for UserID '" + AUserID + "' (ClientID: " +
-                                        AppDomainEntry.ClientID.ToString());
+                                        SessionEntry.ClientID.ToString());
                                 }
 
-                                ReturnValue = QueueClientTask(AppDomainEntry.ClientID,
+                                ReturnValue = QueueClientTask(SessionEntry.ClientID,
                                     ATaskGroup,
                                     ATaskCode,
                                     ATaskParameter1,
@@ -632,20 +600,13 @@ namespace Ict.Common.Remoting.Server
         /// <summary>
         /// add error to log, using IErrorLog
         /// </summary>
-        /// <param name="AErrorCode"></param>
-        /// <param name="AContext"></param>
-        /// <param name="AMessageLine1"></param>
-        /// <param name="AMessageLine2"></param>
-        /// <param name="AMessageLine3"></param>
-        /// <param name="AUserID"></param>
-        /// <param name="AProcessID"></param>
         public static void AddErrorLogEntry(String AErrorCode,
             String AContext,
             String AMessageLine1,
             String AMessageLine2,
             String AMessageLine3,
-            String AUserID,
-            Int32 AProcessID)
+            Int32 AProcessID,
+            String AUserID)
         {
             TVerificationResultCollection VerificationResult;
 
@@ -695,20 +656,18 @@ namespace Ict.Common.Remoting.Server
                             // Iterate over all Clients
                             while (ClientEnum.MoveNext())
                             {
-                                TRunningAppDomain app = ((TRunningAppDomain)ClientEnum.Value);
+                                TConnectedClient app = ((TConnectedClient)ClientEnum.Value);
 
                                 if (((AListDisconnectedClients)
-                                     && ((app.FAppDomainStatus == TAppDomainStatus.adsActive)
-                                         || (app.FAppDomainStatus == TAppDomainStatus.adsIdle)
-                                         || (app.FAppDomainStatus == TAppDomainStatus.adsConnectingLoginVerification)
-                                         || (app.FAppDomainStatus == TAppDomainStatus.adsConnectingLoginOK)
-                                         || (app.FAppDomainStatus == TAppDomainStatus.adsConnectingAppDomainSetupOK)))
+                                     && ((app.FAppDomainStatus == TSessionStatus.adsActive)
+                                         || (app.FAppDomainStatus == TSessionStatus.adsIdle)
+                                         || (app.FAppDomainStatus == TSessionStatus.adsConnectingLoginVerification)
+                                         || (app.FAppDomainStatus == TSessionStatus.adsConnectingLoginOK)))
                                     || ((!AListDisconnectedClients)
-                                        && (!((app.FAppDomainStatus == TAppDomainStatus.adsActive)
-                                              || (app.FAppDomainStatus == TAppDomainStatus.adsIdle)
-                                              || (app.FAppDomainStatus == TAppDomainStatus.adsConnectingLoginVerification)
-                                              || (app.FAppDomainStatus == TAppDomainStatus.adsConnectingLoginOK)
-                                              || (app.FAppDomainStatus == TAppDomainStatus.adsConnectingAppDomainSetupOK)))))
+                                        && (!((app.FAppDomainStatus == TSessionStatus.adsActive)
+                                              || (app.FAppDomainStatus == TSessionStatus.adsIdle)
+                                              || (app.FAppDomainStatus == TSessionStatus.adsConnectingLoginVerification)
+                                              || (app.FAppDomainStatus == TSessionStatus.adsConnectingLoginOK)))))
                                 {
                                     // Client has got the wrong AppDomainStatus > skip it
                                     continue;
@@ -718,11 +677,11 @@ namespace Ict.Common.Remoting.Server
 
                                 LastActionTime = DateTime.MinValue;
 
-                                if ((app.FAppDomainStatus == TAppDomainStatus.adsActive) || (app.FAppDomainStatus == TAppDomainStatus.adsIdle))
+                                if ((app.FAppDomainStatus == TSessionStatus.adsActive) || (app.FAppDomainStatus == TSessionStatus.adsIdle))
                                 {
                                     try
                                     {
-                                        LastActionTime = app.FClientAppDomainConnection.LastActionTime;
+                                        LastActionTime = app.LastActionTime;
                                     }
                                     catch (System.Runtime.Remoting.RemotingException)
                                     {
@@ -735,22 +694,17 @@ namespace Ict.Common.Remoting.Server
                                 }
 
                                 // Determine/update Client AppDomain's Status
-                                if (app.FAppDomainStatus == TAppDomainStatus.adsConnectingLoginVerification)
+                                if (app.FAppDomainStatus == TSessionStatus.adsConnectingLoginVerification)
                                 {
                                     AppDomainStatusString = "Connecting...(1)";
                                     LastClientAction = app.FClientConnectionStartTime;
                                 }
-                                else if (app.FAppDomainStatus == TAppDomainStatus.adsConnectingLoginOK)
+                                else if (app.FAppDomainStatus == TSessionStatus.adsConnectingLoginOK)
                                 {
                                     AppDomainStatusString = "Connecting...(2)";
                                     LastClientAction = app.FClientConnectionStartTime;
                                 }
-                                else if (app.FAppDomainStatus == TAppDomainStatus.adsConnectingAppDomainSetupOK)
-                                {
-                                    AppDomainStatusString = "Connecting...(3)";
-                                    LastClientAction = app.FClientConnectionStartTime;
-                                }
-                                else if (app.FAppDomainStatus == TAppDomainStatus.adsActive)
+                                else if (app.FAppDomainStatus == TSessionStatus.adsActive)
                                 {
                                     if (LastActionTime.AddMinutes(1) > DateTime.Now)
                                     {
@@ -760,11 +714,11 @@ namespace Ict.Common.Remoting.Server
                                     else
                                     {
                                         AppDomainStatusString = "Idle";
-                                        app.FAppDomainStatus = TAppDomainStatus.adsIdle;
+                                        app.FAppDomainStatus = TSessionStatus.adsIdle;
                                         LastClientAction = LastActionTime;
                                     }
                                 }
-                                else if (app.FAppDomainStatus == TAppDomainStatus.adsIdle)
+                                else if (app.FAppDomainStatus == TSessionStatus.adsIdle)
                                 {
                                     if (LastActionTime.AddMinutes(1) < DateTime.Now)
                                     {
@@ -774,21 +728,16 @@ namespace Ict.Common.Remoting.Server
                                     else
                                     {
                                         AppDomainStatusString = "Active";
-                                        app.FAppDomainStatus = TAppDomainStatus.adsActive;
+                                        app.FAppDomainStatus = TSessionStatus.adsActive;
                                         LastClientAction = LastActionTime;
                                     }
                                 }
-                                else if (app.FAppDomainStatus == TAppDomainStatus.adsDisconnectingDBClosing)
+                                else if (app.FAppDomainStatus == TSessionStatus.adsDisconnectingDBClosing)
                                 {
                                     AppDomainStatusString = "Disconnecting(1)";
                                     LastClientAction = app.FClientDisconnectionStartTime;
                                 }
-                                else if (app.FAppDomainStatus == TAppDomainStatus.adsDisconnectingAppDomainUnloading)
-                                {
-                                    AppDomainStatusString = "Disconnecting(2)";
-                                    LastClientAction = app.FClientDisconnectionStartTime;
-                                }
-                                else if (app.FAppDomainStatus == TAppDomainStatus.adsStopped)
+                                else if (app.FAppDomainStatus == TSessionStatus.adsStopped)
                                 {
                                     AppDomainStatusString = "Disconnected!";
                                     LastClientAction = app.FClientDisconnectionFinishedTime;
@@ -883,29 +832,23 @@ namespace Ict.Common.Remoting.Server
         /// <param name="AClientExeVersion"></param>
         /// <param name="AClientIPAddress">IP Address of the Client</param>
         /// <param name="AClientServerConnectionType">Type of the connection (eg. LAN, Remote)</param>
-        /// <param name="AClientName">Server-assigned Name of the Client</param>
         /// <param name="AClientID">Server-assigned ID of the Client</param>
-        /// <param name="AServerOS">Operating System that the Server is running on
-        /// </param>
-        /// <param name="AProcessID"></param>
         /// <param name="AWelcomeMessage"></param>
         /// <param name="ASystemEnabled"></param>
         /// <param name="AUserInfo"></param>
-        /// <returns>void</returns>
-        public static void ConnectClient(String AUserName,
+        public static TConnectedClient ConnectClient(String AUserName,
             String APassword,
             String AClientComputerName,
             String AClientIPAddress,
             System.Version AClientExeVersion,
             TClientServerConnectionType AClientServerConnectionType,
-            out String AClientName,
             out System.Int32 AClientID,
-            out TExecutingOSEnum AServerOS,
-            out Int32 AProcessID,
             out String AWelcomeMessage,
             out Boolean ASystemEnabled,
             out IPrincipal AUserInfo)
         {
+            TConnectedClient ConnectedClient = null;
+
             if (TLogging.DL >= 10)
             {
                 TLogging.Log(
@@ -949,17 +892,16 @@ namespace Ict.Common.Remoting.Server
                     #region Variable assignments
                     AClientID = (short)FClientsConnectedTotal;
                     FClientsConnectedTotal++;
-                    AClientName = AUserName.ToUpper() + "_" + AClientID.ToString();
-                    AServerOS = TSrvSetting.ExecutingOS;
+                    string ClientName = AUserName.ToUpper() + "_" + AClientID.ToString();
                     #endregion
                     try
                     {
                         if (Monitor.TryEnter(UClientObjects.SyncRoot))
                         {
+                            ConnectedClient = new TConnectedClient(AClientID, AUserName.ToUpper(), ClientName, AClientComputerName, AClientIPAddress,
+                                AClientServerConnectionType, ClientName);
                             // Add the new Client to UClientObjects SortedList
-                            UClientObjects.Add((object)AClientID,
-                                new TRunningAppDomain(AClientID, AUserName.ToUpper(), AClientName, AClientComputerName, AClientIPAddress,
-                                    AClientServerConnectionType, AClientName));
+                            UClientObjects.Add((object)AClientID, ConnectedClient);
                         }
                     }
                     finally
@@ -976,9 +918,10 @@ namespace Ict.Common.Remoting.Server
                             TSrvSetting.ApplicationVersion.ToString());
                     }
 
-                    if (TSrvSetting.ApplicationVersion.Compare(new TFileVersionInfo(AClientExeVersion)) != 0)
+                    if ((AClientExeVersion.CompareTo(new Version()) != 0)
+                        && (TSrvSetting.ApplicationVersion.Compare(new TFileVersionInfo(AClientExeVersion)) != 0))
                     {
-                        ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsStopped;
+                        ConnectedClient.SessionStatus = TSessionStatus.adsStopped;
                         #region Logging
 
                         if (TLogging.DL >= 4)
@@ -1010,7 +953,6 @@ namespace Ict.Common.Remoting.Server
                             APassword,
                             AClientComputerName,
                             AClientIPAddress,
-                            out AProcessID,
                             out ASystemEnabled);
                     }
                     catch (EPetraSecurityException)
@@ -1030,18 +972,18 @@ namespace Ict.Common.Remoting.Server
                         }
 
                         #endregion
-                        ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsStopped;
+                        ConnectedClient.SessionStatus = TSessionStatus.adsStopped;
                         throw;
                     }
                     catch (Exception)
                     {
-                        ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsStopped;
+                        ConnectedClient.SessionStatus = TSessionStatus.adsStopped;
                         throw;
                     }
                     #endregion
 
                     // Login Checks were successful!
-                    ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsConnectingLoginOK;
+                    ConnectedClient.SessionStatus = TSessionStatus.adsConnectingLoginOK;
 
                     // Retrieve Welcome message
                     try
@@ -1057,23 +999,9 @@ namespace Ict.Common.Remoting.Server
                     }
                     catch (Exception)
                     {
-                        ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsStopped;
+                        ConnectedClient.SessionStatus = TSessionStatus.adsStopped;
                         throw;
                     }
-
-                    if (TLogging.DL >= 10)
-                    {
-                        TLogging.Log(
-                            "Loaded Assemblies in AppDomain " + Thread.GetDomain().FriendlyName + " (before new AppDomain load):",
-                            TLoggingType.ToConsole | TLoggingType.ToLogfile);
-
-                        foreach (Assembly tmpAssembly in Thread.GetDomain().GetAssemblies())
-                        {
-                            TLogging.Log(tmpAssembly.FullName, TLoggingType.ToConsole | TLoggingType.ToLogfile);
-                        }
-                    }
-
-                    ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsConnectingAppDomainSetupOK;
 
                     /*
                      * Uncomment the following statement to be able to better test how the
@@ -1103,8 +1031,8 @@ namespace Ict.Common.Remoting.Server
 // TODORemoting               Monitor.Exit(UConnectClientMonitor);
             }
 
-            ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsActive;
-            ((TRunningAppDomain)UClientObjects[(object)AClientID]).FClientConnectionFinishedTime = DateTime.Now;
+            ConnectedClient.SessionStatus = TSessionStatus.adsActive;
+            ConnectedClient.FClientConnectionFinishedTime = DateTime.Now;
             #region Logging
 
             //
@@ -1114,10 +1042,10 @@ namespace Ict.Common.Remoting.Server
             {
                 TLogging.Log(
                     "Client '" + AUserName + "' successfully connected (took " +
-                    ((TRunningAppDomain)UClientObjects[(object)AClientID]).FClientConnectionFinishedTime.Subtract(
-                        ((TRunningAppDomain)UClientObjects[(
-                                                               object)
-                                                           AClientID
+                    ConnectedClient.FClientConnectionFinishedTime.Subtract(
+                        ((TConnectedClient)UClientObjects[(
+                                                              object)
+                                                          AClientID
                          ]).FClientConnectionStartTime).
                     TotalSeconds.ToString() + " sec). ClientID: " + AClientID.ToString(),
                     TLoggingType.ToConsole | TLoggingType.ToLogfile);
@@ -1128,6 +1056,7 @@ namespace Ict.Common.Remoting.Server
             }
 
             #endregion
+            return ConnectedClient;
         }
 
         /// <summary>
@@ -1157,9 +1086,7 @@ namespace Ict.Common.Remoting.Server
         public static Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
         {
             Boolean ReturnValue;
-            TRunningAppDomain AppDomainEntry;
-            TDisconnectClientThread DisconnectClientThreadObject;
-            Thread DisconnectionThread;
+            TConnectedClient SessionEntry;
 
             ACantDisconnectReason = "";
 
@@ -1168,9 +1095,9 @@ namespace Ict.Common.Remoting.Server
                 TLogging.Log("Trying to disconnect client (ClientID: " + AClientID.ToString() + ") for the reason: " + AReason);
             }
 
-            AppDomainEntry = (TRunningAppDomain)UClientObjects[(object)AClientID];
+            SessionEntry = (TConnectedClient)UClientObjects[(object)AClientID];
 
-            if (AppDomainEntry == null)
+            if (SessionEntry == null)
             {
                 // avoid a crash
                 TLogging.Log("Warning: trying to disconnect a non existing client; nothing is done");
@@ -1179,65 +1106,16 @@ namespace Ict.Common.Remoting.Server
 
             try
             {
-                if (Monitor.TryEnter(AppDomainEntry.DisconnectClientMonitor, 5000))
+                if (Monitor.TryEnter(SessionEntry.DisconnectClientMonitor, 5000))
                 {
                     try
                     {
-                        // Tear down the AppDomain  if an AppDomain for the ClientID exists.
-                        if (!(AppDomainEntry == null))
+                        // Release all memory associated with this session
+                        if (!(SessionEntry == null))
                         {
-                            if (AppDomainEntry.ClientAppDomainConnection != null)
-                            {
-                                // Only perform tear down if it is not already in progress!
-                                if (!(AppDomainEntry.ClientDisconnectionScheduled))
-                                {
-                                    AppDomainEntry.ClientDisconnectionScheduled = true;
-                                    DisconnectClientThreadObject = new TDisconnectClientThread();
-                                    DisconnectClientThreadObject.AppDomainEntry = AppDomainEntry;
-                                    DisconnectClientThreadObject.ClientID = AClientID;
-                                    DisconnectClientThreadObject.Reason = AReason;
-
-                                    // Start thread that does the actual disconnection
-                                    DisconnectionThread = new Thread(new ThreadStart(DisconnectClientThreadObject.StartClientDisconnection));
-
-                                    if (TLogging.DL >= 4)
-                                    {
-                                        TLogging.Log(
-                                            "Client disconnection Thread is about to be started for " + "'" + AppDomainEntry.FClientName +
-                                            "' (ClientID: " + AppDomainEntry.FClientID.ToString() + ')' + "...",
-                                            TLoggingType.ToConsole | TLoggingType.ToLogfile);
-                                    }
-
-                                    DisconnectionThread.Start();
-                                    ReturnValue = true;
-                                }
-                                else
-                                {
-                                    ACantDisconnectReason = "Can't disconnect ClientID " + AClientID.ToString() +
-                                                            ": Client is already disconnecting!";
-                                    TLogging.Log(ACantDisconnectReason, TLoggingType.ToConsole | TLoggingType.ToLogfile);
-                                    ReturnValue = false;
-                                }
-                            }
-                            // AppDomainEntry.ClientAppDomainConnection <> nil
-                            else
-                            {
-                                if ((AppDomainEntry.AppDomainStatus == TAppDomainStatus.adsConnectingLoginVerification)
-                                    || (AppDomainEntry.AppDomainStatus == TAppDomainStatus.adsConnectingLoginOK))
-                                {
-                                    ACantDisconnectReason = "Can't disconnect ClientID " + AClientID.ToString() +
-                                                            ": Client is in the process of connecting!";
-                                }
-                                else
-                                {
-                                    ACantDisconnectReason = "Can't disconnect ClientID " + AClientID.ToString() + ": Client is already disconnected!";
-                                }
-
-                                TLogging.Log(ACantDisconnectReason, TLoggingType.ToConsole | TLoggingType.ToLogfile);
-                                ReturnValue = false;
-                            }
+                            SessionEntry.EndSession();
+                            ReturnValue = true;
                         }
-                        // not (AppDomainEntry = nil)
                         else
                         {
                             if (UClientObjects.Contains((object)AClientID))
@@ -1277,7 +1155,7 @@ namespace Ict.Common.Remoting.Server
             }
             finally
             {
-                Monitor.Exit(AppDomainEntry.DisconnectClientMonitor);
+                Monitor.Exit(SessionEntry.DisconnectClientMonitor);
             }
             return ReturnValue;
         }

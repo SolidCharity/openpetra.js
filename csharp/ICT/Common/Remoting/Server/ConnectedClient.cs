@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -22,6 +22,8 @@
 // along with OpenPetra.org.  If not, see <http://www.gnu.org/licenses/>.
 //
 using System;
+using System.Web;
+using Ict.Common.DB;
 
 namespace Ict.Common.Remoting.Server
 {
@@ -31,7 +33,7 @@ namespace Ict.Common.Remoting.Server
     /// current Client connection).
     ///
     /// </summary>
-    public class TRunningAppDomain
+    public class TConnectedClient
     {
         /// <summary> todoComment </summary>
         public System.Int32 FClientID;
@@ -44,6 +46,8 @@ namespace Ict.Common.Remoting.Server
 
         /// <summary> todoComment </summary>
         public DateTime FClientConnectionStartTime;
+
+        private DateTime FLastActionTime;
 
         /// <summary> todoComment </summary>
         public DateTime FClientConnectionFinishedTime;
@@ -66,16 +70,21 @@ namespace Ict.Common.Remoting.Server
         /// <summary> todoComment </summary>
         public String FAppDomainName;
 
-        /// <summary> todoComment </summary>
-        public String FAppDomainRemotedObjectURL;
-
-        /// <summary> todoComment </summary>
-        public IClientAppDomainConnection FClientAppDomainConnection;
         private System.Object FDisconnectClientMonitor;
         private Boolean FClientDisconnectionScheduled;
 
         /// <summary> todoComment </summary>
-        public TAppDomainStatus FAppDomainStatus;
+        public TSessionStatus FAppDomainStatus;
+
+        /// <summary>
+        /// access the tasks for this client
+        /// </summary>
+        public TClientTasksManager FTasksManager = null;
+
+        /// <summary>
+        /// access the poll client tasks for this client
+        /// </summary>
+        public TPollClientTasks FPollClientTasks = null;
 
         /// <summary>Serverassigned ID of the Client</summary>
         public System.Int32 ClientID
@@ -110,6 +119,17 @@ namespace Ict.Common.Remoting.Server
             get
             {
                 return FClientConnectionStartTime;
+            }
+        }
+
+        /// <summary>
+        /// when was the last request to this session?
+        /// </summary>
+        public DateTime LastActionTime
+        {
+            get
+            {
+                return FLastActionTime;
             }
         }
 
@@ -154,36 +174,8 @@ namespace Ict.Common.Remoting.Server
             }
         }
 
-        /// <summary>.NET Remoting URL of a Test object (for testing purposes only)</summary>
-        public String AppDomainRemotedObjectURL
-        {
-            get
-            {
-                return FAppDomainRemotedObjectURL;
-            }
-
-            set
-            {
-                FAppDomainRemotedObjectURL = value;
-            }
-        }
-
-        /// <summary>Connection object to the Client's AppDomain</summary>
-        public IClientAppDomainConnection ClientAppDomainConnection
-        {
-            get
-            {
-                return FClientAppDomainConnection;
-            }
-
-            set
-            {
-                FClientAppDomainConnection = value;
-            }
-        }
-
         /// <summary>Status that the Client AppDomain has</summary>
-        public TAppDomainStatus AppDomainStatus
+        public TSessionStatus SessionStatus
         {
             get
             {
@@ -237,7 +229,7 @@ namespace Ict.Common.Remoting.Server
         /// <param name="AAppDomainName">Server-assigned name of the Client AppDomain
         /// </param>
         /// <returns>void</returns>
-        public TRunningAppDomain(System.Int32 AClientID,
+        public TConnectedClient(System.Int32 AClientID,
             String AUserID,
             String AClientName,
             String AClientComputerName,
@@ -253,33 +245,62 @@ namespace Ict.Common.Remoting.Server
             FClientServerConnectionType = AClientServerConnectionType;
             FClientConnectionStartTime = DateTime.Now;
             FAppDomainName = AAppDomainName;
-            FAppDomainStatus = TAppDomainStatus.adsConnectingLoginVerification;
+            FAppDomainStatus = TSessionStatus.adsConnectingLoginVerification;
             FDisconnectClientMonitor = new System.Object();
         }
 
-        /// <summary>
-        /// Comment
-        ///
-        /// </summary>
-        /// <param name="AAppDomainRemotedObjectURL">.NET Remoting URL of a Test object (for
-        /// testing purposes only)</param>
-        /// <param name="AClientAppDomainConnection">Object that allows a connection to the
-        /// Client's AppDomain without causing a load of the Assemblies that are
-        /// loaded in the Client's AppDomain into the Default AppDomain.
-        /// </param>
-        /// <returns>void</returns>
-        public void PassInClientRemotingInfo(String AAppDomainRemotedObjectURL,
-            IClientAppDomainConnection AClientAppDomainConnection)
+        /// start the session
+        public void StartSession()
         {
-            FAppDomainRemotedObjectURL = AAppDomainRemotedObjectURL;
-            FClientAppDomainConnection = AClientAppDomainConnection;
+            FPollClientTasks = new TPollClientTasks();
+
+            FTasksManager = new TClientTasksManager();
+
+            FClientConnectionStartTime = DateTime.Now;
+
+            // Start ClientStillAliveCheck Thread
+            new ClientStillAliveCheck.TClientStillAliveCheck(this, FClientServerConnectionType);
+        }
+
+        /// <summary>
+        /// update on a new http request
+        /// </summary>
+        public void UpdateLastAccessTime()
+        {
+            FLastActionTime = DateTime.Now;
+        }
+
+        /// <summary>
+        /// end the session, and release all resources
+        /// </summary>
+        public void EndSession()
+        {
+            // TODORemoting
+            // release all UIConnector objects
+            // stop clientstillalivecheck
+
+            // close db connection
+            if (DBAccess.GDBAccessObj != null)
+            {
+                DBAccess.GDBAccessObj.CloseDBConnection();
+            }
+
+            // clear the session object
+            if (HttpContext.Current != null)
+            {
+                // Session Abandon causes problems in Mono 2.10.x see https://bugzilla.novell.com/show_bug.cgi?id=669807
+                // TODO Session.Abandon();
+                HttpContext.Current.Session.Clear();
+            }
+
+            FAppDomainStatus = TSessionStatus.adsStopped;
         }
     }
 
     /// <summary>
-    /// several states for app domains
+    /// several states for sessions
     /// </summary>
-    public enum TAppDomainStatus
+    public enum TSessionStatus
     {
         /// <summary>
         /// during login verification
@@ -292,17 +313,12 @@ namespace Ict.Common.Remoting.Server
         adsConnectingLoginOK,
 
         /// <summary>
-        /// app domain has been setup
-        /// </summary>
-        adsConnectingAppDomainSetupOK,
-
-        /// <summary>
-        /// app domain is active
+        /// session is active
         /// </summary>
         adsActive,
 
         /// <summary>
-        /// app domain is not busy
+        /// session is not busy
         /// </summary>
         adsIdle,
 
@@ -312,12 +328,7 @@ namespace Ict.Common.Remoting.Server
         adsDisconnectingDBClosing,
 
         /// <summary>
-        /// app domain is shutting down
-        /// </summary>
-        adsDisconnectingAppDomainUnloading,
-
-        /// <summary>
-        /// app domain has been stopped
+        /// session has been deleted
         /// </summary>
         adsStopped
     };

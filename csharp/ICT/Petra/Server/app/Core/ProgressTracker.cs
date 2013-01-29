@@ -115,14 +115,6 @@ namespace Ict.Petra.Server.App.Core
         /// <param name="ACurrentAbsolutAmount"></param>
         static public void SetCurrentState(string AClientID, string AStatusMessage, Decimal ACurrentAbsolutAmount)
         {
-            if (AClientID == null)
-            {
-                // see https://tracker.openpetra.org/view.php?id=1789
-                // this should not happen???
-                TLogging.Log("TProgressTracker.SetCurrentState: ClientID is null: " + (DomainManager.GClientID.ToString() == null).ToString());
-                return;
-            }
-
             if (FProgressStates.ContainsKey(AClientID))
             {
                 TProgressState state = FProgressStates[AClientID];
