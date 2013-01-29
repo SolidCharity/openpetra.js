@@ -49,10 +49,10 @@ using Ict.Common.Verification;
 using Ict.Petra.Shared.MFinance.AP.Data;
 using Jayrock.Json;
 using Ict.Petra.Server.MPartner.Import;
-using Ict.Petra.Server.CallForwarding;
 using Ict.Petra.Shared;
+using Ict.Petra.Server.App.Delegates;
 
-namespace Ict.Petra.Server.app.WebService
+namespace Ict.Petra.Server.App.WebService
 {
 /// <summary>
 /// this publishes the SOAP web services of OpenPetra.org
@@ -61,11 +61,6 @@ namespace Ict.Petra.Server.app.WebService
     [ScriptService]
     public class TOpenPetraOrgSessionManager : System.Web.Services.WebService
     {
-        /// <summary>
-        /// static: only initialised once for the whole server
-        /// </summary>
-        static TClientManager TheClientManager = null;
-
         /// <summary>
         /// constructor, which is called for each http request
         /// </summary>
@@ -120,7 +115,6 @@ namespace Ict.Petra.Server.app.WebService
                 Catalog.Init();
 
                 TServerManager.TheServerManager = new TServerManager();
-                TheClientManager = new TClientManager();
 
                 try
                 {
@@ -131,7 +125,7 @@ namespace Ict.Petra.Server.app.WebService
                         Ict.Petra.Shared.SharedConstants.SYSDEFAULT_SITEKEY);
 
                     // initialise the cached tables
-                    new TCallForwarding();
+                    TSetupDelegates.Init();
                 }
                 catch (Exception e)
                 {
@@ -177,7 +171,6 @@ namespace Ict.Petra.Server.app.WebService
                 Session["ClientDomainManager"] = new TClientDomainManager(
                     ClientID,
                     TClientServerConnectionType.csctRemote,
-                    TheClientManager,
                     TSystemDefaultsCache.GSystemDefaultsCache,
                     TCacheableTablesManager.GCacheableTablesManager,
                     UserInfo.GUserInfo);
@@ -314,5 +307,95 @@ namespace Ict.Petra.Server.app.WebService
 
             return THttpBinarySerializer.SerializeObject(UserInfo.GUserInfo, true);
         }
+        
+#if TODORemoting
+        void ConnectClient(String AUserName,
+            String APassword,
+            String AClientComputerName,
+            String AClientIPAddress,
+            System.Version AClientExeVersion,
+            TClientServerConnectionType AClientServerConnectionType,
+            out String AClientName,
+            out System.Int32 AClientID,
+            out TExecutingOSEnum AServerOS,
+            out Int32 AProcessID,
+            out String AWelcomeMessage,
+            out Boolean ASystemEnabled,
+            out IPrincipal AUserInfo);
+
+        /**
+         * Calling DisconnectClient tears down the Client's AppDomain and therefore
+         * kills all remoted objects for the Client that were not released before.
+         *
+         * See implementation of this class for more detailed description!
+         *
+         */
+        Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason);
+
+
+        /**
+         * Calling DisconnectClient tears down the Client's AppDomain and therefore
+         * kills all remoted objects for the Client that were not released before.
+         *
+         * See implementation of this class for more detailed description!
+         *
+         */
+        Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason);
+ 
+        /**
+         * Can be called to queue a ClientTask for a certain Client.
+         *
+         * See implementation of this class for more detailed description!
+         *
+         */
+        Int32 QueueClientTaskFromClient(System.Int32 AClientID,
+            String ATaskGroup,
+            String ATaskCode,
+            System.Int16 ATaskPriority,
+            System.Int32 AExceptClientID = -1,
+            object ATaskParameter1 = null,
+            object ATaskParameter2 = null,
+            object ATaskParameter3 = null,
+            object ATaskParameter4 = null);
+
+        /// <summary>
+        /// add error to the log
+        /// </summary>
+        /// <param name="AErrorCode"></param>
+        /// <param name="AContext"></param>
+        /// <param name="AMessageLine1"></param>
+        /// <param name="AMessageLine2"></param>
+        /// <param name="AMessageLine3"></param>
+        /// <param name="AUserID"></param>
+        /// <param name="AProcessID"></param>
+        void AddErrorLogEntry(String AErrorCode,
+            String AContext,
+            String AMessageLine1,
+            String AMessageLine2,
+            String AMessageLine3,
+            String AUserID,
+            Int32 AProcessID);
+
+
+        /**
+         * The following functions are only for development purposes (note that these
+         * functions can also be invoked directly from the Server's menu)
+         *
+         */
+        System.Int32 GCGetGCGeneration(object AInspectObject);
+
+        /// <summary>
+        /// perform garbage collection
+        /// </summary>
+        /// <returns></returns>
+        System.Int32 GCPerformGC();
+
+        /// <summary>
+        /// see how much memory is available
+        /// </summary>
+        /// <returns></returns>
+        System.Int32 GCGetApproxMemory();
+        
+#endif
     }
 }

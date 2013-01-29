@@ -41,7 +41,7 @@ namespace Ict.Petra.Server.MReporting.UIConnectors
     /// <summary>
     /// the connector for the report generation
     /// </summary>
-    public class TReportGeneratorUIConnector : TConfigurableMBRObject, IReportingUIConnectorsReportGenerator
+    public class TReportGeneratorUIConnector : IReportingUIConnectorsReportGenerator
     {
         private TAsynchronousExecutionProgress FAsyncExecProgress;
         private TRptDataCalculator FDatacalculator;

@@ -34,7 +34,7 @@ using Ict.Testing.NUnitTools;
 using Ict.Petra.Shared;
 using Ict.Petra.Shared.Security;
 using Ict.Petra.Server.App.Core;
-using Ict.Petra.Server.CallForwarding;
+using Ict.Petra.Server.App.Delegates;
 
 namespace Ict.Testing.NUnitPetraServer
 {
@@ -102,18 +102,16 @@ namespace Ict.Testing.NUnitPetraServer
             }
 
             TClientManager ClientManager = new TClientManager();
-            DomainManager.UClientManagerCallForwarderRef = ClientManager;
 
             // do the same as in Ict.Petra.Server.App.Main.TRemoteLoader.LoadDomainManagerAssembly
             FDomain = new TClientDomainManager(0,
                 TClientServerConnectionType.csctLocal,
-                DomainManager.UClientManagerCallForwarderRef,
                 new TSystemDefaultsCache(),
                 new TCacheableTablesManager(null),
                 UserInfo);
             FDomain.InitAppDomain(TSrvSetting.ServerSettings);
 
-            new TCallForwarding();
+            TSetupDelegates.Init();
 
             // we don't need to establish the database connection anymore
             // FDomain.EstablishDBConnection();

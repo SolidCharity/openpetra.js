@@ -1,1 +1,1 @@
-<%@ WebService Language="C#" Class="Ict.Petra.Server.app.WebService.TMServerAdminWebService" %>
+<%@ WebService Language="C#" Class="Ict.Petra.Server.App.WebService.TMServerAdminWebService" %>

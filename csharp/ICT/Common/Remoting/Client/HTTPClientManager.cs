@@ -33,10 +33,10 @@ using Ict.Common.Remoting.Shared;
 namespace Ict.Common.Remoting.Client
 {
     /// client manager for the connection to the server via http
-    public class TClientManager : IClientManagerInterface
+    public class TClientManager
     {
         /// connect the client to the server
-        public void ConnectClient(String AUserName,
+        public static void ConnectClient(String AUserName,
             String APassword,
             String AClientComputerName,
             String AClientIPAddress,
@@ -78,7 +78,7 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// disconnect
         /// </summary>
-        public Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
+        public static Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
         {
             // TODORemoting
             ACantDisconnectReason = string.Empty;
@@ -88,46 +88,20 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// disconnect
         /// </summary>
-        public Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
+        public static Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
         {
             // TODORemoting
             ACantDisconnectReason = string.Empty;
             return true;
         }
 
-        /// <summary>
-        /// not implemented
-        /// </summary>
-        public void AddCrossDomainService(string ClientID, string ObjectURI, ICrossDomainService ObjectToRemote)
-        {
-            // not implemented
-        }
-
-        /// Can be called to queue a ClientTask for a certain Client.
-        public Int32 QueueClientTaskFromClient(System.Int32 AClientID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Int16 ATaskPriority,
-            System.Int32 AExceptClientID)
-        {
-            // TODORemoting
-            return -1;
-        }
-
-        /// Can be called to queue a ClientTask for a certain Client.
-        public Int32 QueueClientTaskFromClient(System.Int32 AClientID, String ATaskGroup, String ATaskCode, System.Int16 ATaskPriority)
-        {
-            // TODORemoting
-            return -1;
-        }
-
         /**
          * Can be called to queue a ClientTask for a certain Client.
          *
          * See implementation of this class for more detailed description!
          *
          */
-        public Int32 QueueClientTaskFromClient(System.Int32 AClientID,
+        public static Int32 QueueClientTaskFromClient(System.Int32 AClientID,
             String ATaskGroup,
             String ATaskCode,
             object ATaskParameter1,
@@ -147,54 +121,7 @@ namespace Ict.Common.Remoting.Client
          * See implementation of this class for more detailed description!
          *
          */
-        public Int32 QueueClientTaskFromClient(System.Int32 AClientID,
-            String ATaskGroup,
-            String ATaskCode,
-            object ATaskParameter1,
-            object ATaskParameter2,
-            object ATaskParameter3,
-            object ATaskParameter4,
-            System.Int16 ATaskPriority)
-        {
-            // TODORemoting
-            return -1;
-        }
-
-        /**
-         * Can be called to queue a ClientTask for a certain Client.
-         *
-         * See implementation of this class for more detailed description!
-         *
-         */
-        public Int32 QueueClientTaskFromClient(String AUserID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Int16 ATaskPriority,
-            System.Int32 AExceptClientID)
-        {
-            // TODORemoting
-            return -1;
-        }
-
-        /**
-         * Can be called to queue a ClientTask for a certain Client.
-         *
-         * See implementation of this class for more detailed description!
-         *
-         */
-        public Int32 QueueClientTaskFromClient(String AUserID, String ATaskGroup, String ATaskCode, System.Int16 ATaskPriority)
-        {
-            // TODORemoting
-            return -1;
-        }
-
-        /**
-         * Can be called to queue a ClientTask for a certain Client.
-         *
-         * See implementation of this class for more detailed description!
-         *
-         */
-        public Int32 QueueClientTaskFromClient(String AUserID,
+        public static Int32 QueueClientTaskFromClient(String AUserID,
             String ATaskGroup,
             String ATaskCode,
             object ATaskParameter1,
@@ -203,25 +130,6 @@ namespace Ict.Common.Remoting.Client
             object ATaskParameter4,
             System.Int16 ATaskPriority,
             System.Int32 AExceptClientID)
-        {
-            // TODORemoting
-            return -1;
-        }
-
-        /**
-         * Can be called to queue a ClientTask for a certain Client.
-         *
-         * See implementation of this class for more detailed description!
-         *
-         */
-        public Int32 QueueClientTaskFromClient(String AUserID,
-            String ATaskGroup,
-            String ATaskCode,
-            object ATaskParameter1,
-            object ATaskParameter2,
-            object ATaskParameter3,
-            object ATaskParameter4,
-            System.Int16 ATaskPriority)
         {
             // TODORemoting
             return -1;
@@ -237,7 +145,7 @@ namespace Ict.Common.Remoting.Client
         /// <param name="AMessageLine3"></param>
         /// <param name="AUserID"></param>
         /// <param name="AProcessID"></param>
-        public void AddErrorLogEntry(String AErrorCode,
+        public static void AddErrorLogEntry(String AErrorCode,
             String AContext,
             String AMessageLine1,
             String AMessageLine2,
@@ -253,7 +161,7 @@ namespace Ict.Common.Remoting.Client
          * functions can also be invoked directly from the Server's menu)
          *
          */
-        public System.Int32 GCGetGCGeneration(object AInspectObject)
+        public static System.Int32 GCGetGCGeneration(object AInspectObject)
         {
             // TODORemoting
             return -1;
@@ -263,7 +171,7 @@ namespace Ict.Common.Remoting.Client
         /// perform garbage collection
         /// </summary>
         /// <returns></returns>
-        public System.Int32 GCPerformGC()
+        public static System.Int32 GCPerformGC()
         {
             // TODORemoting
             return -1;
@@ -273,7 +181,7 @@ namespace Ict.Common.Remoting.Client
         /// see how much memory is available
         /// </summary>
         /// <returns></returns>
-        public System.Int32 GCGetApproxMemory()
+        public static System.Int32 GCGetApproxMemory()
         {
             // TODORemoting
             return -1;

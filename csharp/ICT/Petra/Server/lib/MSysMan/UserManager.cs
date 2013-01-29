@@ -507,6 +507,7 @@ namespace Ict.Petra.Server.MSysMan.Security.UserManager.WebConnectors
             DomainManager.ClientTaskAddToOtherClient(AUserID,
                 SharedConstants.CLIENTTASKGROUP_USERINFOREFRESH,
                 "",
+                null, null, null, null,
                 1);
         }
     }

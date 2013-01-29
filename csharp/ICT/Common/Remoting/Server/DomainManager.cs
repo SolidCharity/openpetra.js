@@ -24,18 +24,11 @@
 using System;
 using System.Collections;
 using System.Threading;
-using System.Runtime.Remoting;
-using System.Runtime.Remoting.Lifetime;
-using System.Runtime.Remoting.Channels;
-using System.Runtime.Remoting.Channels.Tcp;
-using System.Runtime.Serialization.Formatters;
-using System.Runtime.Remoting.Services;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using Ict.Common;
 using Ict.Common.Remoting.Server;
 using Ict.Common.Remoting.Shared;
-using Ict.Common.Remoting.Sinks.Encryption;
 
 namespace Ict.Common.Remoting.Server
 {
@@ -51,9 +44,6 @@ namespace Ict.Common.Remoting.Server
 
         /// <summary>used internally to hold SiteKey Information (for convenience)</summary>
         public static Int64 GSiteKey;
-
-        /// <summary>used internally to hold a proxy reference to the ClientManager in the Server's Default AppDomain</summary>
-        public static TClientManager UClientManagerCallForwarderRef;
 
         /// <summary>tells when the last remoteable object was marshaled (remoted).</summary>
         public static DateTime ULastObjectRemotingAction;
@@ -89,28 +79,14 @@ namespace Ict.Common.Remoting.Server
             System.Object ATaskParameter4,
             Int16 ATaskPriority)
         {
-            return UClientManagerCallForwarderRef.QueueClientTaskFromClient(GClientID,
+            return TClientManager.QueueClientTask(GClientID,
                 ATaskGroup,
                 ATaskCode,
                 ATaskParameter1,
                 ATaskParameter2,
                 ATaskParameter3,
                 ATaskParameter4,
-                ATaskPriority,
-                -1);
-        }
-
-        /// <summary>
-        /// todoComment
-        /// </summary>
-        /// <param name="AClientID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public static Int32 ClientTaskAddToOtherClient(Int16 AClientID, String ATaskGroup, String ATaskCode, Int16 ATaskPriority)
-        {
-            return ClientTaskAddToOtherClient(AClientID, ATaskGroup, ATaskCode, null, null, null, null, ATaskPriority);
+                ATaskPriority);
         }
 
         /// <summary>
@@ -134,7 +110,7 @@ namespace Ict.Common.Remoting.Server
             object ATaskParameter4,
             Int16 ATaskPriority)
         {
-            return UClientManagerCallForwarderRef.QueueClientTaskFromClient(AClientID,
+            return TClientManager.QueueClientTask(AClientID,
                 ATaskGroup,
                 ATaskCode,
                 ATaskParameter1,
@@ -143,19 +119,6 @@ namespace Ict.Common.Remoting.Server
                 ATaskParameter4,
                 ATaskPriority,
                 GClientID);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AUserID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public static Int32 ClientTaskAddToOtherClient(String AUserID, String ATaskGroup, String ATaskCode, Int16 ATaskPriority)
-        {
-            return ClientTaskAddToOtherClient(AUserID, ATaskGroup, ATaskCode, null, null, null, null, ATaskPriority);
         }
 
         /// <summary>
@@ -179,7 +142,7 @@ namespace Ict.Common.Remoting.Server
             object ATaskParameter4,
             Int16 ATaskPriority)
         {
-            return UClientManagerCallForwarderRef.QueueClientTaskFromClient(AUserID,
+            return TClientManager.QueueClientTask(AUserID,
                 ATaskGroup,
                 ATaskCode,
                 ATaskParameter1,
@@ -213,7 +176,7 @@ namespace Ict.Common.Remoting.Server
     /// TClientAppDomainConnection!
     ///
     /// </summary>
-    public class TClientDomainManagerBase : MarshalByRefObject
+    public class TClientDomainManagerBase
     {
         /// <summary>UserID for which this AppDomain was created</summary>
         private String FUserID;
@@ -224,12 +187,11 @@ namespace Ict.Common.Remoting.Server
         /// <summary>holds reference to an instance of the ClientTasksManager</summary>
         private TClientTasksManager FClientTasksManager;
 
-        private ICrossDomainService FRemotedPollClientTaskObject;
+        private TPollClientTasks FRemotedPollClientTaskObject;
 
         /// <summary>Random Security Token (to prevent unauthorised AppDomain shutdown)</summary>
         private String FRandomAppDomainTearDownToken;
         private System.Object FTearDownAppDomainMonitor;
-        private TcpChannel FTcpChannel = null;
 
         /// <summary>Tells when the last Client Action occured (the last time when a remoteable object was marshaled (remoted)).
         /// Can be overloaded by a server with database access to see when the last DB action occured</summary>
@@ -294,14 +256,9 @@ namespace Ict.Common.Remoting.Server
         /// <param name="AClientID">ClientID as assigned by the ClientManager</param>
         /// <param name="AClientServerConnectionType">Tells in which way the Client connected
         /// to the PetraServer</param>
-        /// <param name="AClientManagerRef">A reference to the ClientManager object
-        /// (Note: .NET Remoting will be working behind the scenes since calls to
-        /// this Object will cross AppDomains!)</param>
         /// <param name="AUserID"></param>
-        /// <returns>void</returns>
         public TClientDomainManagerBase(Int32 AClientID,
             TClientServerConnectionType AClientServerConnectionType,
-            TClientManager AClientManagerRef,
             string AUserID)
         {
             new TAppSettingsManager(false);
@@ -310,64 +267,19 @@ namespace Ict.Common.Remoting.Server
 
             // Console.WriteLine('TClientDomainManager.Create in AppDomain: ' + Thread.GetDomain().FriendlyName);
             DomainManager.GClientID = AClientID;
-            DomainManager.UClientManagerCallForwarderRef = AClientManagerRef;
             FClientServerConnectionType = AClientServerConnectionType;
             FClientTasksManager = new TClientTasksManager();
             FTearDownAppDomainMonitor = new System.Object();
             Random random = new Random();
             FRandomAppDomainTearDownToken = random.Next(Int32.MinValue, Int32.MaxValue).ToString();
 
-            //
-            // Set up .NET Remoting Lifetime Services and TCP Channel for this AppDomain.
-            // Note: .NET Remoting needs to be set up separately for each AppDomain, and settings in
-            // the .NET (Remoting) Configuration File are valid only for the Default AppDomain.
-            //
-            try
-            {
-                // The following settings equal to a config file's
-                // <lifetime leaseTime="10MS" renewOnCallTime="10MS" leaseManagerPollTime = "5MS" />
-                // setting.
-                // Please note that this breaks remoting on mono, but these settings help on MS .NET
-                // to find any remoted objects whose lifetime was inadvertedly not configured, and
-                // therefore live only very short and calls to them break...
-                // LifetimeServices.LeaseTime := TimeSpan.FromMilliseconds(10);
-                // LifetimeServices.RenewOnCallTime := TimeSpan.FromMilliseconds(10);
-                // LifetimeServices.LeaseManagerPollTime := TimeSpan.FromMilliseconds(5);
-                // More sensible settings for Lifetime Services
-                // TODO 1 ochristiank cRemoting : .NET Remoting LifetimeSettings should be flexible instead hardcoded in the future!
-                try
-                {
-                    LifetimeServices.LeaseTime = TimeSpan.FromSeconds(60);
-                    LifetimeServices.RenewOnCallTime = TimeSpan.FromSeconds(60);
-                    LifetimeServices.LeaseManagerPollTime = TimeSpan.FromSeconds(5);
-                }
-                catch (RemotingException)
-                {
-                    // ignore System.Runtime.Remoting.RemotingException : 'LeaseTime' can only be set once within an AppDomain.
-                    // this happens in the Server NUnit test, when running several tests, therefore reconnecting with the same AppDomain.
-                }
-            }
-            catch (Exception e)
-            {
-                TLogging.Log(e.ToString());
-                throw;
-            }
-
+            // TODORemoting setup life time services
+            
             if (TLogging.DL >= 4)
             {
                 Console.WriteLine("Application domain: " + Thread.GetDomain().FriendlyName);
                 Console.WriteLine("  for User: " + FUserID);
             }
-        }
-
-        /// <summary>
-        /// make sure that the TClientDomainManager object exists until this AppDomain is unloaded!
-        /// </summary>
-        /// <returns></returns>
-        public override object InitializeLifetimeService()
-        {
-            // make sure that the TClientDomainManager object exists until this AppDomain is unloaded!
-            return null;
         }
 
         /// <summary>
@@ -382,23 +294,6 @@ namespace Ict.Common.Remoting.Server
             }
 
             ClientStillAliveCheck.TClientStillAliveCheck.StopClientStillAliveCheckThread();
-
-            // this can get the server to a halt and prevent people to logon again. see email from Moray "Server Crash" 22/08/2007
-            // if TLogging.DL >= 5 then TLogging.Log('TClientDomainManager.StopClientAppDomain: before ChannelServices.UnregisterChannel(FTcpChannel)', [ToConsole, ToLogfile]);
-            // ChannelServices.UnregisterChannel(FTcpChannel);
-            // if TLogging.DL >= 5 then TLogging.Log('TClientDomainManager.StopClientAppDomain: after ChannelServices.UnregisterChannel(FTcpChannel)', [ToConsole, ToLogfile]);
-            DomainManager.UClientManagerCallForwarderRef = null;
-
-            if (TLogging.DL >= 5)
-            {
-                TLogging.Log("TClientDomainManager.StopClientAppDomain: after UClientManagerCallForwarderRef := nil",
-                    TLoggingType.ToConsole | TLoggingType.ToLogfile);
-            }
-
-            if (FTcpChannel != null)
-            {
-                ChannelServices.UnregisterChannel(FTcpChannel);
-            }
         }
 
         /// <summary>
@@ -462,7 +357,7 @@ namespace Ict.Common.Remoting.Server
                         // The AppDomain and all the objects that are instantiated in it cease
                         // to exist after the following call!!!
                         // > No further code can be executed in the AppDomain after that!
-                        DomainManager.UClientManagerCallForwarderRef.DisconnectClient((short)DomainManager.GClientID, out AReason);
+                        TClientManager.DisconnectClient((short)DomainManager.GClientID, out AReason);
                         Monitor.Exit(FTearDownAppDomainMonitor);
                     }
                 }
@@ -484,7 +379,7 @@ namespace Ict.Common.Remoting.Server
         /// </summary>
         /// <returns>The URL at which the remoted TPollClientTasks Object can be reached.
         /// </returns>
-        public String GetPollClientTasksURL()
+        public String CreateClientStillAliveCheck()
         {
             // Set Parameters for TPollClientTasks Class
             new TPollClientTasksParameters(FClientTasksManager);
@@ -497,23 +392,16 @@ namespace Ict.Common.Remoting.Server
 
             if (TLogging.DL >= 5)
             {
-                Console.WriteLine("TClientDomainManager.GetPollClientTasksURL: created TClientStillAliveCheck.");
+                Console.WriteLine("TClientDomainManager.CreateClientStillAliveCheck: created TClientStillAliveCheck.");
             }
 
-            string ReturnValue = TConfigurableMBRObject.BuildRandomURI("PollClientTasks");
-
-            if (TLogging.DL >= 9)
-            {
-                Console.WriteLine("TClientDomainManager.GetPollClientTasksURL: remote at: " + ReturnValue);
-            }
-
-            return ReturnValue;
+            return string.Empty;
         }
 
         /// <summary>
         /// get the object for remoting
         /// </summary>
-        public ICrossDomainService GetRemotedPollClientTasksObject()
+        public TPollClientTasks GetPollClientTasksObject()
         {
             return FRemotedPollClientTaskObject;
         }

@@ -26,8 +26,6 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Reflection;
-using System.Runtime.Remoting;
-using System.Runtime.Remoting.Lifetime;
 using System.Security.Principal;
 using System.Resources;
 using GNU.Gettext;
@@ -58,7 +56,7 @@ namespace Ict.Common.Remoting.Server
     /// Clients and to request information about Clients.
     ///
     /// </summary>
-    public class TClientManager : MarshalByRefObject, IClientManagerInterface
+    public class TClientManager
     {
         #region Resourcestrings
 
@@ -82,7 +80,6 @@ namespace Ict.Common.Remoting.Server
         private static IUserManager UUserManager = null;
         private static IErrorLog UErrorLog = null;
         private static IMaintenanceLogonMessage UMaintenanceLogonMessage = null;
-        private static IClientAppDomainConnection UClientDomainManager = null;
 
         /// <summary>Used for ThreadLocking a critical part of the Client Connection code to make sure that this code is executed by exactly one Client at any given time</summary>
         private static System.Object UConnectClientMonitor;
@@ -92,9 +89,6 @@ namespace Ict.Common.Remoting.Server
         private static SortedList UClientObjects;
 
         private DateTime FStartTime;
-
-        /// <summary>Holds a reference to the ClientManagerCallForwarder Object.</summary>
-        private static TClientManagerCallForwarder FClientManagerCallForwarder;
 
         /// <summary>Holds the total number of Clients that connected to the Petra Server since the start of the Petra Server.</summary>
         private static System.Int32 FClientsConnectedTotal;
@@ -172,81 +166,6 @@ namespace Ict.Common.Remoting.Server
             {
                 return USystemDefaultsCache;
             }
-        }
-
-
-        /// <summary>
-        /// Called by TClientDomainManager to queue a ClientTask for a certain Client.
-        ///
-        /// </summary>
-        /// <param name="AClientID">Server-assigned ID of the Client; use -1 to queue the
-        /// ClientTask to all Clients</param>
-        /// <param name="ATaskGroup">Group of the Task</param>
-        /// <param name="ATaskCode">Code of the Task (depending on the TaskGroup this can be
-        /// left empty)</param>
-        /// <param name="ATaskParameter1">Parameter #1 for the Task (depending on the TaskGroup
-        /// this can be left empty)</param>
-        /// <param name="ATaskParameter2">Parameter #2 for the Task (depending on the TaskGroup
-        /// this can be left empty)</param>
-        /// <param name="ATaskParameter3">Parameter #3 for the Task (depending on the TaskGroup
-        /// this can be left empty)</param>
-        /// <param name="ATaskParameter4">Parameter #4 for the Task (depending on the TaskGroup
-        /// this can be left empty)</param>
-        /// <param name="ATaskPriority">Priority of the Task</param>
-        /// <param name="AExceptClientID">Pass in a Server-assigned ID of the Client that should
-        /// not get the ClientTask in its queue. Makes sense only if -1 is used for the
-        /// AClientID parameter. Default is -1, which means no Client is excepted.</param>
-        /// <returns>The ClientID for which the ClientTask was queued (the last ClientID
-        /// in the list of Clients if -1 is submitted for AClientID). Error values
-        /// are: -1 if AClientID is identical with AExceptClientID, -2 if the
-        /// Client specified with AClientID is not in the list of Clients or
-        /// AClientID &lt;&gt; -1
-        /// </returns>
-        public Int32 QueueClientTaskFromClient(System.Int32 AClientID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Object ATaskParameter1,
-            System.Object ATaskParameter2,
-            System.Object ATaskParameter3,
-            System.Object ATaskParameter4,
-            System.Int16 ATaskPriority,
-            System.Int32 AExceptClientID)
-        {
-            return QueueClientTask(
-                AClientID, ATaskGroup, ATaskCode, ATaskParameter1, ATaskParameter2,
-                ATaskParameter3, ATaskParameter4, ATaskPriority, AExceptClientID);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AClientID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskParameter1"></param>
-        /// <param name="ATaskParameter2"></param>
-        /// <param name="ATaskParameter3"></param>
-        /// <param name="ATaskParameter4"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public Int32 QueueClientTaskFromClient(System.Int32 AClientID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Object ATaskParameter1,
-            System.Object ATaskParameter2,
-            System.Object ATaskParameter3,
-            System.Object ATaskParameter4,
-            System.Int16 ATaskPriority)
-        {
-            return QueueClientTaskFromClient(AClientID,
-                ATaskGroup,
-                ATaskCode,
-                ATaskParameter1,
-                ATaskParameter2,
-                ATaskParameter3,
-                ATaskParameter4,
-                ATaskPriority,
-                -1);
         }
 
         /// make sure that not a null value is returned, but an empty string
@@ -363,7 +282,6 @@ namespace Ict.Common.Remoting.Server
         /// <returns>void</returns>
         public TClientManager()
         {
-            FClientManagerCallForwarder = new TClientManagerCallForwarder(this);
             UClientObjects = SortedList.Synchronized(new SortedList());
 
             // Console.WriteLine('UClientObjects.IsSynchronized: ' + UClientObjects.IsSynchronized.ToString);
@@ -379,15 +297,13 @@ namespace Ict.Common.Remoting.Server
             ICacheableTablesManager ACacheableTablesManager,
             IUserManager AUserManager,
             IErrorLog AErrorLog,
-            IMaintenanceLogonMessage AMaintenanceLogonMessage,
-            IClientAppDomainConnection AClientDomainManager)
+            IMaintenanceLogonMessage AMaintenanceLogonMessage)
         {
             USystemDefaultsCache = ASystemDefaultsCache;
             UCacheableTablesManager = ACacheableTablesManager;
             UUserManager = AUserManager;
             UErrorLog = AErrorLog;
             UMaintenanceLogonMessage = AMaintenanceLogonMessage;
-            UClientDomainManager = AClientDomainManager;
         }
 
         /// <summary>
@@ -400,16 +316,6 @@ namespace Ict.Common.Remoting.Server
                 Console.WriteLine("TClientManager: Got collected after " + (new TimeSpan(
                                                                                 DateTime.Now.Ticks - FStartTime.Ticks)).ToString() + " seconds.");
             }
-        }
-
-        /// <summary>
-        /// needed for remoting
-        /// </summary>
-        /// <returns></returns>
-        public override object InitializeLifetimeService()
-        {
-            // make sure that the TClientManager object exists until the Server stops!
-            return null;
         }
 
         /// <summary>
@@ -508,7 +414,7 @@ namespace Ict.Common.Remoting.Server
                     && (((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus != TAppDomainStatus.adsStopped))
                 {
                     // this.DisconnectClient would not work here since we are executing inside a static function...
-                    ReturnValue = UClientManagerObj.DisconnectClient(AClientID, out ACantDisconnectReason);
+                    ReturnValue = TClientManager.DisconnectClient(AClientID, out ACantDisconnectReason);
                 }
                 else
                 {
@@ -523,61 +429,6 @@ namespace Ict.Common.Remoting.Server
                 TLogging.Log("ServerDisconnectClient call: " + ACantDisconnectReason, TLoggingType.ToConsole | TLoggingType.ToLogfile);
             }
             return ReturnValue;
-        }
-
-        /// <summary>
-        /// add a service that is offered by the appdomain, for single port remoting
-        /// </summary>
-        public void AddCrossDomainService(string ClientID, string ObjectURI, ICrossDomainService ObjectToRemote)
-        {
-            TCrossDomainMarshaller.AddService(ClientID, ObjectURI, ObjectToRemote);
-        }
-
-        /// <summary>
-        /// Called by TClientManager to queue a ClientTask for a certain Client.
-        ///
-        /// @comment The position in source code of this overload (*after* the first
-        /// overload) is important! If this overload is put *before* the first
-        /// overload, the Compiler won't compile the statement
-        /// 'TCacheableTablesManager.Create(@TClientManager.QueueClientTask)'
-        /// in the initialization section due to a Compiler bug (QualityCentral #7435)!
-        ///
-        /// </summary>
-        /// <param name="AClientID">Server-assigned ID of the Client; use -1 to queue the
-        /// ClientTask to all Clients</param>
-        /// <param name="ATaskGroup">Group of the Task</param>
-        /// <param name="ATaskCode">Code of the Task (depending on the TaskGroup this can be
-        /// left empty)</param>
-        /// <param name="ATaskPriority">Priority of the Task</param>
-        /// <param name="AExceptClientID">Pass in a Server-assigned ID of the Client that should
-        /// not get the ClientTask in its queue. Makes sense only if -1 is used for the
-        /// AClientID parameter. Default is -1, which means no Client is excepted.</param>
-        /// <returns>The ClientID for which the ClientTask was queued (the last ClientID
-        /// in the list of Clients if -1 is submitted for AClientID). Error values
-        /// are: -1 if AClientID is identical with AExceptClientID, -2 if the
-        /// Client specified with AClientID is not in the list of Clients or
-        /// AClientID &lt;&gt; -1
-        /// </returns>
-        public static Int32 QueueClientTask(System.Int32 AClientID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Int16 ATaskPriority,
-            System.Int32 AExceptClientID)
-        {
-            return QueueClientTask(AClientID, ATaskGroup, ATaskCode, null, null, null, null, ATaskPriority, AExceptClientID);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AClientID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public static Int32 QueueClientTask(System.Int32 AClientID, String ATaskGroup, String ATaskCode, System.Int16 ATaskPriority)
-        {
-            return QueueClientTask(AClientID, ATaskGroup, ATaskCode, ATaskPriority, -1);
         }
 
         /// <summary>
@@ -615,7 +466,7 @@ namespace Ict.Common.Remoting.Server
             System.Object ATaskParameter3,
             System.Object ATaskParameter4,
             System.Int16 ATaskPriority,
-            System.Int32 AExceptClientID)
+            System.Int32 AExceptClientID = -1)
         {
             Int32 ReturnValue;
             TRunningAppDomain AppDomainEntry;
@@ -700,102 +551,6 @@ namespace Ict.Common.Remoting.Server
         }
 
         /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AClientID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskParameter1"></param>
-        /// <param name="ATaskParameter2"></param>
-        /// <param name="ATaskParameter3"></param>
-        /// <param name="ATaskParameter4"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public static Int32 QueueClientTask(System.Int32 AClientID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Object ATaskParameter1,
-            System.Object ATaskParameter2,
-            System.Object ATaskParameter3,
-            System.Object ATaskParameter4,
-            System.Int16 ATaskPriority)
-        {
-            return QueueClientTask(AClientID,
-                ATaskGroup,
-                ATaskCode,
-                ATaskParameter1,
-                ATaskParameter2,
-                ATaskParameter3,
-                ATaskParameter4,
-                ATaskPriority,
-                -1);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AUserID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public static Int32 QueueClientTask(String AUserID, String ATaskGroup, String ATaskCode, System.Int16 ATaskPriority)
-        {
-            return QueueClientTask(AUserID, ATaskGroup, ATaskCode, ATaskPriority, -1);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AUserID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <param name="AExceptClientID"></param>
-        /// <returns></returns>
-        public static Int32 QueueClientTask(String AUserID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Int16 ATaskPriority,
-            System.Int16 AExceptClientID)
-        {
-            return QueueClientTask(AUserID, ATaskGroup, ATaskCode,
-                null, null, null, null, ATaskPriority);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AUserID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskParameter1"></param>
-        /// <param name="ATaskParameter2"></param>
-        /// <param name="ATaskParameter3"></param>
-        /// <param name="ATaskParameter4"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public static Int32 QueueClientTask(String AUserID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Object ATaskParameter1,
-            System.Object ATaskParameter2,
-            System.Object ATaskParameter3,
-            System.Object ATaskParameter4,
-            System.Int16 ATaskPriority)
-        {
-            return QueueClientTask(AUserID,
-                ATaskGroup,
-                ATaskCode,
-                ATaskParameter1,
-                ATaskParameter2,
-                ATaskParameter3,
-                ATaskParameter4,
-                ATaskPriority,
-                -1);
-        }
-
-        /// <summary>
         /// add client task to queue
         /// </summary>
         /// <param name="AUserID"></param>
@@ -875,170 +630,6 @@ namespace Ict.Common.Remoting.Server
         }
 
         /// <summary>
-        /// Called by TClientDomainManager to queue a ClientTask for a certain Client.
-        ///
-        /// </summary>
-        /// <param name="AClientID">Server-assigned ID of the Client; use -1 to queue the
-        /// ClientTask to all Clients</param>
-        /// <param name="ATaskGroup">Group of the Task</param>
-        /// <param name="ATaskCode">Code of the Task</param>
-        /// <param name="ATaskPriority">Priority of the Task</param>
-        /// <param name="AExceptClientID">Pass in a Server-assigned ID of the Client that should
-        /// not get the ClientTask in its queue. Makes sense only if -1 is used for the
-        /// AClientID parameter. Default is -1, which means no Client is excepted.</param>
-        /// <returns>The ClientID for which the ClientTask was queued (the last ClientID
-        /// in the list of Clients if -1 is submitted for AClientID). Error values
-        /// are: -1 if AClientID is identical with AExceptClientID, -2 if the
-        /// Client specified with AClientID is not in the list of Clients or
-        /// AClientID &lt;&gt; -1
-        /// </returns>
-        public Int32 QueueClientTaskFromClient(System.Int32 AClientID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Int16 ATaskPriority,
-            System.Int32 AExceptClientID)
-        {
-            return QueueClientTask(AClientID, ATaskGroup, ATaskCode, null, null, null, null, ATaskPriority, AExceptClientID);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AClientID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public Int32 QueueClientTaskFromClient(System.Int32 AClientID, String ATaskGroup, String ATaskCode, System.Int16 ATaskPriority)
-        {
-            return QueueClientTaskFromClient(AClientID, ATaskGroup, ATaskCode, ATaskPriority, -1);
-        }
-
-        /// <summary>
-        /// Called by TClientDomainManager to queue a ClientTask for a certain UserID.
-        ///
-        /// @comment If a User is several times connected, all Client instances for that UserID
-        /// will get the ClientTask queued.
-        ///
-        /// </summary>
-        /// <param name="AUserID">UserID for which the ClientTask should be queued</param>
-        /// <param name="ATaskGroup">Group of the Task</param>
-        /// <param name="ATaskCode">Code of the Task</param>
-        /// <param name="ATaskPriority">Priority of the Task</param>
-        /// <param name="AExceptClientID">Pass in a Server-assigned ID of the Client that should
-        /// not get the ClientTask in its queue. Makes sense only if -1 is used for the
-        /// AClientID parameter. Default is -1, which means no Client is excepted.</param>
-        /// <returns>The ClientID for which the ClientTask was queued (the last ClientID
-        /// in the list of Clients if -1 is submitted for AClientID). Error values
-        /// are: -1 if AClientID is identical with AExceptClientID, -2 if the
-        /// Client specified with AClientID is not in the list of Clients or
-        /// AClientID &lt;&gt; -1
-        /// </returns>
-        public Int32 QueueClientTaskFromClient(String AUserID,
-            String ATaskGroup,
-            String ATaskCode,
-            System.Int16 ATaskPriority,
-            System.Int32 AExceptClientID)
-        {
-            return QueueClientTask(AUserID, ATaskGroup, ATaskCode, null, null, null, null, ATaskPriority, AExceptClientID);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AUserID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public Int32 QueueClientTaskFromClient(String AUserID, String ATaskGroup, String ATaskCode, System.Int16 ATaskPriority)
-        {
-            return QueueClientTaskFromClient(AUserID, ATaskGroup, ATaskCode, ATaskPriority, -1);
-        }
-
-        /// <summary>
-        /// Called by TClientDomainManager to queue a ClientTask for a certain UserID.
-        ///
-        /// @comment If a User is several times connected, all Client instances for that UserID
-        /// will get the ClientTask queued.
-        ///
-        /// </summary>
-        /// <param name="AUserID">UserID for which the ClientTask should be queued</param>
-        /// <param name="ATaskGroup">Group of the Task</param>
-        /// <param name="ATaskCode">Code of the Task (depending on the TaskGroup this can be
-        /// left empty)</param>
-        /// <param name="ATaskParameter1">Parameter #1 for the Task (depending on the TaskGroup
-        /// this can be left empty)</param>
-        /// <param name="ATaskParameter2">Parameter #2 for the Task (depending on the TaskGroup
-        /// this can be left empty)</param>
-        /// <param name="ATaskParameter3">Parameter #3 for the Task (depending on the TaskGroup
-        /// this can be left empty)</param>
-        /// <param name="ATaskParameter4">Parameter #4 for the Task (depending on the TaskGroup
-        /// this can be left empty)</param>
-        /// <param name="ATaskPriority">Priority of the Task</param>
-        /// <param name="AExceptClientID">Pass in a Server-assigned ID of the Client that should
-        /// not get the ClientTask in its queue. Makes sense only if -1 is used for the
-        /// AClientID parameter. Default is -1, which means no Client is excepted.</param>
-        /// <returns>The ClientID for which the ClientTask was queued (the last ClientID
-        /// in the list of Clients if -1 is submitted for AClientID). Error values
-        /// are: -1 if AClientID is identical with AExceptClientID, -2 if the
-        /// Client specified with AClientID is not in the list of Clients or
-        /// AClientID &lt;&gt; -1
-        /// </returns>
-        public Int32 QueueClientTaskFromClient(String AUserID,
-            String ATaskGroup,
-            String ATaskCode,
-            object ATaskParameter1,
-            object ATaskParameter2,
-            object ATaskParameter3,
-            object ATaskParameter4,
-            System.Int16 ATaskPriority,
-            System.Int32 AExceptClientID)
-        {
-            return QueueClientTask(AUserID,
-                ATaskGroup,
-                ATaskCode,
-                ATaskParameter1,
-                ATaskParameter2,
-                ATaskParameter3,
-                ATaskParameter4,
-                ATaskPriority,
-                AExceptClientID);
-        }
-
-        /// <summary>
-        /// overload
-        /// </summary>
-        /// <param name="AUserID"></param>
-        /// <param name="ATaskGroup"></param>
-        /// <param name="ATaskCode"></param>
-        /// <param name="ATaskParameter1"></param>
-        /// <param name="ATaskParameter2"></param>
-        /// <param name="ATaskParameter3"></param>
-        /// <param name="ATaskParameter4"></param>
-        /// <param name="ATaskPriority"></param>
-        /// <returns></returns>
-        public Int32 QueueClientTaskFromClient(String AUserID,
-            String ATaskGroup,
-            String ATaskCode,
-            object ATaskParameter1,
-            object ATaskParameter2,
-            object ATaskParameter3,
-            object ATaskParameter4,
-            System.Int16 ATaskPriority)
-        {
-            return QueueClientTaskFromClient(AUserID,
-                ATaskGroup,
-                ATaskCode,
-                ATaskParameter1,
-                ATaskParameter2,
-                ATaskParameter3,
-                ATaskParameter4,
-                ATaskPriority,
-                -1);
-        }
-
-        /// <summary>
         /// add error to log, using IErrorLog
         /// </summary>
         /// <param name="AErrorCode"></param>
@@ -1048,7 +639,7 @@ namespace Ict.Common.Remoting.Server
         /// <param name="AMessageLine3"></param>
         /// <param name="AUserID"></param>
         /// <param name="AProcessID"></param>
-        public void AddErrorLogEntry(String AErrorCode,
+        public static void AddErrorLogEntry(String AErrorCode,
             String AContext,
             String AMessageLine1,
             String AMessageLine2,
@@ -1278,9 +869,6 @@ namespace Ict.Common.Remoting.Server
             return BuildClientList(AListDisconnectedClients);
         }
 
-        /// name for the cross domain url
-        public static string CROSSDOMAINURL = "services";
-
         /// <summary>
         /// Called by a Client to request connection to the Petra Server.
         ///
@@ -1297,7 +885,6 @@ namespace Ict.Common.Remoting.Server
         /// <param name="AClientServerConnectionType">Type of the connection (eg. LAN, Remote)</param>
         /// <param name="AClientName">Server-assigned Name of the Client</param>
         /// <param name="AClientID">Server-assigned ID of the Client</param>
-        /// <param name="ACrossDomainURL">there is only one url now for connecting to the services</param>
         /// <param name="AServerOS">Operating System that the Server is running on
         /// </param>
         /// <param name="AProcessID"></param>
@@ -1305,7 +892,7 @@ namespace Ict.Common.Remoting.Server
         /// <param name="ASystemEnabled"></param>
         /// <param name="AUserInfo"></param>
         /// <returns>void</returns>
-        public void ConnectClient(String AUserName,
+        public static void ConnectClient(String AUserName,
             String APassword,
             String AClientComputerName,
             String AClientIPAddress,
@@ -1313,22 +900,12 @@ namespace Ict.Common.Remoting.Server
             TClientServerConnectionType AClientServerConnectionType,
             out String AClientName,
             out System.Int32 AClientID,
-            out string ACrossDomainURL,
             out TExecutingOSEnum AServerOS,
             out Int32 AProcessID,
             out String AWelcomeMessage,
             out Boolean ASystemEnabled,
             out IPrincipal AUserInfo)
         {
-            String LoadInAppDomainName;
-            IClientAppDomainConnection ClientDomainManager = null;
-            String RemotingURL_RemotedObject = "";
-            String RemotingURL_PollClientTasks;
-            TRunningAppDomain AppDomainEntry;
-            String CantDisconnectReason;
-
-            ACrossDomainURL = CROSSDOMAINURL;
-
             if (TLogging.DL >= 10)
             {
                 TLogging.Log(
@@ -1374,7 +951,6 @@ namespace Ict.Common.Remoting.Server
                     FClientsConnectedTotal++;
                     AClientName = AUserName.ToUpper() + "_" + AClientID.ToString();
                     AServerOS = TSrvSetting.ExecutingOS;
-                    LoadInAppDomainName = AClientName + "_Domain";
                     #endregion
                     try
                     {
@@ -1383,7 +959,7 @@ namespace Ict.Common.Remoting.Server
                             // Add the new Client to UClientObjects SortedList
                             UClientObjects.Add((object)AClientID,
                                 new TRunningAppDomain(AClientID, AUserName.ToUpper(), AClientName, AClientComputerName, AClientIPAddress,
-                                    AClientServerConnectionType, LoadInAppDomainName));
+                                    AClientServerConnectionType, AClientName));
                         }
                     }
                     finally
@@ -1497,90 +1073,6 @@ namespace Ict.Common.Remoting.Server
                         }
                     }
 
-                    #region Create new AppDomain for Client, load ClientDomain DLL into it, initialise AppDomain
-                    try
-                    {
-                        try
-                        {
-                            // The following statement creates a new AppDomain for the connecting
-                            // Client and remotes an instance of TRemoteLoader into it.
-                            ClientDomainManager = UClientDomainManager.CreateAppDomain(AClientName);
-
-                            if (TLogging.DL >= 10)
-                            {
-                                TLogging.Log(
-                                    "Loaded Assemblies in AppDomain " + Thread.GetDomain().FriendlyName +
-                                    ": (after TClientAppDomainConnection.Create)",
-                                    TLoggingType.ToConsole | TLoggingType.ToLogfile);
-
-                                foreach (Assembly tmpAssembly in Thread.GetDomain().GetAssemblies())
-                                {
-                                    TLogging.Log(tmpAssembly.FullName, TLoggingType.ToConsole | TLoggingType.ToLogfile);
-                                }
-                            }
-
-                            // The following statement loads the ClientDomain DLL into the Client's
-                            // AppDomain, instantiates the main Class and initialises the AppDomain
-                            ClientDomainManager.LoadDomainManagerAssembly(AClientID,
-                                AClientServerConnectionType,
-                                FClientManagerCallForwarder,
-                                USystemDefaultsCache,
-                                UCacheableTablesManager,
-                                AUserInfo,
-                                out RemotingURL_PollClientTasks);
-                            // TODORemoting ARemotingURLs.Add(RemotingConstants.REMOTINGURL_IDENTIFIER_POLLCLIENTTASKS, RemotingURL_PollClientTasks);
-                        }
-                        catch (TargetInvocationException exp)
-                        {
-                            TLogging.Log(
-                                "Error while creating new AppDomain for Client! Exception: " +
-                                exp.ToString() +
-                                "\r\n" + "InnerException: " + exp.InnerException.ToString());
-                            throw exp.InnerException;
-                        }
-                        catch (Exception exp)
-                        {
-                            TLogging.Log(
-                                "Error while creating new AppDomain for Client! Exception: " + exp.ToString());
-                            throw;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // we should cleanly shut down the appdomain, to avoid exception:
-                        // System.Net.Sockets.SocketException: Address already in use
-                        AppDomainEntry = (TRunningAppDomain)UClientObjects[(object)AClientID];
-
-                        if ((AppDomainEntry == null) || (ClientDomainManager == null))
-                        {
-                            // Application domain was not setup yet
-                            AppDomainEntry.AppDomainStatus = TAppDomainStatus.adsStopped;
-                        }
-                        else
-                        {
-                            AppDomainEntry.PassInClientRemotingInfo(RemotingURL_RemotedObject, ClientDomainManager);
-                            ServerDisconnectClient(AClientID, out CantDisconnectReason);
-                        }
-
-                        throw;
-                    }
-                    #endregion
-
-                    if (TLogging.DL >= 10)
-                    {
-                        TLogging.Log(
-                            "Loaded Assemblies in AppDomain " + Thread.GetDomain().FriendlyName + " (after new AppDomain load):",
-                            TLoggingType.ToConsole |
-                            TLoggingType.ToLogfile);
-
-                        foreach (Assembly tmpAssembly in Thread.GetDomain().GetAssemblies())
-                        {
-                            TLogging.Log(tmpAssembly.FullName, TLoggingType.ToConsole | TLoggingType.ToLogfile);
-                        }
-                    }
-
-                    ((TRunningAppDomain)UClientObjects[(object)AClientID]).PassInClientRemotingInfo(RemotingURL_RemotedObject,
-                        ClientDomainManager);
                     ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsConnectingAppDomainSetupOK;
 
                     /*
@@ -1610,8 +1102,6 @@ namespace Ict.Common.Remoting.Server
             {
 // TODORemoting               Monitor.Exit(UConnectClientMonitor);
             }
-
-            // TODORemoting ClientDomainManager.LoadAssemblies(AClientID.ToString(), AUserInfo, ref ARemotingURLs);
 
             ((TRunningAppDomain)UClientObjects[(object)AClientID]).AppDomainStatus = TAppDomainStatus.adsActive;
             ((TRunningAppDomain)UClientObjects[(object)AClientID]).FClientConnectionFinishedTime = DateTime.Now;
@@ -1649,7 +1139,7 @@ namespace Ict.Common.Remoting.Server
         /// contains the reason why the disconnection cannot take place.</param>
         /// <returns>true if disconnection will take place, otherwise false.
         /// </returns>
-        public Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
+        public static Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
         {
             return DisconnectClient(AClientID, "Client closed", out ACantDisconnectReason);
         }
@@ -1664,7 +1154,7 @@ namespace Ict.Common.Remoting.Server
         /// contains the reason why the disconnection cannot take place.</param>
         /// <returns>true if disconnection will take place, otherwise false.
         /// </returns>
-        public Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
+        public static Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
         {
             Boolean ReturnValue;
             TRunningAppDomain AppDomainEntry;
@@ -1801,7 +1291,7 @@ namespace Ict.Common.Remoting.Server
         /// </summary>
         /// <returns>Result of a call to GC.GetTotalMemory.
         /// </returns>
-        public System.Int32 GCGetApproxMemory()
+        public static System.Int32 GCGetApproxMemory()
         {
             System.Int32 ReturnValue;
             ReturnValue = (int)GC.GetTotalMemory(false);
@@ -1819,7 +1309,7 @@ namespace Ict.Common.Remoting.Server
         /// <param name="AObject">Remoted Object</param>
         /// <returns>GC Generation (or -1 if the object no longer exists)
         /// </returns>
-        public System.Int32 GCGetGCGeneration(object AObject)
+        public static System.Int32 GCGetGCGeneration(object AObject)
         {
             System.Int32 ReturnValue;
             try
@@ -1842,7 +1332,7 @@ namespace Ict.Common.Remoting.Server
         /// </summary>
         /// <returns>Result of a call to GC.GetTotalMemory after the GC was performed.
         /// </returns>
-        public System.Int32 GCPerformGC()
+        public static System.Int32 GCPerformGC()
         {
             GC.Collect();
             Console.WriteLine("TClientManager.PerformGC: GC performed");

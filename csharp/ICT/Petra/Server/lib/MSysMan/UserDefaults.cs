@@ -926,6 +926,7 @@ namespace Ict.Petra.Server.MSysMan.Maintenance.UserDefaults.WebConnectors
                     DomainManager.ClientTaskAddToOtherClient(AUserName,
                         SharedConstants.CLIENTTASKGROUP_USERDEFAULTSREFRESH,
                         "All",
+                        null, null, null, null,
                         1);
                 }
             }

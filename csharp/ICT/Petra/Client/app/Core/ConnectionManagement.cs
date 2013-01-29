@@ -84,7 +84,6 @@ namespace Ict.Petra.Client.App.Core
         /// </summary>
         /// <param name="AUserName"></param>
         /// <param name="APassword"></param>
-        /// <param name="AClientManager"></param>
         /// <param name="AProcessID"></param>
         /// <param name="AWelcomeMessage"></param>
         /// <param name="ASystemEnabled"></param>
@@ -93,7 +92,6 @@ namespace Ict.Petra.Client.App.Core
         /// <returns></returns>
         protected override bool ConnectClient(String AUserName,
             String APassword,
-            IClientManagerInterface AClientManager,
             out Int32 AProcessID,
             out String AWelcomeMessage,
             out Boolean ASystemEnabled,
@@ -104,7 +102,6 @@ namespace Ict.Petra.Client.App.Core
             {
                 if (!base.ConnectClient(AUserName,
                         APassword,
-                        AClientManager,
                         out AProcessID,
                         out AWelcomeMessage,
                         out ASystemEnabled,

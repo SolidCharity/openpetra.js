@@ -23,7 +23,7 @@ namespace Ict.Common.Remoting.Client
     public class TConnectionHelper
     {
         /// connect to the server
-        static public IClientManagerInterface Connect()
+        static public TClientManager Connect()
         {
             {#CONNECTOR}
         }

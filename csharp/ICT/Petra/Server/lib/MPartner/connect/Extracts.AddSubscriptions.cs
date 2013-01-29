@@ -65,7 +65,7 @@ namespace Ict.Petra.Server.MPartner.Extracts.UIConnectors
     ///          are also UIConnectors are feasible.
     ///
     /// </summary>
-    public class TExtractsAddSubscriptionsUIConnector : TConfigurableMBRObject, IPartnerUIConnectorsExtractsAddSubscriptions
+    public class TExtractsAddSubscriptionsUIConnector : IPartnerUIConnectorsExtractsAddSubscriptions
     {
         private const Int32 MAX_PERCENTAGE_CHECKS = 70;
         private System.Int32 FExtractID;

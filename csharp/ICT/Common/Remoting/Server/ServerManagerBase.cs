@@ -445,7 +445,7 @@ CheckAllClientsDisconnected:
         {
             bool ReturnValue;
 
-            if (TClientManager.QueueClientTask(AClientID, ATaskGroup, ATaskCode, ATaskPriority) >= 0)
+            if (TClientManager.QueueClientTask(AClientID, ATaskGroup, ATaskCode, null, null, null, null, ATaskPriority) >= 0)
             {
                 ReturnValue = true;
             }

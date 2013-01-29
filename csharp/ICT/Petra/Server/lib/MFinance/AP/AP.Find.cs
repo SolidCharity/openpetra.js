@@ -70,7 +70,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
     ///          However, Server Objects that derive from these objects and that
     ///          are also UIConnectors are feasible.
     ///</summary>
-    public class TFindUIConnector : TConfigurableMBRObject, IAPUIConnectorsFind
+    public class TFindUIConnector : IAPUIConnectorsFind
     {
         /// <summary>Paged query object</summary>
         TPagedDataSet FPagedDataSetObject;

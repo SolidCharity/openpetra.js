@@ -784,7 +784,7 @@ namespace Ict.Petra.Server.MCommon
     /// as well as on the Server side.
     ///
     /// </summary>
-    public class TAsynchronousExecutionProgress : TConfigurableMBRObject, IAsynchronousExecutionProgress
+    public class TAsynchronousExecutionProgress : IAsynchronousExecutionProgress
     {
         /// <summary>Property value.</summary>
         private String FProgressInformation;

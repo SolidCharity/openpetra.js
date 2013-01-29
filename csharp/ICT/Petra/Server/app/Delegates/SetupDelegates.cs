@@ -48,14 +48,14 @@ using Ict.Petra.Server.MPartner;
 using Ict.Petra.Shared.MPersonnel.Personnel.Data;
 using Ict.Petra.Server.MCommon.WebConnectors;
 
-namespace Ict.Petra.Server.CallForwarding
+namespace Ict.Petra.Server.App.Delegates
 {
     /// <summary>
     /// Sets up Delegates that allow arbitrary code to be called in various server-side
     /// DLL's, avoiding 'circular dependencies' between DLL's that need to call Methods in
     /// other DLL's (which would also reference the DLL that the call would originate from).
     /// </summary>
-    public class TCallForwarding
+    public class TSetupDelegates
     {
         private static Ict.Petra.Server.MCommon.Cacheable.TCacheable CachePopulatorCommon;
         private static Ict.Petra.Server.MConference.Cacheable.TCacheable CachePopulatorConference;
@@ -68,9 +68,9 @@ namespace Ict.Petra.Server.CallForwarding
         private static Ict.Petra.Server.MSysMan.Cacheable.TCacheable CachePopulatorSysMan;
 
         /// <summary>
-        /// Constructor.
+        /// init the static variables
         /// </summary>
-        static TCallForwarding()
+        public static void Init()
         {
             // Set up Error Codes and Data Validation Delegates for a Client's AppDomain.
             // This setting-up makes use of the fact that this Method is called only once,

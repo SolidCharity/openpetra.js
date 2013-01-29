@@ -48,7 +48,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
     /// Partner Location Search Screen UIConnector
     ///
     /// </summary>
-    public class TPartnerLocationFindUIConnector : TConfigurableMBRObject, IPartnerUIConnectorsPartnerLocationFind
+    public class TPartnerLocationFindUIConnector : IPartnerUIConnectorsPartnerLocationFind
     {
         private TAsynchronousExecutionProgress FAsyncExecProgress;
         private Thread FFindThread;

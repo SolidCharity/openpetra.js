@@ -43,11 +43,6 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         public static TConnectionManagementBase GConnectionManagement = null;
 
-        /// <summary>
-        /// the client manager
-        /// </summary>
-        protected IClientManagerInterface FClientManager;
-
         private String FClientName;
         private Int32 FClientID;
         private TExecutingOSEnum FServerOS;
@@ -117,10 +112,10 @@ namespace Ict.Common.Remoting.Client
 
             try
             {
-                FClientManager = TConnectionHelper.Connect();
+                TConnectionHelper.Connect();
 
                 // register Client session at the PetraServer
-                bool ReturnValue = ConnectClient(AUserName, APassword, FClientManager,
+                bool ReturnValue = ConnectClient(AUserName, APassword,
                     out AProcessID,
                     out AWelcomeMessage,
                     out ASystemEnabled,
@@ -183,7 +178,6 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         /// <param name="AUserName"></param>
         /// <param name="APassword"></param>
-        /// <param name="AClientManager"></param>
         /// <param name="AProcessID"></param>
         /// <param name="AWelcomeMessage"></param>
         /// <param name="ASystemEnabled"></param>
@@ -192,7 +186,6 @@ namespace Ict.Common.Remoting.Client
         /// <returns></returns>
         virtual protected bool ConnectClient(String AUserName,
             String APassword,
-            IClientManagerInterface AClientManager,
             out Int32 AProcessID,
             out String AWelcomeMessage,
             out Boolean ASystemEnabled,
@@ -207,7 +200,7 @@ namespace Ict.Common.Remoting.Client
 
             try
             {
-                AClientManager.ConnectClient(AUserName, APassword,
+                TClientManager.ConnectClient(AUserName, APassword,
                     TClientInfo.ClientComputerName,
                     TClientInfo.ClientIPAddress,
                     new Version(TClientInfo.ClientAssemblyVersion),
@@ -285,10 +278,7 @@ namespace Ict.Common.Remoting.Client
                     FPollClientTasks.StopPollClientTasks();
                 }
 
-                if (FClientManager != null)
-                {
-                    ReturnValue = FClientManager.DisconnectClient(FClientID, out ACantDisconnectReason);
-                }
+                ReturnValue = TClientManager.DisconnectClient(FClientID, out ACantDisconnectReason);
             }
             catch (System.Net.Sockets.SocketException)
             {

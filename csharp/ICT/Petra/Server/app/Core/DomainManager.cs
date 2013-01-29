@@ -84,24 +84,18 @@ namespace Ict.Petra.Server.App.Core
         /// <param name="AClientID">ClientID as assigned by the ClientManager</param>
         /// <param name="AClientServerConnectionType">Tells in which way the Client connected
         /// to the PetraServer</param>
-        /// <param name="AClientManagerRef">A reference to the ClientManager object
-        /// (Note: .NET Remoting will be working behind the scenes since calls to
-        /// this Object will cross AppDomains!)</param>
-        /// <param name="ASystemDefaultsCacheRef">A reference to the SystemDefaultsCache object
-        /// (Note: .NET Remoting will be working behind the scenes since calls to
-        /// this Object will cross AppDomains!)</param>
+        /// <param name="ASystemDefaultsCacheRef">A reference to the SystemDefaultsCache object</param>
         /// <param name="ACacheableTablesManagerRef"></param>
         /// <param name="AUserInfo">An instantiated PetraPrincipal Object, containing User
         /// information
         /// </param>
         public TClientDomainManager(Int32 AClientID,
             TClientServerConnectionType AClientServerConnectionType,
-            TClientManager AClientManagerRef,
             TSystemDefaultsCache ASystemDefaultsCacheRef,
             TCacheableTablesManager ACacheableTablesManagerRef,
             IPrincipal AUserInfo) :
             base(AClientID,
-                AClientServerConnectionType, AClientManagerRef,
+                AClientServerConnectionType,
                 ((TPetraPrincipal)AUserInfo).UserID)
         {
             TCacheableTablesManager.GCacheableTablesManager = ACacheableTablesManagerRef;
@@ -210,7 +204,7 @@ namespace Ict.Petra.Server.App.Core
         /// <param name="AMessageLine3"></param>
         public void AddErrorLogEntry(String AErrorCode, String AContext, String AMessageLine1, String AMessageLine2, String AMessageLine3)
         {
-            DomainManager.UClientManagerCallForwarderRef.AddErrorLogEntry(AErrorCode,
+            TClientManager.AddErrorLogEntry(AErrorCode,
                 AContext,
                 AMessageLine1,
                 AMessageLine2,

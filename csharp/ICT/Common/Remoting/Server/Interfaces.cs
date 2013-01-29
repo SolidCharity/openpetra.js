@@ -181,7 +181,7 @@ namespace Ict.Common.Remoting.Server
         /// <returns>void</returns>
         void LoadDomainManagerAssembly(Int32 AClientID,
             TClientServerConnectionType AClientServerConnectionType,
-            TClientManagerCallForwarder AClientManagerRef,
+            TClientManager AClientManagerRef,
             object ASystemDefaultsCacheRef,
             object ACacheableTablesManagerRef,
             IPrincipal AUserInfo,

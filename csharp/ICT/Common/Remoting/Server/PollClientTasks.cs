@@ -32,7 +32,7 @@ namespace Ict.Common.Remoting.Server
      * The TPollClientTasks Class contains a Method that returns a DataTable that
      * contains ClientTasks for the currently connected Client.
      */
-    public class TPollClientTasks : TConfigurableMBRObject, IPollClientTasksInterface
+    public class TPollClientTasks : IPollClientTasksInterface
     {
         /// <summary>Holds a reference to the ClientTasksManager</summary>
         public static TClientTasksManager UClientTasksManager;

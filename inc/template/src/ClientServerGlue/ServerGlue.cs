@@ -26,7 +26,7 @@ using Ict.Petra.Server.App.Core.Security;
 using Ict.Petra.Server.App.Core;
 {#USINGNAMESPACES}
 
-namespace Ict.Petra.Server.app.WebService
+namespace Ict.Petra.Server.App.WebService
 {
 /// <summary>
 /// this publishes the SOAP web services of OpenPetra.org for module {#TOPLEVELMODULE}
