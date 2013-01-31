@@ -81,7 +81,7 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         public static Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
         {
-            // TODORemoting
+            THttpConnector.CallWebConnector("SessionManager", "Logout", null, "System.Boolean");
             ACantDisconnectReason = string.Empty;
             return true;
         }
@@ -91,7 +91,7 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         public static Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
         {
-            // TODORemoting
+            THttpConnector.CallWebConnector("SessionManager", "Logout", null, "System.Boolean");
             ACantDisconnectReason = string.Empty;
             return true;
         }

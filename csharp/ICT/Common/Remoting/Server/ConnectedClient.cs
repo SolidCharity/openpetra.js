@@ -293,6 +293,7 @@ namespace Ict.Common.Remoting.Server
                 HttpContext.Current.Session.Clear();
             }
 
+            FClientDisconnectionFinishedTime = DateTime.Now;
             FAppDomainStatus = TSessionStatus.adsStopped;
         }
     }
