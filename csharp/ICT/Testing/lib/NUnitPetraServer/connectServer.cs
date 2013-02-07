@@ -110,7 +110,9 @@ namespace Ict.Testing.NUnitPetraServer
             UserInfo.GUserInfo = (TPetraPrincipal)ThisUserInfo;
 
             TSetupDelegates.Init();
-
+            TSystemDefaultsCache.GSystemDefaultsCache = new TSystemDefaultsCache();
+            DomainManager.GSiteKey = TSystemDefaultsCache.GSystemDefaultsCache.GetInt64Default(
+                Ict.Petra.Shared.SharedConstants.SYSDEFAULT_SITEKEY);
             return ServerManager;
         }
 

@@ -68,7 +68,14 @@ namespace Ict.Common.Remoting.Server
             {
                 if (HttpContext.Current == null)
                 {
-                    ClientIDsPerThread.Add(Thread.CurrentThread.Name, value);
+                    if (ClientIDsPerThread.ContainsKey(Thread.CurrentThread.Name))
+                    {
+                        ClientIDsPerThread[Thread.CurrentThread.Name] = value;
+                    }
+                    else
+                    {
+                        ClientIDsPerThread.Add(Thread.CurrentThread.Name, value);
+                    }
                 }
                 else
                 {
@@ -105,7 +112,14 @@ namespace Ict.Common.Remoting.Server
             {
                 if (HttpContext.Current == null)
                 {
-                    CurrentClientPerThread.Add(Thread.CurrentThread.Name, value);
+                    if (CurrentClientPerThread.ContainsKey(Thread.CurrentThread.Name))
+                    {
+                        CurrentClientPerThread[Thread.CurrentThread.Name] = value;
+                    }
+                    else
+                    {
+                        CurrentClientPerThread.Add(Thread.CurrentThread.Name, value);
+                    }
                 }
                 else
                 {

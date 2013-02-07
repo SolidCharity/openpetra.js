@@ -260,6 +260,9 @@ namespace Ict.Common.Remoting.Server
 
             // Start ClientStillAliveCheck Thread
             new ClientStillAliveCheck.TClientStillAliveCheck(this, FClientServerConnectionType);
+
+            SessionStatus = TSessionStatus.adsActive;
+            FClientConnectionFinishedTime = DateTime.Now;
         }
 
         /// <summary>

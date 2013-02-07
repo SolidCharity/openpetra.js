@@ -1031,8 +1031,7 @@ namespace Ict.Common.Remoting.Server
 // TODORemoting               Monitor.Exit(UConnectClientMonitor);
             }
 
-            ConnectedClient.SessionStatus = TSessionStatus.adsActive;
-            ConnectedClient.FClientConnectionFinishedTime = DateTime.Now;
+            ConnectedClient.StartSession();
             #region Logging
 
             //
