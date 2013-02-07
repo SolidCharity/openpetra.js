@@ -252,9 +252,8 @@ namespace Ict.Common.Remoting.Server
         /// start the session
         public void StartSession()
         {
-            FPollClientTasks = new TPollClientTasks();
-
             FTasksManager = new TClientTasksManager();
+            FPollClientTasks = new TPollClientTasks(FTasksManager);
 
             FClientConnectionStartTime = DateTime.Now;
 

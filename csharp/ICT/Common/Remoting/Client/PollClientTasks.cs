@@ -52,9 +52,6 @@ namespace Ict.Common.Remoting.Client
         /// <summary>Needs to be true as long as the thread should still execute</summary>
         private bool FKeepPollingClientTasks;
 
-        /// <summary>Reference to Serverside Object</summary>
-        private IPollClientTasksInterface FRemotePollClientTasks;
-
         #region TPollClientTasks
 
         /// <summary>
@@ -67,7 +64,6 @@ namespace Ict.Common.Remoting.Client
             Thread TheThread;
 
             FClientID = AClientID;
-            // TODORemoting FRemotePollClientTasks = ARemotePollClientTasks;
             FKeepPollingClientTasks = true;
 
             // Start PollClientTasksThread
@@ -92,6 +88,14 @@ namespace Ict.Common.Remoting.Client
         }
 
         /// <summary>
+        /// poll the client tasks from the server, and let the server know that this client is still connected
+        /// </summary>
+        private DataTable RemotePollClientTasks()
+        {
+            return (DataTable)THttpConnector.CallWebConnector("SessionManager", "PollClientTasks", null, "binary")[0];
+        }
+
+        /// <summary>
         /// Thread that calls a Method of the server-side Class TPollClientTasks in
         /// regular intervals.
         ///
@@ -109,9 +113,6 @@ namespace Ict.Common.Remoting.Client
             TClientTasksQueue ClientTasksQueueInstance;
             Thread ClientTaskQueueThread;
 
-            // TODORemoting
-            return;
-
             // Check whether this Thread should still execute
             while (FKeepPollingClientTasks)
             {
@@ -121,7 +122,7 @@ namespace Ict.Common.Remoting.Client
                     // and it's AppDomain alive.
                     // The value of the AClientTasksDataTable parameter is always null, except when
                     // the Server has a queued ClientTask that the Client needs to read.
-                    ClientTasksDataTable = FRemotePollClientTasks.PollClientTasks();
+                    ClientTasksDataTable = RemotePollClientTasks();
 
                     if (ClientTasksDataTable != null)
                     {
@@ -155,7 +156,8 @@ namespace Ict.Common.Remoting.Client
                 }
 
                 // Sleep for some time. After that, this function is called again automatically.
-                Thread.Sleep(TClientSettings.ServerPollIntervalInSeconds * 1000);
+                TLogging.LogAtLevel(10, "PollClientTasks sleeping for " + TClientSettings.ServerPollIntervalInSeconds + " seconds");
+                Thread.Sleep(TimeSpan.FromSeconds(TClientSettings.ServerPollIntervalInSeconds));
             }
 
             // Thread stops here and doesn't get called again automatically.

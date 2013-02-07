@@ -134,15 +134,7 @@ namespace Ict.Common.Remoting.Server
                     }
 
                     // Get the time of the last call to TPollClientTasks.PollClientTasks
-                    LastPollingTime = TPollClientTasks.GetLastPollingTime();
-
-                    // TODORemoting: will this still be necessary when ClientTasks are actually polled?
-                    if (LastPollingTime == DateTime.MinValue)
-                    {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        TLogging.Log("client has not yet called the client task at all");
-                        continue;
-                    }
+                    LastPollingTime = FClientObject.FPollClientTasks.GetLastPollingTime();
 
                     // Calculate time between the last call to TPollClientTasks.PollClientTasks and now
                     Duration = DateTime.Now.Subtract(LastPollingTime);

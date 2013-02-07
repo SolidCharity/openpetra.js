@@ -309,6 +309,26 @@ namespace Ict.Petra.Server.App.WebService
             return THttpBinarySerializer.SerializeObject(UserInfo.GUserInfo, true);
         }
 
+        /// <summary>client gets tasks, and lets the server know that it is still connected</summary>
+        [WebMethod(EnableSession = true)]
+        public string PollClientTasks()
+        {
+            try
+            {
+                if (UserInfo.GUserInfo == null)
+                {
+                    return THttpBinarySerializer.SerializeObject(false);
+                }
+
+                return THttpBinarySerializer.SerializeObject(DomainManager.CurrentClient.FPollClientTasks.PollClientTasks(), true);
+            }
+            catch (Exception e)
+            {
+                TLogging.Log(e.ToString());
+                return string.Empty;
+            }
+        }
+
 #if TODORemoting
         void ConnectClient(String AUserName,
             String APassword,

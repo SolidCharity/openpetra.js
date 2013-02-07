@@ -46,7 +46,6 @@ namespace Ict.Common.Remoting.Client
         private String FClientName;
         private Int32 FClientID;
         private TExecutingOSEnum FServerOS;
-        private IPollClientTasksInterface FRemotePollClientTasks;
         private TEnsureKeepAlive FKeepAlive;
         private TPollClientTasks FPollClientTasks;
 

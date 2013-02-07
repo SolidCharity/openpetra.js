@@ -32,28 +32,31 @@ namespace Ict.Common.Remoting.Server
      * The TPollClientTasks Class contains a Method that returns a DataTable that
      * contains ClientTasks for the currently connected Client.
      */
-    public class TPollClientTasks : IPollClientTasksInterface
+    public class TPollClientTasks
     {
         /// <summary>Holds a reference to the ClientTasksManager</summary>
-        public static TClientTasksManager UClientTasksManager;
+        private TClientTasksManager FClientTasksManager;
 
         /// <summary>Holds Date and Time when the last Client call to 'PollClientTasks' was made.</summary>
-        public static DateTime ULastPollingTime = DateTime.MinValue;
+        private DateTime FLastPollingTime;
 
         /// <summary>
         /// access polling time
         /// </summary>
         /// <returns></returns>
-        public static DateTime GetLastPollingTime()
+        public DateTime GetLastPollingTime()
         {
-            return ULastPollingTime;
+            return FLastPollingTime;
         }
 
         /// <summary>
         /// constructor
         /// </summary>
-        public TPollClientTasks() : base()
+        public TPollClientTasks(TClientTasksManager AClientTasksManager)
         {
+            FLastPollingTime = DateTime.Now;
+            FClientTasksManager = AClientTasksManager;
+
             if (TLogging.DL >= 10)
             {
                 Console.WriteLine("{0} TPollClientTasks created", DateTime.Now);
@@ -80,10 +83,10 @@ namespace Ict.Common.Remoting.Server
                 Console.WriteLine("{0} TPollClientTasks: PollClientTasks called", DateTime.Now);
             }
 
-            ULastPollingTime = DateTime.Now;
+            FLastPollingTime = DateTime.Now;
 
             // Check whether new ClientTasks should be transferred to the Client
-            if (UClientTasksManager.ClientTasksNewDataTableEmpty)
+            if (FClientTasksManager.ClientTasksNewDataTableEmpty)
             {
                 // This argument is set to null instead of transfering an empty DataTable to
                 // reduce the number of bytes that are transfered to the Client!
@@ -97,7 +100,7 @@ namespace Ict.Common.Remoting.Server
             else
             {
                 // Retrieve new ClientTasks DataTable and pass it on the the Client
-                ReturnValue = UClientTasksManager.ClientTasksNewDataTable;
+                ReturnValue = FClientTasksManager.ClientTasksNewDataTable;
 
                 if (TLogging.DL >= 9)
                 {

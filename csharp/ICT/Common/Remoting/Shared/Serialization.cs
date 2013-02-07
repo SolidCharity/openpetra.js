@@ -54,6 +54,11 @@ namespace Ict.Common.Remoting.Shared
                 return o.ToString();
             }
 
+            if (o == null)
+            {
+                return "null";
+            }
+
             MemoryStream memoryStream = new MemoryStream();
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             try
