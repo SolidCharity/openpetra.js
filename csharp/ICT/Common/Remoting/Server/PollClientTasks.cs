@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -38,7 +38,7 @@ namespace Ict.Common.Remoting.Server
         public static TClientTasksManager UClientTasksManager;
 
         /// <summary>Holds Date and Time when the last Client call to 'PollClientTasks' was made.</summary>
-        public static DateTime ULastPollingTime;
+        public static DateTime ULastPollingTime = DateTime.MinValue;
 
         /// <summary>
         /// access polling time
