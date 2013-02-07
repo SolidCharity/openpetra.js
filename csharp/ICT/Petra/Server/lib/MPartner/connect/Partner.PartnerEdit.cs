@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -1833,7 +1833,9 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
                 FSubmissionDS = AInspectDS;
                 TVerificationResultCollection SingleVerificationResultCollection;
                 AVerificationResult = new TVerificationResultCollection();
-                TDBTransaction SubmitChangesTransaction = DBAccess.GDBAccessObj.BeginTransaction(IsolationLevel.Serializable);
+                bool NewTransaction;
+                TDBTransaction SubmitChangesTransaction = DBAccess.GDBAccessObj.GetNewOrExistingTransaction(IsolationLevel.Serializable,
+                    out NewTransaction);
 
                 try
                 {
@@ -1955,7 +1957,11 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
                         // Must call AcceptChanges so that DataSet.Merge on Client side works
                         // properly if Primary Keys have been changed!
                         AInspectDS.AcceptChanges();
-                        DBAccess.GDBAccessObj.CommitTransaction();
+
+                        if (NewTransaction)
+                        {
+                            DBAccess.GDBAccessObj.CommitTransaction();
+                        }
 
                         /* $IFDEF DEBUGMODE if TLogging.DL >= 9 then Console.WriteLine('Location[0] LocationKey: ' + FSubmissionDS.PLocation[0].LocationKey.ToString + '; PartnerLocation[0] LocationKey: ' +
                          *FSubmissionDS.PPartnerLocation[0].LocationKey.ToString);$ENDIF */
@@ -1963,7 +1969,11 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
                     }
                     else
                     {
-                        DBAccess.GDBAccessObj.RollbackTransaction();
+                        if (NewTransaction)
+                        {
+                            DBAccess.GDBAccessObj.RollbackTransaction();
+                        }
+
                         TLogging.LogAtLevel(8, "TPartnerEditUIConnector.SubmitChanges: Transaction ROLLED BACK!");
                     }
                 }

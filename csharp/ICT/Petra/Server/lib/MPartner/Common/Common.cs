@@ -156,20 +156,27 @@ namespace Ict.Petra.Server.MPartner.Common
                     }
                 }
                 PartnerLedgerDT[0].LastPartnerId = (int)(ANewPartnerKey - PartnerLedgerDT[0].PartnerKey);
-                WriteTransaction = DBAccess.GDBAccessObj.BeginTransaction(IsolationLevel.Serializable);
+                WriteTransaction = DBAccess.GDBAccessObj.GetNewOrExistingTransaction(IsolationLevel.Serializable, out NewTransaction);
                 try
                 {
                     NewPartnerKeySubmissionOK = PPartnerLedgerAccess.SubmitChanges(PartnerLedgerDT, WriteTransaction, out VerificationResult);
                 }
                 finally
                 {
-                    if (NewPartnerKeySubmissionOK)
+                    if (NewTransaction)
                     {
-                        DBAccess.GDBAccessObj.CommitTransaction();
+                        if (NewPartnerKeySubmissionOK)
+                        {
+                            DBAccess.GDBAccessObj.CommitTransaction();
+                        }
+                        else
+                        {
+                            DBAccess.GDBAccessObj.RollbackTransaction();
+                        }
                     }
-                    else
+
+                    if (!NewPartnerKeySubmissionOK)
                     {
-                        DBAccess.GDBAccessObj.RollbackTransaction();
                         throw new ApplicationException(Messages.BuildMessageFromVerificationResult(
                                 "An Error occured while creating a new Partner Key:", VerificationResult));
                     }
