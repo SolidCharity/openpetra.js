@@ -1121,8 +1121,6 @@ namespace Ict.Common.Remoting.Server
                         // Release all memory associated with this session
                         SessionEntry.EndSession();
 
-                        TLogging.Log(SessionEntry.FAppDomainStatus.ToString());
-
                         ReturnValue = true;
                     }
                     catch (Exception Exp)
