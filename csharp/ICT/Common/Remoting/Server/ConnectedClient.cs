@@ -277,6 +277,12 @@ namespace Ict.Common.Remoting.Server
         /// </summary>
         public void EndSession()
         {
+            if (FAppDomainStatus == TSessionStatus.adsStopped)
+            {
+                TLogging.Log("Session " + this.ClientName + " has been stopped already!");
+                return;
+            }
+
             // TODORemoting
             // release all UIConnector objects
             // stop clientstillalivecheck
@@ -297,6 +303,8 @@ namespace Ict.Common.Remoting.Server
 
             FClientDisconnectionFinishedTime = DateTime.Now;
             FAppDomainStatus = TSessionStatus.adsStopped;
+
+            TLogging.LogAtLevel(1, "Session for client " + this.ClientName + " has been destroyed successfully!");
         }
     }
 

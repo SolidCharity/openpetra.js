@@ -137,6 +137,14 @@ namespace Ict.Petra.Server.App.WebService
 
             if (DomainManager.CurrentClient != null)
             {
+                if (DomainManager.CurrentClient.FAppDomainStatus == TSessionStatus.adsStopped)
+                {
+                    TLogging.Log("There is an attempt to reconnect to stopped session: " + DomainManager.CurrentClient.ClientName);
+
+                    HttpContext.Current.Response.Status = "404 " + THTTPUtils.SESSION_ALREADY_CLOSED;
+                    HttpContext.Current.Response.End();
+                }
+
                 DomainManager.CurrentClient.UpdateLastAccessTime();
             }
 

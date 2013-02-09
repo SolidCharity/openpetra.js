@@ -114,7 +114,21 @@ namespace Ict.Common.Remoting.Client
         {
             NameValueCollection Parameters = ConvertParameters(parameters);
 
-            string result = THTTPUtils.PostRequest(ServerURL + "/server" + AModuleName + ".asmx/" + methodname.Replace(".", "_"), Parameters);
+            string result;
+
+            try
+            {
+                result = THTTPUtils.PostRequest(ServerURL + "/server" + AModuleName + ".asmx/" + methodname.Replace(".", "_"), Parameters);
+            }
+            catch (Exception e)
+            {
+                if (e.Message == THTTPUtils.SESSION_ALREADY_CLOSED)
+                {
+                    TLogging.Log("session has already been closed!");
+                }
+
+                throw;
+            }
 
             if (expectedReturnType == "void")
             {

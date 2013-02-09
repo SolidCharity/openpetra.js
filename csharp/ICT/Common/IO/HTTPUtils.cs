@@ -36,6 +36,11 @@ namespace Ict.Common.IO
     /// </summary>
     public class THTTPUtils
     {
+        /// <summary>
+        /// this message is transfered via 404 code to the client
+        /// </summary>
+        public const String SESSION_ALREADY_CLOSED = "SESSION_ALREADY_CLOSED";
+
         private class WebClientWithSession : WebClient
         {
             public WebClientWithSession()
@@ -183,8 +188,18 @@ namespace Ict.Common.IO
                 FWebClient = new WebClientWithSession(FWebClient.CookieContainer);
                 buf = FWebClient.UploadValues(url, parameters);
             }
-            catch (System.Net.WebException)
+            catch (System.Net.WebException ex)
             {
+                HttpWebResponse httpWebResponse = (HttpWebResponse)ex.Response;
+
+                if (httpWebResponse != null)
+                {
+                    if (httpWebResponse.StatusDescription == SESSION_ALREADY_CLOSED)
+                    {
+                        throw new Exception(SESSION_ALREADY_CLOSED);
+                    }
+                }
+
                 if (ANumberOfAttempts > 0)
                 {
                     // sleep for half a second

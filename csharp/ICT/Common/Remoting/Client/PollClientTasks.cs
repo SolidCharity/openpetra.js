@@ -29,6 +29,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 using Ict.Common;
+using Ict.Common.IO;
 using Ict.Common.Remoting.Shared;
 
 namespace Ict.Common.Remoting.Client
@@ -152,6 +153,12 @@ namespace Ict.Common.Remoting.Client
                 }
                 catch (Exception Exp)
                 {
+                    if (Exp.Message == THTTPUtils.SESSION_ALREADY_CLOSED)
+                    {
+                        // TODORemoting close the client
+                        return;
+                    }
+
                     TLogging.Log("Exception in TPollClientTasks.PollClientTasksThread: " + Exp.ToString(), TLoggingType.ToLogfile);
                 }
 

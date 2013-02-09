@@ -1098,8 +1098,17 @@ namespace Ict.Common.Remoting.Server
 
             if (SessionEntry == null)
             {
-                // avoid a crash
-                TLogging.Log("Warning: trying to disconnect a non existing client; nothing is done");
+                ACantDisconnectReason = "Can't disconnect ClientID: " + AClientID.ToString() +
+                                        ": Client List entry for this ClientID is empty (should not happen)!";
+                TLogging.Log(ACantDisconnectReason, TLoggingType.ToConsole | TLoggingType.ToLogfile);
+                return false;
+            }
+
+            if (SessionEntry.FAppDomainStatus == TSessionStatus.adsStopped)
+            {
+                ACantDisconnectReason = "Can't disconnect ClientID: " + AClientID.ToString() +
+                                        ": this client has been disconnected already!";
+                TLogging.Log(ACantDisconnectReason, TLoggingType.ToConsole | TLoggingType.ToLogfile);
                 return false;
             }
 
@@ -1110,28 +1119,11 @@ namespace Ict.Common.Remoting.Server
                     try
                     {
                         // Release all memory associated with this session
-                        if (!(SessionEntry == null))
-                        {
-                            SessionEntry.EndSession();
-                            ReturnValue = true;
-                        }
-                        else
-                        {
-                            if (UClientObjects.Contains((object)AClientID))
-                            {
-                                ACantDisconnectReason = "Can't disconnect ClientID: " + AClientID.ToString() +
-                                                        ": Client List entry for this ClientID is empty (should not happen)!";
-                                TLogging.Log(ACantDisconnectReason, TLoggingType.ToConsole | TLoggingType.ToLogfile);
-                                ReturnValue = false;
-                            }
-                            else
-                            {
-                                ACantDisconnectReason = "Can't disconnect ClientID: " + AClientID.ToString() +
-                                                        ": Client List entry for this ClientID doesn't exist (should not happen)!";
-                                TLogging.Log(ACantDisconnectReason, TLoggingType.ToConsole | TLoggingType.ToLogfile);
-                                ReturnValue = false;
-                            }
-                        }
+                        SessionEntry.EndSession();
+
+                        TLogging.Log(SessionEntry.FAppDomainStatus.ToString());
+
+                        ReturnValue = true;
                     }
                     catch (Exception Exp)
                     {
