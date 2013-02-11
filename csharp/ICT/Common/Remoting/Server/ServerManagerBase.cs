@@ -324,7 +324,7 @@ CheckAllClientsDisconnected:
                             ClientsConnected == 1 ? "One Client" : ClientsConnected + " Clients", ClientsConnected > 1 ? "Clients" : "Client"));
 
                     // Special handling in case this Method is called from the ServerAdminConsole application
-                    if (FForceAutomaticClosing)
+                    if (AForceAutomaticClosing)
                     {
                         // Check again that there are still Clients connected (could have disconnected while the user was typing 'FORCE'!)
                         if (ClientsConnected > 0)
