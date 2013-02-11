@@ -189,9 +189,10 @@ namespace Ict.Common.Remoting.Server
             NewEntry["TaskPercentDone"] = '0';
             NewEntry["TaskStatus"] = "New";
             FClientTasksNewDataTable.Rows.Add(NewEntry);
-            return Convert.ToInt32(NewEntry["TaskID"]);
 
-            // Console.WriteLine('Added new Task ''' + ATaskCode + '''; TaskID: ' + Result.ToString);
+            // TLogging.LogAtLevel(1, "Added new Task '" + ATaskCode + "'; TaskID: " + NewEntry["TaskID"].ToString());
+
+            return Convert.ToInt32(NewEntry["TaskID"]);
         }
 
         /// <summary>
@@ -246,7 +247,7 @@ namespace Ict.Common.Remoting.Server
             DataTable ReturnValue;
             DataRow FetchedEntryRow;
 
-            // Console.WriteLine('get_ClientTasksNewDataTable called.');
+            // TLogging.Log("Get_ClientTasksNewDataTable called.");
             // TODO 1 ochristiank cClient Tasks : Make this process threadsave.
             ReturnValue = FClientTasksNewDataTable.Copy();
 

@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank
 //
-// Copyright 2004-2010 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -167,9 +167,6 @@ namespace Ict.Petra.Shared
 
         /// <summary>System Defaults</summary>
         public const String SYSDEFAULT_PURGEEXTRACTS = "PurgeExtracts";
-
-        /// <summary>ClientTask TaskGroups</summary>
-        public const String CLIENTTASKGROUP_DISCONNECT = "DISCONNECT";
 
         /// <summary>ClientTask TaskGroups</summary>
         public const String CLIENTTASKGROUP_USERMESSAGE = "USERMESSAGE";

@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -25,6 +25,7 @@ using System;
 using System.Data;
 using System.Threading;
 using Ict.Common;
+using Ict.Common.Remoting.Shared;
 using System.Windows.Forms;
 using Ict.Common.Remoting.Client;
 using Ict.Petra.Shared;
@@ -87,7 +88,7 @@ namespace Ict.Petra.Client.App.Core
                     TUserInfo.ReloadCachedUserInfo();
                 }
 
-                if (FClientTaskDataRow["TaskGroup"].ToString() == SharedConstants.CLIENTTASKGROUP_DISCONNECT)
+                if (FClientTaskDataRow["TaskGroup"].ToString() == RemotingConstants.CLIENTTASKGROUP_DISCONNECT)
                 {
                     if (FClientTaskDataRow["TaskCode"].ToString() == "IMMEDIATE")
                     {

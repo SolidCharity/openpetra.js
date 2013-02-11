@@ -262,8 +262,7 @@ namespace Ict.Common.Remoting.Server
         /// to disconnect from the Server and to close. This Method monitors the connected Clients until
         /// either all Clients have responded by disconnecting or if at least one Client didn't respond and
         /// a timeout was exceeded. If this is the case and the Argument <paramref name="AForceAutomaticClosing" />
-        /// is true, the server shuts down anyways. If it is false, the user is asked to enter 'FORCE'
-        /// to force the closing of the Clients. If the user does that, a different ClientTask is queued
+        /// is true, a different ClientTask is queued
         /// for all Clients that are still connected that asks them to close (no saving of UserDefaults and
         /// no disconnection from the server!). This is a fallback in case (1) the client(s) crashed and can't
         /// either save the UserDefaults or can't disconnect, (2) the saving of UserDefaults or
@@ -272,7 +271,7 @@ namespace Ict.Common.Remoting.Server
         /// </remarks>
         /// <param name="AForceAutomaticClosing">Set to true to force closing of non-responding Clients (this
         /// is set to true by the ServerAdminConsole as this process is non-interactive in this case).</param>
-        /// <returns>False it the user abandoned the shutdown.</returns>
+        /// <returns>False if AForceAutomaticClosing is false and there are still clients logged in.</returns>
         public bool StopServerControlled(bool AForceAutomaticClosing)
         {
             const int SLEEP_TIME_PER_RETRY = 500; // 500 milliseconds = 0.5 seconds
@@ -291,7 +290,7 @@ namespace Ict.Common.Remoting.Server
                         ClientsConnected, ClientsConnected > 1 ? "Clients" : "Client"));
 
                 // Queue a ClientTask for all connected Clients that asks them to save the UserDefaults,  to disconnect from the Server and to close
-                QueueClientTask(-1, "DISCONNECT", "IMMEDIATE", 1);
+                QueueClientTask(-1, RemotingConstants.CLIENTTASKGROUP_DISCONNECT, "IMMEDIATE", 1);
 
                 // Loop that checks if all Clients have responded by disconnecting or if at least one Client didn't respond and a timeout was exceeded
 CheckAllClientsDisconnected:
@@ -325,14 +324,7 @@ CheckAllClientsDisconnected:
                             ClientsConnected == 1 ? "One Client" : ClientsConnected + " Clients", ClientsConnected > 1 ? "Clients" : "Client"));
 
                     // Special handling in case this Method is called from the ServerAdminConsole application
-                    if (AForceAutomaticClosing)
-                    {
-                        // Make the following ReadLine() Command read 'FORCE' to automatically go ahead with forcing all connected Clients to close!
-                        Console.SetIn(new StringReader("FORCE"));
-                        Console.WriteLine("FORCE"); // only to show on the Console that 'FORCE' has been typed (which was of course done automatically...)
-                    }
-
-                    if (Console.ReadLine() == "FORCE")
+                    if (FForceAutomaticClosing)
                     {
                         // Check again that there are still Clients connected (could have disconnected while the user was typing 'FORCE'!)
                         if (ClientsConnected > 0)
@@ -344,7 +336,7 @@ CheckAllClientsDisconnected:
                                     ClientsConnected, ClientsConnected > 1 ? "Clients" : "Client"));
 
                             // Queue a ClienTasks for all Clients that are still connected that asks them to close (no saving of UserDefaults and no disconnection from the server!). This is a fallback mechanism.
-                            QueueClientTask(-1, "DISCONNECT", "IMMEDIATE-HARDEXIT", 1);
+                            QueueClientTask(-1, RemotingConstants.CLIENTTASKGROUP_DISCONNECT, "IMMEDIATE-HARDEXIT", 1);
 
                             // Loop as long as TSrvSetting.ClientKeepAliveCheckIntervalInSeconds is to ensure that all Clients will have got the chance to pick up the queued Client Task
                             // (since it would not be easy to determine that every connected Client has picked up this message, this is the easy way of ensuring that).
@@ -370,12 +362,9 @@ CheckAllClientsDisconnected:
                     }
                     else
                     {
-                        // Abandon the shutdown as the user decided to do that
+                        // Abandon the shutdown as there are still connected clients and we are not allowed to force the shutdown
                         return false;
                     }
-
-                    // Make ReadLine() Commands again read from the Console (re-set from the earlier Console.SetIn() command)
-                    Console.SetIn(Console.In);
                 }
             }
             else
@@ -443,18 +432,7 @@ CheckAllClientsDisconnected:
         /// <returns>true if ClientTask was queued, otherwise false.</returns>
         public bool QueueClientTask(System.Int16 AClientID, String ATaskGroup, String ATaskCode, System.Int16 ATaskPriority)
         {
-            bool ReturnValue;
-
-            if (TClientManager.QueueClientTask(AClientID, ATaskGroup, ATaskCode, null, null, null, null, ATaskPriority) >= 0)
-            {
-                ReturnValue = true;
-            }
-            else
-            {
-                ReturnValue = false;
-            }
-
-            return ReturnValue;
+            return TClientManager.QueueClientTask(AClientID, ATaskGroup, ATaskCode, null, null, null, null, ATaskPriority) >= 0;
         }
 
         /// <summary>

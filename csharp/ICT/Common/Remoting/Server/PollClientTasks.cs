@@ -76,11 +76,11 @@ namespace Ict.Common.Remoting.Server
          */
         public DataTable PollClientTasks()
         {
-            DataTable ReturnValue;
+            DataTable ReturnValue = null;
 
             if (TLogging.DL >= 10)
             {
-                Console.WriteLine("{0} TPollClientTasks: PollClientTasks called", DateTime.Now);
+                TLogging.Log("TPollClientTasks: PollClientTasks called");
             }
 
             FLastPollingTime = DateTime.Now;
@@ -94,7 +94,7 @@ namespace Ict.Common.Remoting.Server
 
                 if (TLogging.DL > 9)
                 {
-                    Console.WriteLine("{0} TPollClientTasks: Client Tasks Table is empty!", DateTime.Now);
+                    TLogging.Log("TPollClientTasks: Client Tasks Table is empty!");
                 }
             }
             else
@@ -104,7 +104,7 @@ namespace Ict.Common.Remoting.Server
 
                 if (TLogging.DL >= 9)
                 {
-                    Console.WriteLine("TPollClientTasks: Client Tasks Table has " + (ReturnValue.Rows.Count).ToString() + " entries!");
+                    TLogging.Log("TPollClientTasks: Client Tasks Table has " + (ReturnValue.Rows.Count).ToString() + " entries!");
                 }
             }
 
