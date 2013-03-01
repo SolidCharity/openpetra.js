@@ -531,7 +531,7 @@ public class GenerateServerGlue
     /// </summary>
     static public void GenerateCode(TNamespace ANamespaces, String AOutputPath, String ATemplateDir)
     {
-        if (TAppSettingsManager.GetValue("compileForStandalone", "no", false) == "yes")
+        if (TAppSettingsManager.GetValue("compileForStandalone", "false", false) == "yes")
         {
             // this code is not needed for standalone
             return;

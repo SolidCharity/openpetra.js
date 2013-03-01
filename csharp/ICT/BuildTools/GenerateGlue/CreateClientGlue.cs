@@ -572,7 +572,7 @@ public class GenerateClientGlue
     static public void GenerateCode(TNamespace ANamespaces, String AOutputPath, String ATemplateDir)
     {
         FTemplateDir = ATemplateDir;
-        FCompileForStandalone = TAppSettingsManager.GetValue("compileForStandalone", "no", false) == "yes";
+        FCompileForStandalone = TAppSettingsManager.GetValue("compileForStandalone", "false", false) == "yes";
 
         foreach (TNamespace tn in ANamespaces.Children.Values)
         {

@@ -119,7 +119,7 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
 
 <!-- Windows -->
 <target name="buildWindowsStandalone">
-  <property name="compileForStandalone" value="yes" overwrite="true"/>
+  <property name="compileForStandalone" value="true" overwrite="true"/>
   <call target="generateSolution" unless="${target::has-executed('quickCompile')}"/>
   <call target="createSQLiteDB" unless="${target::has-executed('createSQLiteDB')}"/>
   <call target="translation" unless="${target::has-executed('translation')}"/>

@@ -40,6 +40,9 @@
 
 <target name="initConfigFiles-client">
   <property name="templateFile" value="${dir.incdir.template.etc}/Client.config"/>
+  <if test="${compileForStandalone == 'true'}">
+    <property name="templateFile" value="${dir.incdir.template.etc}/Standalone-${DBMS.Type}.config"/>
+  </if>
   <property name="configFile" value="${ClientConfigFile}"/>
   <call target="initConfigFiles-internal"/>
 
@@ -80,7 +83,13 @@
     <call target="startServer"/>
 </target>
 
-<target name="startServer" depends="initConfigFiles-server" description="Starts a local Petra Server">
+<target name="startServer" description="Starts a local Petra Server">
+  <if test="${compileForStandalone == 'false'}">
+    <call target="startServer-internal"/>
+  </if>
+</target>
+
+<target name="startServer-internal" depends="initConfigFiles-server" description="Starts a local Petra Server">
   <copy todir="${dir.delivery}" overwrite="true">
     <fileset basedir="${dir.csharp}/ICT/Petra/Server/app/WebService/">
       <include name="*.asmx" />
@@ -151,7 +160,7 @@
 <target name="startPetraClient" description="start the OpenPetra Client">
     <call target="startClient"/>
 </target>
-<target name="startClient" depends="initConfigFiles-client" description="start the OpenPetra Client"> 
+<target name="startClient" depends="initConfigFiles-client" description="start the OpenPetra Client">
   <if test="${platform::is-windows()}">
     <exec program="cmd.exe" 
           workingdir="${dir.bin}"
@@ -229,6 +238,11 @@
 </target> 
 
 <target name="start" depends="initConfigFiles, startServer, startClient">
+</target>
+
+<target name="startStandalone">
+    <property name="compileForStandalone" value="true" overwrite="true"/>
+    <call target="startClient"/>
 </target>
 
 </project>

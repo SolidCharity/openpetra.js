@@ -25,6 +25,7 @@ list of available commands:
   startServer: run a local OpenPetra Server
   stopServer: stop the local OpenPetra server
   startClient: run the OpenPetra Client
+  startStandalone: run the OpenPetra standalone application, if generateSolution was run with -D:compileForStandalone=true
   deleteBakFiles: delete all backup files
   initConfigFiles: write and overwrite the config files for client, server and testing, and the version.txt
   test: will run the NUnit tests (smaller tests: test-without-display, test-client)
