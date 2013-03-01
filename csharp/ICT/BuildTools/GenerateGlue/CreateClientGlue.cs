@@ -109,6 +109,9 @@ public class GenerateClientGlue
 
         AutoGenerationTools.FormatParameters(m.Parameters, out ActualParameters, out ParameterDefinition);
 
+        // for standalone: add actual parameters directly
+        snippet.AddToCodelet("ACTUALPARAMETERS", ActualParameters);
+
         string returntype = AutoGenerationTools.TypeToString(m.TypeReference, "");
 
         if (!returntype.Contains("<"))
@@ -548,11 +551,15 @@ public class GenerateClientGlue
         {
             Template.AddToCodelet("USINGNAMESPACES", "using Ict.Common.Remoting.Server;" + Environment.NewLine);
             Template.AddToCodelet("USINGNAMESPACES", "using Ict.Petra.Server.App.Core;" + Environment.NewLine);
+            Template.AddToCodelet("USINGNAMESPACES", "using Ict.Petra.Shared;" + Environment.NewLine);
+            Template.AddToCodelet("USINGNAMESPACES", "using System.Security.Principal;" + Environment.NewLine);
             Template.InsertSnippet("CONNECTOR", Template.GetSnippet("CONNECTORSTANDALONE"));
+            Template.InsertSnippet("STANDALONECLIENTMANAGER", Template.GetSnippet("STANDALONECLIENTMANAGER"));
         }
         else
         {
             Template.InsertSnippet("CONNECTOR", Template.GetSnippet("CONNECTORCLIENTSERVER"));
+            Template.SetCodelet("STANDALONECLIENTMANAGER", string.Empty);
             Template.SetCodelet("HTTPREMOTING", "true");
         }
 

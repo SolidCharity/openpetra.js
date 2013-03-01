@@ -48,6 +48,7 @@ namespace Ict.Common.Remoting.Client
         private TExecutingOSEnum FServerOS;
         private TEnsureKeepAlive FKeepAlive;
         private TPollClientTasks FPollClientTasks;
+        private IClientManager FClientManager;
 
         /// <summary>
         /// the urls of the services
@@ -111,7 +112,7 @@ namespace Ict.Common.Remoting.Client
 
             try
             {
-                TConnectionHelper.Connect();
+                FClientManager = TConnectionHelper.Connect();
 
                 // register Client session at the PetraServer
                 bool ReturnValue = ConnectClient(AUserName, APassword,
@@ -199,7 +200,7 @@ namespace Ict.Common.Remoting.Client
 
             try
             {
-                TClientManager.ConnectClient(AUserName, APassword,
+                FClientManager.ConnectClient(AUserName, APassword,
                     TClientInfo.ClientComputerName,
                     TClientInfo.ClientIPAddress,
                     new Version(TClientInfo.ClientAssemblyVersion),
@@ -277,7 +278,7 @@ namespace Ict.Common.Remoting.Client
                     FPollClientTasks.StopPollClientTasks();
                 }
 
-                ReturnValue = TClientManager.DisconnectClient(FClientID, out ACantDisconnectReason);
+                ReturnValue = FClientManager.DisconnectClient(FClientID, out ACantDisconnectReason);
             }
             catch (System.Net.Sockets.SocketException)
             {

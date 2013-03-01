@@ -32,11 +32,43 @@ using Ict.Common.Remoting.Shared;
 
 namespace Ict.Common.Remoting.Client
 {
-    /// client manager for the connection to the server via http
-    public class TClientManager
+    /// <summary>
+    /// interface, to support standalone and client/server scenario
+    /// </summary>
+    public interface IClientManager
     {
         /// connect the client to the server
-        public static void ConnectClient(String AUserName,
+        void ConnectClient(String AUserName,
+            String APassword,
+            String AClientComputerName,
+            String AClientIPAddress,
+            System.Version AClientExeVersion,
+            TClientServerConnectionType AClientServerConnectionType,
+            out String AClientName,
+            out System.Int32 AClientID,
+            out string ACrossDomainURL,
+            out TExecutingOSEnum AServerOS,
+            out Int32 AProcessID,
+            out String AWelcomeMessage,
+            out Boolean ASystemEnabled,
+            out IPrincipal AUserInfo);
+
+        /// <summary>
+        /// disconnect
+        /// </summary>
+        Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason);
+
+        /// <summary>
+        /// disconnect
+        /// </summary>
+        Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason);
+    }
+
+    /// client manager for the connection to the server via http
+    public class THTTPClientManager : IClientManager
+    {
+        /// connect the client to the server
+        public void ConnectClient(String AUserName,
             String APassword,
             String AClientComputerName,
             String AClientIPAddress,
@@ -79,7 +111,7 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// disconnect
         /// </summary>
-        public static Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
+        public Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
         {
             THttpConnector.CallWebConnector("SessionManager", "Logout", null, "System.Boolean");
             ACantDisconnectReason = string.Empty;
@@ -89,7 +121,7 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// disconnect
         /// </summary>
-        public static Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
+        public Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
         {
             THttpConnector.CallWebConnector("SessionManager", "Logout", null, "System.Boolean");
             ACantDisconnectReason = string.Empty;
@@ -102,7 +134,7 @@ namespace Ict.Common.Remoting.Client
          * See implementation of this class for more detailed description!
          *
          */
-        public static Int32 QueueClientTaskFromClient(System.Int32 AClientID,
+        public Int32 QueueClientTaskFromClient(System.Int32 AClientID,
             String ATaskGroup,
             String ATaskCode,
             object ATaskParameter1,
@@ -122,7 +154,7 @@ namespace Ict.Common.Remoting.Client
          * See implementation of this class for more detailed description!
          *
          */
-        public static Int32 QueueClientTaskFromClient(String AUserID,
+        public Int32 QueueClientTaskFromClient(String AUserID,
             String ATaskGroup,
             String ATaskCode,
             object ATaskParameter1,
@@ -146,7 +178,7 @@ namespace Ict.Common.Remoting.Client
         /// <param name="AMessageLine3"></param>
         /// <param name="AUserID"></param>
         /// <param name="AProcessID"></param>
-        public static void AddErrorLogEntry(String AErrorCode,
+        public void AddErrorLogEntry(String AErrorCode,
             String AContext,
             String AMessageLine1,
             String AMessageLine2,
@@ -162,7 +194,7 @@ namespace Ict.Common.Remoting.Client
          * functions can also be invoked directly from the Server's menu)
          *
          */
-        public static System.Int32 GCGetGCGeneration(object AInspectObject)
+        public System.Int32 GCGetGCGeneration(object AInspectObject)
         {
             // TODORemoting
             return -1;
@@ -172,7 +204,7 @@ namespace Ict.Common.Remoting.Client
         /// perform garbage collection
         /// </summary>
         /// <returns></returns>
-        public static System.Int32 GCPerformGC()
+        public System.Int32 GCPerformGC()
         {
             // TODORemoting
             return -1;
@@ -182,7 +214,7 @@ namespace Ict.Common.Remoting.Client
         /// see how much memory is available
         /// </summary>
         /// <returns></returns>
-        public static System.Int32 GCGetApproxMemory()
+        public System.Int32 GCGetApproxMemory()
         {
             // TODORemoting
             return -1;
