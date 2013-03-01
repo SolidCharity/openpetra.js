@@ -160,15 +160,23 @@ namespace Ict.Common.Remoting.Client
                 throw new EServerConnectionGeneralException(exp.ToString());
             }
 
-            //
-            // start the KeepAlive Thread (which needs to run as long as the Client is running)
-            //
-            FKeepAlive = new TEnsureKeepAlive();
+            if (TClientSettings.RunAsStandalone)
+            {
+                FKeepAlive = null;
+                FPollClientTasks = null;
+            }
+            else
+            {
+                //
+                // start the KeepAlive Thread (which needs to run as long as the Client is running)
+                //
+                FKeepAlive = new TEnsureKeepAlive();
 
-            //
-            // start the PollClientTasks Thread (which needs to run as long as the Client is running)
-            //
-            FPollClientTasks = new TPollClientTasks(FClientID);
+                //
+                // start the PollClientTasks Thread (which needs to run as long as the Client is running)
+                //
+                FPollClientTasks = new TPollClientTasks(FClientID);
+            }
 
             return true;
         }

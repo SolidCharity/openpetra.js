@@ -136,7 +136,7 @@ namespace Ict.Common.Remoting.Client
             {
                 Register((IKeepAlive)ARemotedObject);
             }
-            else
+            else if (!TClientSettings.RunAsStandalone)
             {
                 TLogging.Log("KeepAlive Register: " + ARemotedObject.GetType().ToString() + " does not implement IKeepAlive");
             }
