@@ -1000,6 +1000,7 @@ namespace Ict.Common.Verification
 
             for (int i = 0; i <= Count - 1; i += 1)
             {
+                si = (TVerificationResult)(FList[i]);
                 String Status = "Info";
                 String Formatter = StrStatusFooter; // For either Resv_Status or Resv_Info, this smaller message format is used.
 
