@@ -83,6 +83,21 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
             }
         }
 
+        private void ShowDataManual(AApSupplierRow ARow)
+        {
+            //
+            // Correct these bad assignments made by the auto-generated code:
+            //
+            if (ARow.SupplierType == "")
+            {
+                cmbSupplierType.SetSelectedString("NORMAL");
+            }
+
+            if (ARow.PaymentType == "")
+            {
+                cmbDefaultPaymentType.SetSelectedString("Cheque");
+            }
+        }
 
         /// <summary>
         /// called from APMain when adding new supplier;
@@ -163,8 +178,8 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
                 return CurrencyIsOk;
             }
 
-            AAccountTable AccountList = (AAccountTable)TDataCache.TMFinance.GetCacheableFinanceTable(TCacheableFinanceTablesEnum.AccountList,
-                FLedgerNumber);
+            DataTable TempTbl = TDataCache.TMFinance.GetCacheableFinanceTable(TCacheableFinanceTablesEnum.AccountList, FLedgerNumber);
+            AAccountTable AccountList = (AAccountTable)TempTbl;
 
             AccountList.DefaultView.RowFilter = String.Format("a_ledger_number_i={0} AND a_account_code_c='{1}'",
                 FLedgerNumber, AccountRef);

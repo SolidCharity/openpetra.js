@@ -47,8 +47,14 @@ namespace Ict.Petra.Shared.MFinance.Validation
         /// data validation errors occur.</param>
         /// <param name="AValidationControlsDict">A <see cref="TValidationControlsDict" /> containing the Controls that
         /// display data that is about to be validated.</param>
-        public static void ValidateDailyExchangeRate(object AContext, ADailyExchangeRateRow ARow,
-            ref TVerificationResultCollection AVerificationResultCollection, TValidationControlsDict AValidationControlsDict)
+        /// <param name="AMinDateTime">The earliest allowable date.</param>
+        /// <param name="AMaxDateTime">The latest allowable date.</param>
+        public static void ValidateDailyExchangeRate(object AContext,
+            ADailyExchangeRateRow ARow,
+            ref TVerificationResultCollection AVerificationResultCollection,
+            TValidationControlsDict AValidationControlsDict,
+            DateTime AMinDateTime,
+            DateTime AMaxDateTime)
         {
             DataColumn ValidationColumn;
             TValidationControlsData ValidationControlsData;
@@ -73,7 +79,7 @@ namespace Ict.Petra.Shared.MFinance.Validation
                 AVerificationResultCollection.Auto_Add_Or_AddOrRemove(AContext, VerificationResult, ValidationColumn);
             }
 
-            // Date must not be empty
+            // Date must not be empty and must be in range
             ValidationColumn = ARow.Table.Columns[ADailyExchangeRateTable.ColumnDateEffectiveFromId];
 
             if (AValidationControlsDict.TryGetValue(ValidationColumn, out ValidationControlsData))
@@ -84,6 +90,44 @@ namespace Ict.Petra.Shared.MFinance.Validation
 
                 // Handle addition to/removal from TVerificationResultCollection
                 AVerificationResultCollection.Auto_Add_Or_AddOrRemove(AContext, VerificationResult, ValidationColumn);
+
+                if (VerificationResult == null)
+                {
+                    if ((AMinDateTime > DateTime.MinValue) && (AMaxDateTime < DateTime.MaxValue))
+                    {
+                        // Check that the date is in range
+                        VerificationResult = TDateChecks.IsDateBetweenDates(ARow.DateEffectiveFrom,
+                            AMinDateTime,
+                            AMaxDateTime,
+                            ValidationControlsData.ValidationControlLabel,
+                            TDateBetweenDatesCheckType.dbdctUnspecific,
+                            TDateBetweenDatesCheckType.dbdctUnspecific,
+                            AContext,
+                            ValidationColumn,
+                            ValidationControlsData.ValidationControl);
+
+                        // Handle addition to/removal from TVerificationResultCollection
+                        AVerificationResultCollection.Auto_Add_Or_AddOrRemove(AContext, VerificationResult, ValidationColumn);
+                    }
+                    else if (AMaxDateTime < DateTime.MaxValue)
+                    {
+                        VerificationResult = TDateChecks.FirstLesserOrEqualThanSecondDate(ARow.DateEffectiveFrom, AMaxDateTime,
+                            ValidationControlsData.ValidationControlLabel, Ict.Common.StringHelper.DateToLocalizedString(AMaxDateTime),
+                            AContext, ValidationColumn, ValidationControlsData.ValidationControl);
+
+                        // Handle addition to/removal from TVerificationResultCollection
+                        AVerificationResultCollection.Auto_Add_Or_AddOrRemove(AContext, VerificationResult, ValidationColumn);
+                    }
+                    else if (AMinDateTime > DateTime.MinValue)
+                    {
+                        VerificationResult = TDateChecks.FirstGreaterOrEqualThanSecondDate(ARow.DateEffectiveFrom, AMinDateTime,
+                            ValidationControlsData.ValidationControlLabel, Ict.Common.StringHelper.DateToLocalizedString(AMinDateTime),
+                            AContext, ValidationColumn, ValidationControlsData.ValidationControl);
+
+                        // Handle addition to/removal from TVerificationResultCollection
+                        AVerificationResultCollection.Auto_Add_Or_AddOrRemove(AContext, VerificationResult, ValidationColumn);
+                    }
+                }
             }
 
             // Time must not be negative (indicating an error)
@@ -243,6 +287,34 @@ namespace Ict.Petra.Shared.MFinance.Validation
                     // Handle addition to/removal from TVerificationResultCollection
                     AVerificationResultCollection.Auto_Add_Or_AddOrRemove(AContext, VerificationResult, ValidationColumn);
                 }
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="AContext"></param>
+        /// <param name="ARow"></param>
+        /// <param name="AVerificationResultCollection"></param>
+        /// <param name="AValidationControlsDict"></param>
+        public static void ValidateAccountingPeriod(object AContext, AAccountingPeriodRow ARow,
+            ref TVerificationResultCollection AVerificationResultCollection, TValidationControlsDict AValidationControlsDict)
+        {
+            DataColumn ValidationColumn;
+            TValidationControlsData ValidationControlsData;
+            TVerificationResult VerificationResult;
+
+            // 'Period End Date' must be later than 'Period Start Date'
+            ValidationColumn = ARow.Table.Columns[AAccountingPeriodTable.ColumnPeriodEndDateId];
+
+            if (AValidationControlsDict.TryGetValue(ValidationColumn, out ValidationControlsData))
+            {
+                VerificationResult = TDateChecks.FirstGreaterOrEqualThanSecondDate(ARow.PeriodEndDate, ARow.PeriodStartDate,
+                    ValidationControlsData.ValidationControlLabel, ValidationControlsData.SecondValidationControlLabel,
+                    AContext, ValidationColumn, ValidationControlsData.ValidationControl);
+
+                // Handle addition to/removal from TVerificationResultCollection
+                AVerificationResultCollection.Auto_Add_Or_AddOrRemove(AContext, VerificationResult, ValidationColumn);
             }
         }
     }

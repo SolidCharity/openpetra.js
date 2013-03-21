@@ -68,6 +68,9 @@ namespace Ict.Common.DB
         /// <summary>DebugLevel for logging the SQL code from DB queries</summary>
         public const Int32 DB_DEBUGLEVEL_QUERY = 3;
 
+        /// <summary>DebugLevel for logging the SQL code from DB queries</summary>
+        public const Int32 DB_DEBUGLEVEL_TRANSACTION = 10;
+
         /// <summary>DebugLevel for logging results from DB queries: is 10 (was 4 before)</summary>
         public const Int32 DB_DEBUGLEVEL_RESULT = 10;
 
@@ -422,6 +425,7 @@ namespace Ict.Common.DB
 
         #endregion
 
+        private static bool FCheckedDatabaseVersion = false;
 
         /// <summary>
         /// Establishes (opens) a DB connection to a specified RDBMS.
@@ -522,7 +526,12 @@ namespace Ict.Common.DB
                 throw new EDBConnectionNotEstablishedException(CurrentConnectionInstance.GetConnectionString() + ' ' + exp.ToString());
             }
 
-            CheckDatabaseVersion();
+            // only check database version once when working with multiple connections
+            if (!FCheckedDatabaseVersion)
+            {
+                CheckDatabaseVersion();
+                FCheckedDatabaseVersion = true;
+            }
         }
 
         /// <summary>
@@ -937,9 +946,8 @@ namespace Ict.Common.DB
                 throw new ArgumentException("ADataTableName", "A name for the DataTable must be submitted!");
             }
 
-            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRACE)
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
             {
-                TLogging.Log("Entering " + this.GetType().FullName + ".Select()...");
                 LogSqlStatement(this.GetType().FullName + ".Select()", ASqlStatement, AParametersArray);
             }
 
@@ -977,6 +985,90 @@ namespace Ict.Common.DB
                 if ((ObjReturn != null) && (ObjReturn.Tables[ADataTableName] != null))
                 {
                     LogTable(ObjReturn.Tables[ADataTableName]);
+                }
+            }
+
+            return ObjReturn;
+        }
+
+        /// <summary>
+        /// Puts a temp <see cref="DataTable" /> with the result of a given SQL statement into an existing
+        /// <see cref="DataSet" />.
+        /// The SQL statement is executed in the given transaction context (which should
+        /// have the desired <see cref="IsolationLevel" />). Suitable for parameterised SQL statements.
+        /// </summary>
+        /// <param name="AFillDataSet">Existing <see cref="DataSet" /></param>
+        /// <param name="ASqlStatement">SQL statement</param>
+        /// <param name="ADataTempTableName">Name that the temp <see cref="DataTable" /> should get</param>
+        /// <param name="AReadTransaction">Instantiated <see cref="TDBTransaction" /> with the desired
+        /// <see cref="IsolationLevel" /></param>
+        /// <param name="AParametersArray">An array holding 1..n instantiated DbParameters (eg. OdbcParameters)
+        /// (including parameter Value)</param>
+        /// <param name="AStartRecord">Start record that should be returned</param>
+        /// <param name="AMaxRecords">Maximum number of records that should be returned</param>
+        /// <returns>Existing <see cref="DataSet" />, additionally containing the new <see cref="DataTable" /></returns>
+        public DataSet SelectToTempTable(DataSet AFillDataSet,
+            String ASqlStatement,
+            String ADataTempTableName,
+            TDBTransaction AReadTransaction,
+            DbParameter[] AParametersArray,
+            System.Int32 AStartRecord,
+            System.Int32 AMaxRecords)
+        {
+            DataSet ObjReturn;
+
+            if (AFillDataSet == null)
+            {
+                throw new ArgumentNullException("AFillDataSet", "AFillDataSet must not be null!");
+            }
+
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
+            {
+                LogSqlStatement(this.GetType().FullName + ".Select()", ASqlStatement, AParametersArray);
+            }
+
+            ObjReturn = null;
+
+            try
+            {
+                IDbDataAdapter TheAdapter = SelectDA(ASqlStatement, AReadTransaction, AParametersArray);
+
+                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRACE)
+                {
+                    TLogging.Log(((this.GetType().FullName + ".Select: now filling IDbDataAdapter('" + ADataTempTableName) + "')..."));
+                }
+
+                //Make sure that any previous temp table of the same name is removed first!
+                if (AFillDataSet.Tables.Contains(ADataTempTableName))
+                {
+                    AFillDataSet.Tables.Remove(ADataTempTableName);
+                }
+
+                AFillDataSet.Tables.Add(ADataTempTableName);
+
+                FDataBaseRDBMS.FillAdapter(TheAdapter, ref AFillDataSet, AStartRecord, AMaxRecords, ADataTempTableName);
+
+                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRACE)
+                {
+                    TLogging.Log(((this.GetType().FullName + ".Select: finished filling IDbDataAdapter(DataTable '" +
+                                   ADataTempTableName) + "'). DT Row Count: " + AFillDataSet.Tables[ADataTempTableName].Rows.Count.ToString()));
+#if WITH_POSTGRESQL_LOGGING
+                    NpgsqlEventLog.Level = LogLevel.None;
+#endif
+                }
+
+                ObjReturn = AFillDataSet;
+            }
+            catch (Exception exp)
+            {
+                LogExceptionAndThrow(exp, ASqlStatement, AParametersArray, "Error fetching records.");
+            }
+
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_RESULT)
+            {
+                if ((ObjReturn != null) && (ObjReturn.Tables[ADataTempTableName] != null))
+                {
+                    LogTable(ObjReturn.Tables[ADataTempTableName]);
                 }
             }
 
@@ -1150,9 +1242,8 @@ namespace Ict.Common.DB
             TDBTransaction AReadTransaction,
             DbParameter[] AParametersArray)
         {
-            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRACE)
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
             {
-                TLogging.Log("Entering " + this.GetType().FullName + ".SelectDTInternal()...");
                 LogSqlStatement(this.GetType().FullName + ".SelectDTInternal()", ASqlStatement, AParametersArray);
             }
 
@@ -1212,9 +1303,8 @@ namespace Ict.Common.DB
                 throw new Exception("Security Violation: Access Permission failed");
             }
 
-            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRACE)
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
             {
-                TLogging.Log("Entering " + this.GetType().FullName + ".SelectDT()...");
                 LogSqlStatement(this.GetType().FullName + ".SelectDT()", ASqlStatement, AParametersArray);
             }
 
@@ -1279,7 +1369,7 @@ namespace Ict.Common.DB
 
                 FTransaction = FSqlConnection.BeginTransaction();
 
-                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
+                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRANSACTION)
                 {
                     TLogging.Log("DB Transaction started (in Appdomain " + AppDomain.CurrentDomain.ToString() + " ).");
                 }
@@ -1371,7 +1461,7 @@ namespace Ict.Common.DB
 
                 FTransaction = FSqlConnection.BeginTransaction(AIsolationLevel);
 
-                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
+                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRANSACTION)
                 {
                     TLogging.Log(
                         "DB Transaction with IsolationLevel '" + AIsolationLevel.ToString() + "' started (in Appdomain " +
@@ -1466,7 +1556,7 @@ namespace Ict.Common.DB
             {
                 String msg = "";
 
-                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
+                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRANSACTION)
                 {
                     msg = "DB Transaction with IsolationLevel '" + FTransaction.IsolationLevel.ToString() + "' committed (in Appdomain " +
                           AppDomain.CurrentDomain.ToString() + " ).";
@@ -1474,7 +1564,7 @@ namespace Ict.Common.DB
 
                 FTransaction.Commit();
 
-                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
+                if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRANSACTION)
                 {
                     TLogging.Log(msg);
                 }
@@ -1496,7 +1586,7 @@ namespace Ict.Common.DB
                 return;
             }
 
-            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRANSACTION)
             {
                 msg = "DB Transaction with IsolationLevel '" + FTransaction.IsolationLevel.ToString() + "' rolled back (in Appdomain " +
                       AppDomain.CurrentDomain.ToString() + " ).";
@@ -1504,7 +1594,7 @@ namespace Ict.Common.DB
 
             FTransaction.Rollback();
 
-            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_TRANSACTION)
             {
                 TLogging.Log(msg);
             }
@@ -1749,7 +1839,7 @@ namespace Ict.Common.DB
                 throw new ArgumentNullException("ACommitTransaction", "ACommitTransaction cannot be set to true when ATransaction is null!");
             }
 
-            if (TLogging.DebugLevel >= DBAccess.DB_DEBUGLEVEL_TRACE)
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
             {
                 LogSqlStatement(this.GetType().FullName + ".ExecuteNonQuery()", ASqlStatement, AParametersArray);
             }
@@ -2091,7 +2181,7 @@ namespace Ict.Common.DB
                 throw new ArgumentNullException("ACommitTransaction", "ACommitTransaction cannot be set to true when ATransaction is null!");
             }
 
-            if (TLogging.DebugLevel >= DBAccess.DB_DEBUGLEVEL_TRACE)
+            if (TLogging.DL >= DBAccess.DB_DEBUGLEVEL_QUERY)
             {
                 LogSqlStatement(this.GetType().FullName + ".ExecuteScalar()", ASqlStatement, AParametersArray);
             }

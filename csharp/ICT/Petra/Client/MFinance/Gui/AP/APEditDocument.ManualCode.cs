@@ -33,17 +33,20 @@ using Ict.Petra.Client.CommonControls;
 using Ict.Petra.Client.App.Core.RemoteObjects;
 using Ict.Petra.Client.MFinance.Logic;
 using Ict.Petra.Client.MFinance.Gui.GL;
+using Ict.Petra.Client.MFinance.Gui.Setup;
 using Ict.Petra.Shared.MFinance.Account.Data;
 using Ict.Petra.Shared.MFinance.AP.Data;
 using Ict.Petra.Shared.MFinance;
 using Ict.Petra.Shared.Interfaces.MFinance;
 using Ict.Petra.Shared.MFinance.Validation;
+using Ict.Petra.Client.App.Core;
+using Ict.Petra.Shared;
 
 namespace Ict.Petra.Client.MFinance.Gui.AP
 {
     public partial class TFrmAPEditDocument
     {
-        Int32 FLedgerNumber;
+        Int32 FDocumentLedgerNumber;
         ALedgerRow FLedgerRow = null;
 
         /// <summary>
@@ -81,9 +84,32 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
 
         private void LookupExchangeRate(Object sender, EventArgs e)
         {
-            decimal CurrentRate = TExchangeRateCache.GetDailyExchangeRate(txtSupplierCurrency.Text, FLedgerRow.BaseCurrency, DateTime.Now);
+            TFrmSetupDailyExchangeRate setupDailyExchangeRate =
+                new TFrmSetupDailyExchangeRate(FPetraUtilsObject.GetForm());
 
-            txtExchangeRateToBase.NumberValueDecimal = CurrentRate;
+            decimal selectedExchangeRate;
+            DateTime selectedEffectiveDate;
+            int selectedEffectiveTime;
+
+            if (setupDailyExchangeRate.ShowDialog(
+                    FDocumentLedgerNumber,
+                    DateTime.Now,
+                    txtSupplierCurrency.Text,
+                    1.0m,
+                    out selectedExchangeRate,
+                    out selectedEffectiveDate,
+                    out selectedEffectiveTime) == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            if (txtExchangeRateToBase.NumberValueDecimal != selectedExchangeRate)
+            {
+                //Enforce save needed condition
+                FPetraUtilsObject.SetChangedFlag();
+            }
+
+            txtExchangeRateToBase.NumberValueDecimal = selectedExchangeRate;
         }
 
         private void EnableControls()
@@ -243,13 +269,29 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
             AccountsPayableTDSAApDocumentRow DocumentRow = FMainDS.AApDocument[0];
             AApSupplierRow SupplierRow = FMainDS.AApSupplier[0];
 
-            txtTotalAmount.CurrencySymbol = SupplierRow.CurrencyCode;
-            txtDetailAmount.CurrencySymbol = SupplierRow.CurrencyCode;
+            FDocumentLedgerNumber = DocumentRow.LedgerNumber;
 
-            FLedgerNumber = DocumentRow.LedgerNumber;
-            this.Text += " - " + TFinanceControls.GetLedgerNumberAndName(FLedgerNumber);
+            //
+            // If this document's currency is that of my own ledger,
+            // I need to disable the rate of exchange field.
+            ALedgerRow ledger =
+                ((ALedgerTable)TDataCache.TMFinance.GetCacheableFinanceTable(
+                     TCacheableFinanceTablesEnum.LedgerDetails, FDocumentLedgerNumber))[0];
 
-            ALedgerTable Tbl = TRemote.MFinance.AP.WebConnectors.GetLedgerInfo(FLedgerNumber);
+            String MyCurrencyCode = ledger.BaseCurrency;
+
+            if (DocumentRow.CurrencyCode == MyCurrencyCode)
+            {
+                txtExchangeRateToBase.Enabled = false;
+                btnLookupExchangeRate.Enabled = false;
+            }
+
+            txtTotalAmount.CurrencySymbol = DocumentRow.CurrencyCode;
+            txtDetailAmount.CurrencySymbol = DocumentRow.CurrencyCode;
+
+            this.Text += " - " + TFinanceControls.GetLedgerNumberAndName(FDocumentLedgerNumber);
+
+            ALedgerTable Tbl = TRemote.MFinance.AP.WebConnectors.GetLedgerInfo(FDocumentLedgerNumber);
             FLedgerRow = Tbl[0];
             txtDetailBaseAmount.CurrencySymbol = FLedgerRow.BaseCurrency;
             dtpDateDue.Date = DocumentRow.DateIssued.AddDays(Convert.ToDouble(nudCreditTerms.Value));
@@ -287,7 +329,8 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
         private void NewDetail(Object sender, EventArgs e)
         {
             // get the entered amounts, so that we can calculate the missing amount for the new detail
-            GetDetailsFromControls(FPreviouslySelectedDetailRow);
+//            GetDetailsFromControls(FPreviouslySelectedDetailRow);
+            ValidateAllData(true, true);
 
             decimal DetailAmount = FMainDS.AApDocument[0].TotalAmount;
 
@@ -363,7 +406,8 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
         {
             TFrmAPAnalysisAttributes AnalAttrForm = new TFrmAPAnalysisAttributes(this);
 
-            GetDetailsFromControls(FPreviouslySelectedDetailRow);
+            ValidateAllData(false, true);
+//          GetDetailsFromControls(FPreviouslySelectedDetailRow);
 
             AnalAttrForm.Initialise(ref FMainDS, FPreviouslySelectedDetailRow);
             AnalAttrForm.ShowDialog();
@@ -592,6 +636,45 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
         }
 
         /// <summary>
+        ///
+        /// </summary>
+        /// <param name="Atds"></param>
+        /// <param name="AApDocument"></param>
+        /// <returns></returns>
+        public static bool CurrencyIsOk(AccountsPayableTDS Atds, AApDocumentRow AApDocument)
+        {
+            if (AApDocument.CurrencyCode != Atds.AApSupplier[0].CurrencyCode)
+            {
+                System.Windows.Forms.MessageBox.Show(
+                    String.Format(Catalog.GetString("Document {0} cannot be posted because the supplier currency has been changed."),
+                        AApDocument.DocumentCode),
+                    Catalog.GetString("Post Document"));
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="Atds"></param>
+        /// <param name="AApDocument"></param>
+        /// <returns></returns>
+        public static bool ExchangeRateIsOk(AccountsPayableTDS Atds, AApDocumentRow AApDocument)
+        {
+            if (AApDocument.ExchangeRateToBase == 0)
+            {
+                System.Windows.Forms.MessageBox.Show(
+                    Catalog.GetString("No Exchange Rate has been set."),
+                    Catalog.GetString("Post Document"));
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// This static function is called from several places
         /// </summary>
         /// <param name="Atds"></param>
@@ -612,6 +695,16 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
             }
 
             if (!AllLinesHaveAttributes(Atds, Adocument))
+            {
+                return false;
+            }
+
+            if (!ExchangeRateIsOk(Atds, Adocument))
+            {
+                return false;
+            }
+
+            if (!CurrencyIsOk(Atds, Adocument))
             {
                 return false;
             }
@@ -703,7 +796,8 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
                 // Refresh by re-loading the document from the server
                 Int32 DocumentId = FMainDS.AApDocument[0].ApDocumentId;
                 FMainDS.Clear();
-                LoadAApDocument(FLedgerNumber, DocumentId);
+                FPreviouslySelectedDetailRow = null;
+                LoadAApDocument(FDocumentLedgerNumber, DocumentId);
 
                 //
                 // Also refresh the opener?
@@ -730,7 +824,7 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
             List <int>PayTheseDocs = new List <int>();
 
             PayTheseDocs.Add(FMainDS.AApDocument[0].ApDocumentId);
-            PaymentScreen.AddDocumentsToPayment(FMainDS, FLedgerNumber, PayTheseDocs);
+            PaymentScreen.AddDocumentsToPayment(FMainDS, FDocumentLedgerNumber, PayTheseDocs);
             PaymentScreen.Show();
         }
     }

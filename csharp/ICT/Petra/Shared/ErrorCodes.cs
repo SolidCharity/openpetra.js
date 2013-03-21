@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank
 //
-// Copyright 2004-2010 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -108,6 +108,37 @@ namespace Ict.Petra.Shared
 
         #endregion
 
+        #region Finance Module-specific error codes
+
+        /// <summary>Suspense accounts exist despite disabling suspense accounts for a ledger.</summary>
+        [ErrCodeAttribute("Suspense Accounts in use.",
+             ErrorMessageText = "The use of suspense accounts cannot be	disabled because there are accounts	currently in use.")]
+        public const String ERR_NO_SUSPENSE_ACCOUNTS_ALLOWED = "FIN.00001V";
+
+        /// <summary>Partner Key is invalid.</summary>
+        [ErrCodeAttribute("Too small number of forwarding periods.",
+             ErrorMessageText = "There must be at least {0} periods because {1} periods have been used already.")]
+        public const String ERR_NUMBER_FWD_PERIODS_TOO_SMALL = "FIN.00002V";
+
+        /// <summary>Warning message that two exchange rates differ by more than 10%.</summary>
+        [ErrCodeAttribute("Exchange rate may be incorrect.",
+             ErrorMessageText =
+                 "The rate of {0} that you have entered for {1}->{2} on {3} at {4} differs from the previous or next rate for the same currencies by more than {5:0%}.")
+        ]
+        public const String ERR_EXCH_RATE_MAY_BE_INCORRECT = "FIN.00003N";
+
+        /// <summary>Period start date cannot be after 28th of a month, otherwise problems with February.</summary>
+        [ErrCodeAttribute("Period start date after 28th of month.",
+             ErrorMessageText = "The period cannot start after the 28th day of the month.")]
+        public const String ERR_PERIOD_START_DAY_AFTER_28 = "FIN.00004V";
+
+        /// <summary>Period date ranges need to make sure that there is no overlap and no gaps in calendar.</summary>
+        [ErrCodeAttribute("Period date range incorrect.",
+             ErrorMessageText = "Period {0} must end one day before the next period begins.")]
+        public const String ERR_PERIOD_DATE_RANGE = "FIN.00005V";
+
+        #endregion
+
         #region Partner Module-specific error codes
 
         /// <summary>Partner Key is invalid.</summary>
@@ -148,7 +179,6 @@ namespace Ict.Petra.Shared
              FullDescription = "The International Postal Code entered is not a valid International Postal Type.")]
         public const String ERR_INVALIDINTERNATIONALPOSTALCODE = "PARTN.00008V";
 
-
         #region Subscriptions
 
         /// <summary>Subscription Status Mandatory.</summary>
@@ -180,6 +210,19 @@ namespace Ict.Petra.Shared
              ErrorMessageText = "Cannot have an end date without setting status to 'CANCELLED' or 'EXPIRED'.",
              ErrorMessageTitle = "Clear Date Ended")]
         public const String ERR_SUBSCRIPTION_DATEENDEDSET_WHEN_ACTIVE = "PARTN.00012V";
+
+        #endregion
+
+        #region Banking Details
+        /// <summary>Banking Details: only one main account.</summary>
+        [ErrCodeAttribute("Only one main account.",
+             ErrorMessageText = "You can only have one main bank account per partner.")]
+        public const String ERR_BANKINGDETAILS_ONLYONEMAINACCOUNT = "PARTN.00013V";
+
+        /// <summary>Banking Details: At least one main account.</summary>
+        [ErrCodeAttribute("At least one main account.",
+             ErrorMessageText = "You must set at least one bank account as main account.")]
+        public const String ERR_BANKINGDETAILS_ATLEASTONEMAINACCOUNT = "PARTN.00014V";
 
         #endregion
 

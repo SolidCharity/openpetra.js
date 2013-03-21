@@ -131,7 +131,7 @@ namespace Ict.Petra.Client.MReporting.Gui.MFinance
                 && (txtExtract.Text == ""))
             {
                 TVerificationResult VerificationMessage = new TVerificationResult(
-                    Catalog.GetString("Enter a extract name."),
+                    Catalog.GetString("Enter an extract name."),
                     Catalog.GetString("No extract name entered!"), TResultSeverity.Resv_Critical);
                 FPetraUtilsObject.AddVerificationResult(VerificationMessage);
             }
@@ -176,7 +176,7 @@ namespace Ict.Petra.Client.MReporting.Gui.MFinance
             ACalc.AddParameter("param_to_date_1", ToDatePreviousYear);
             ACalc.AddParameter("param_from_date_1", FromDatePreviousYear);
             ACalc.AddParameter("param_to_date_2", ToDatePreviousYear.AddYears(-1));
-            ACalc.AddParameter("param_from_date_21", FromDatePreviousYear.AddYears(-1));
+            ACalc.AddParameter("param_from_date_2", FromDatePreviousYear.AddYears(-1));
             ACalc.AddParameter("param_to_date_3", ToDatePreviousYear.AddYears(-2));
             ACalc.AddParameter("param_from_date_3", FromDatePreviousYear.AddYears(-2));
 

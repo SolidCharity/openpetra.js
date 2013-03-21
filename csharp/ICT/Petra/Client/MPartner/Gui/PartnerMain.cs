@@ -80,18 +80,13 @@ namespace Ict.Petra.Client.MPartner.Gui
         /// <summary>
         /// Opens the Partner Find screen (or activates it in case a non-modal instance was already open).
         /// </summary>
-        public static void FindPartner(Form AParentForm)
+        public static TPartnerFindScreen FindPartner(Form AParentForm)
         {
-            bool FormWasAlreadyOpened;
+            TPartnerFindScreen frm = new TPartnerFindScreen(AParentForm);
 
-            TPartnerFindScreen frm = (TPartnerFindScreen)TFormsList.OpenNewOrExistingForm(
-                typeof(Ict.Petra.Client.MPartner.Gui.TPartnerFindScreen), AParentForm, out FormWasAlreadyOpened, false);
-
-            if (!FormWasAlreadyOpened)
-            {
-                frm.SetParameters(false, -1);
-                frm.Show();
-            }
+            frm.SetParameters(false, -1);
+            frm.Show();
+            return frm;
         }
 
         /// <summary>
@@ -169,9 +164,9 @@ namespace Ict.Petra.Client.MPartner.Gui
         }
 
         /// <summary>
-        /// create a new partner (default to family ie. household)
+        /// create a new Family
         /// </summary>
-        public static void NewPartner(Form AParentForm)
+        public static void NewPartner_Family(Form AParentForm)
         {
             TFrmPartnerEdit frm = new TFrmPartnerEdit(AParentForm);
 
@@ -179,8 +174,8 @@ namespace Ict.Petra.Client.MPartner.Gui
             frm.Show();
         }
 
-        /// create a new organisation (eg. supplier)
-        public static void NewOrganisation(Form AParentForm)
+        /// create a new Organisation (eg. supplier)
+        public static void NewPartner_Organisation(Form AParentForm)
         {
             TFrmPartnerEdit frm = new TFrmPartnerEdit(AParentForm);
 
@@ -188,8 +183,8 @@ namespace Ict.Petra.Client.MPartner.Gui
             frm.Show();
         }
 
-        /// create a new person
-        public static void NewPerson(Form AParentForm)
+        /// create a new Person
+        public static void NewPartner_Person(Form AParentForm)
         {
             TFrmPartnerEdit frm = new TFrmPartnerEdit(AParentForm);
 
@@ -199,6 +194,44 @@ namespace Ict.Petra.Client.MPartner.Gui
             frm.SetParameters(TScreenMode.smNew, "PERSON", -1, -1, "", "", false,
                 FamilyKey, LocationSiteKey.LocationKey, LocationSiteKey.SiteKey);
 
+            frm.Show();
+        }
+
+        /// <summary>
+        /// create a new Church
+        /// </summary>
+        public static void NewPartner_Church(Form AParentForm)
+        {
+            TFrmPartnerEdit frm = new TFrmPartnerEdit(AParentForm);
+
+            frm.SetParameters(TScreenMode.smNew, "CHURCH", -1, -1, "");
+            frm.Show();
+        }
+
+        /// create a new Bank
+        public static void NewPartner_Bank(Form AParentForm)
+        {
+            TFrmPartnerEdit frm = new TFrmPartnerEdit(AParentForm);
+
+            frm.SetParameters(TScreenMode.smNew, "BANK", -1, -1, "");
+            frm.Show();
+        }
+
+        /// create a new Unit
+        public static void NewPartner_Unit(Form AParentForm)
+        {
+            TFrmPartnerEdit frm = new TFrmPartnerEdit(AParentForm);
+
+            frm.SetParameters(TScreenMode.smNew, "UNIT", -1, -1, "");
+            frm.Show();
+        }
+
+        /// create a new Venue
+        public static void NewPartner_Venue(Form AParentForm)
+        {
+            TFrmPartnerEdit frm = new TFrmPartnerEdit(AParentForm);
+
+            frm.SetParameters(TScreenMode.smNew, "VENUE", -1, -1, "");
             frm.Show();
         }
 

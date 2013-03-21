@@ -70,11 +70,6 @@ namespace Ict.Petra.Client.App.PetraClient
     /// </summary>
     public class TPetraClientMain
     {
-//        /// <summary>Email Address is invalid.</summary>
-//        [ErrCodeAttribute("Email Address is invalid.",
-//                          FullDescription = "The email address entered is not a valid date.")]
-//        public const String ERR_EMAILADDRESSINVALID = "GENC.00007V";
-
         private static TSplashScreenManager FSplashScreen;
 
         /// <summary>tells whether the Login was successful, or not</summary>
@@ -315,13 +310,11 @@ namespace Ict.Petra.Client.App.PetraClient
 
                 Catalog.Init();
 
-//            ErrorCodeInventory.BuildErrorCodeInventory(new Ict.Common.CommonErrorCodes().GetType());
-//            ErrorCodeInventory.BuildErrorCodeInventory(new Ict.Petra.Shared.PetraErrorCodes().GetType());
-//            ErrorCodeInventory.BuildErrorCodeInventory(new Ict.Common.Verification.TStringChecks().GetType());
-
+                // Register Types that can throw Error Codes (Ict.Common.CommonErrorCodes is automatically added)
                 ErrorCodeInventory.RegisteredTypes.Add(new Ict.Petra.Shared.PetraErrorCodes().GetType());
+                ErrorCodeInventory.RegisteredTypes.Add(new Ict.Common.Verification.TStringChecks().GetType());
 
-                // initialize the client
+                // Initialize the client
                 TClientTasksQueue.ClientTasksInstanceType = typeof(TClientTaskInstance);
 
                 TConnectionManagementBase.GConnectionManagement = new TConnectionManagement();
@@ -345,7 +338,10 @@ namespace Ict.Petra.Client.App.PetraClient
 //                                                 ErrorCodes.GetErrorInfo("PARTN.00005V").FullDescription + Environment.NewLine + Environment.NewLine +
 //                                                 ErrorCodes.GetErrorInfo("PARTN.00005V").Category.ToString("G") + Environment.NewLine + Environment.NewLine +
 //                                                 ErrorCodes.GetErrorInfo("PARTN.00005V").HelpID);
-
+//            System.Windows.Forms.MessageBox.Show(ErrorCodes.GetErrorInfo("GENC.00017V").ShortDescription + Environment.NewLine + Environment.NewLine +
+//                                                 ErrorCodes.GetErrorInfo("GENC.00017V").FullDescription + Environment.NewLine + Environment.NewLine +
+//                                                 ErrorCodes.GetErrorInfo("GENC.00017V").Category.ToString("G") + Environment.NewLine + Environment.NewLine +
+//                                                 ErrorCodes.GetErrorInfo("GENC.00017V").HelpID);
 
 //MessageBox.Show(ErrorCodes.GetErrorInfo(ERR_EMAILADDRESSINVALID).ShortDescription);
 
