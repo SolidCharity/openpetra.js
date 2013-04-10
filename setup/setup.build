@@ -139,26 +139,17 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
 <target name="setupRemote">
     <!-- *************** Adjust Remote Client Config file ******************** -->
     <property name="Config.file" value="${dir.root}/setup/petra${PetraRelease}/remoteclientWin/PetraClientRemote.config.my"/>
-    <if test="${file::exists(Config.file)}">
-        <copy file="${Config.file}" tofile="${tempdir}/PetraClientRemote_temp.config" overwrite="true"/>
-    </if>
     <if test="${not file::exists(Config.file)}">
         <property name="Config.file" value="${dir.root}/setup/petra${PetraRelease}/remoteclientWin/PetraClientRemote.config"/>
-        <copy file="${Config.file}" tofile="${tempdir}/PetraClientRemote_temp.config" overwrite="true"/>
     </if>
-    <copy file="${tempdir}/PetraClientRemote_temp.config"
+    <copy file="${Config.file}"
               tofile="${tempdir}/PetraClientRemote.config">
         <filterchain>
             <expandproperties />
         </filterchain>
     </copy>
-    <delete file="${tempdir}/PetraClientRemote_temp.config"/>
 
     <property name="Config.file" value="${tempdir}/PetraClientRemote.config"/>
-    <property name="result" value="${script::ReplaceInFile(Config.file, '{#WEBSITE}', PublisherUrl)}"/>
-    <property name="result" value="${script::ReplaceInFile(Config.file, '{#ORGNAME}', OrgNameWithoutSpace)}"/>
-    <property name="result" value="${script::ReplaceInFile(Config.file, '{#PETRAHOST}', HostedServer)}"/>
-    <property name="result" value="${script::ReplaceInFile(Config.file, '{#PETRAPORT}', HostedPort)}"/>
     
     <!--  ***************  Build remote client installer ********************* -->
     <property name="SetupOriginal.File" value="${dir.root}/setup/petra${PetraRelease}/remoteclientWin/remote.nsi"/>
@@ -241,9 +232,6 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
 
   <call target="translation" unless="${target::has-executed('translation')}"/>
 
-  <!-- create key pair for encrypted remoting -->
-  <ExecDotNet program="${tool-generateEncryptionKey}" commandline="-PublicKeyFile:${tempdir}/publickey.xml -PrivateKeyFile:${tempdir}/privatekey.xml"/>
-  
   <!-- build Remote Setup Windows installer -->
   <if test="${WithWindowsClient}">
     <call target="setupRemote"/>
@@ -254,10 +242,7 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
   
   <foreach item="String" property="LinuxTargetDistribution" delim="," in="${LinuxTargetDistribution-list}" >
     <call target="prepareSetupDirForTarFile"/>
-    
-    <copy file="${tempdir}/publickey.xml" tofile="${setupDir}/etc30/publickey-sample.xml"/>
-    <copy file="${tempdir}/privatekey.xml" tofile="${setupDir}/etc30/privatekey-sample.xml"/>
-    
+   
     <if test="${not platform::is-windows()}">
       <ExecCmd program="sh" commandline="/C &quot;cd ${setupDir}/..; tar czpf ${dir.delivery}/openpetraorg-server-${LinuxTargetDistribution}-${OrgNameWithoutSpace}-${ReleaseID}.tar.gz openpetraorg-${ReleaseID}&quot;"/>
     </if>
@@ -276,8 +261,6 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
     <call target="buildLinuxClient"/>
   </if>
 
-  <delete file="${tempdir}/publickey.xml"/>
-  <delete file="${tempdir}/privatekey.xml"/>
   <delete dir="${setupDir}"/>
 </target>
 
