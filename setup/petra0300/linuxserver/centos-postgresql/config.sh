@@ -1,8 +1,6 @@
 export OpenPetraOrgPath=/usr/local/openpetraorg/${OrgNameWithoutSpace}
 export CustomerName="${OrgName}"
 export userName=openpetra${OrgNameWithoutSpace}
-export OPENPETRA_LocationPublicKeyFile=/var/www/patches/${OrgNameWithoutSpace}/publickey.xml
-export OPENPETRA_LocationPrivateKeyFile=${OpenPetraOrgPath}/etc30/privatekey.xml
 export OPENPETRA_RDBMSType=postgresql
 export OPENPETRA_DBHOST=localhost
 export OPENPETRA_DBPWD=${RandomDBPassword}
@@ -11,4 +9,6 @@ export OPENPETRA_DBNAME=openpetra_${OrgNameWithoutSpace}
 export OPENPETRA_DBPORT=5432
 export OPENPETRA_PORT=${HostedPort}
 export backupfile=$OpenPetraOrgPath/backup30/backup-`date +%Y%m%d`.sql.gz
-export mono=/opt/novell/mono/bin/mono
+export mono_path=/opt/mono-openpetra
+export FASTCGI_MONO_SERVER=$mono_path/bin/fastcgi-mono-server4
+export mono=$mono_path/bin/mono

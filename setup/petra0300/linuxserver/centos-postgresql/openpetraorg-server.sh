@@ -13,10 +13,11 @@ fi
 
 if [ ! -d $OpenPetraOrgPath ]
 then
-  export mono=/opt/novell/mono/bin
+  export mono_path=/opt/mono-openpetra
+  export FASTCGI_MONO_SERVER=$mono_path/bin/fastcgi-mono-server4
+  export mono=$mono_path/bin/mono
   export OpenPetraOrgPath=/usr/local/openpetraorg
   export CustomerName=DefaultTOREPLACE
-  export OPENPETRA_LocationKeyFile=
   export OPENPETRA_RDBMSType=postgresql
   export OPENPETRA_DBPWD=TOBESETBYINSTALLER
   export OPENPETRA_DBHOST=localhost
@@ -46,15 +47,8 @@ log_end_msg() { [ $1 -eq 0 ] && RES=OK; logger ${RES:=FAIL}; }
 start() {
     log_daemon_msg "Starting OpenPetra.org server for $CustomerName"
 
-    cd $OpenPetraOrgPath/bin30
-    parameters="-Server.DBPassword:PG_OPENPETRA_DBPWD -Server.DBUserName:$OPENPETRA_DBUSER -Server.DBName:$OPENPETRA_DBNAME -Server.DBPort:$OPENPETRA_DBPORT -Server.DBHostOrFile:$OPENPETRA_DBHOST -Server.Port:$OPENPETRA_PORT -Server.RDBMSType:$OPENPETRA_RDBMSType -Server.ChannelEncryption.PrivateKeyfile:$OPENPETRA_LocationPrivateKeyFile"
-    su $userName -c "$mono --runtime=v4.0 --server PetraServerConsole.exe -C:$OpenPetraOrgPath/etc30/PetraServerConsole.config $parameters -RunWithoutMenu:true &> /dev/null &"
-    # in order to see if the server started successfully, wait a few seconds and then show the end of the log file
-    sleep 5
-    tail $OpenPetraOrgPath/log30/Server.log
+    su $userName -c "PATH=$mono_path/bin:$PATH $FASTCGI_MONO_SERVER /socket=tcp:127.0.0.1:$OPENPETRA_PORT /applications=/:/var/www/html /appconfigfile=$OpenPetraOrgPath/etc30/PetraServerConsole.config&"
 
-    # TODO: check Server.log for errors
-    #status=´ps xaf | grep $CustomerName´
     status=0
     log_end_msg $status
 }
@@ -63,17 +57,9 @@ start() {
 stop() {
     log_daemon_msg "Stopping OpenPetra.org server for $CustomerName"
     cd $OpenPetraOrgPath/bin30
-    parameters="-Server.Port:$OPENPETRA_PORT -Server.ChannelEncryption.PublicKeyfile:$OPENPETRA_LocationPublicKeyFile"
-    su $userName -c "$mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:$OpenPetraOrgPath/etc30/PetraServerAdminConsole.config $parameters -Command:Stop"
-    status=0
-    log_end_msg $status
-}
-
-# add a new user with an empty password
-addUser() {
-    cd $OpenPetraOrgPath/bin30
-    parameters="-Server.Port:$OPENPETRA_PORT -Server.ChannelEncryption.PublicKeyfile:$OPENPETRA_LocationPublicKeyFile"
-    su $userName -c "$mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:$OpenPetraOrgPath/etc30/PetraServerAdminConsole.config $parameters -Command:AddUser -Email:$useremail"
+    
+    su $userName -c "$mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:$OpenPetraOrgPath/etc30/PetraServerAdminConsole.config -Command:Stop"
+    
     status=0
     log_end_msg $status
 }
@@ -179,9 +165,6 @@ case "$1" in
         ;;
     init)
         init
-        ;;
-    addUser)
-        addUser
         ;;
     loadYmlGz)
         loadYmlGz
