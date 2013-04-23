@@ -458,7 +458,7 @@ namespace Ict.Petra.Server.MPartner.Import
             msg.Attachments.Add(new Attachment(APDFFilename, System.Net.Mime.MediaTypeNames.Application.Octet));
             msg.Bcc.Add(BCCAddress);
 
-            if (!emailSender.SendMessage(ref msg))
+            if (!emailSender.SendMessage(msg))
             {
                 TLogging.Log("There has been a problem sending the email to " + AData.email);
                 return false;

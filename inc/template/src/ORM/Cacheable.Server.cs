@@ -656,6 +656,10 @@ case TCacheable{#SUBMODULE}TablesEnum.{#ENUMNAME}:
             {
                 SubmissionResult = TSubmitChangesResult.scrOK;
             }
+            else
+            {
+                AVerificationResult.AddCollection(SingleVerificationResultCollection);
+            }
         }
     }
 

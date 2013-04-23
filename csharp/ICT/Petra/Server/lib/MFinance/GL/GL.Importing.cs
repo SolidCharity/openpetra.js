@@ -352,7 +352,7 @@ namespace Ict.Petra.Server.MFinance.GL
                                 NewTransaction.TransactionAmount = CreditAmount;
                             }
 
-                            NewTransaction.AmountInBaseCurrency = NewTransaction.TransactionAmount / NewJournal.ExchangeRateToBase;
+                            NewTransaction.AmountInBaseCurrency = GLRoutines.Divide(NewTransaction.TransactionAmount, NewJournal.ExchangeRateToBase);
 
                             for (int i = 0; i < 10; i++)
                             {

@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -71,7 +71,7 @@ namespace Ict.Petra.Shared.MFinance
 
                 if (ACurrentJournal.TransactionTypeCode != CommonAccountingTransactionTypesEnum.REVAL.ToString())
                 {
-                    r.AmountInBaseCurrency = r.TransactionAmount / ACurrentJournal.ExchangeRateToBase;
+                    r.AmountInBaseCurrency = Divide(r.TransactionAmount, ACurrentJournal.ExchangeRateToBase);
                 }
 
                 if (r.DebitCreditIndicator)
@@ -104,7 +104,7 @@ namespace Ict.Petra.Shared.MFinance
             if ((ACurrentJournal.ExchangeRateToBase == 0.0m)
                 && (ACurrentJournal.TransactionTypeCode != CommonAccountingTransactionTypesEnum.REVAL.ToString()))
             {
-                throw new Exception(String.Format("Batch {0} Journal {1} has invalid exchange rate to base",
+                throw new Exception(String.Format("Recurring Batch {0} Journal {1} has invalid exchange rate to base",
                         ACurrentJournal.BatchNumber,
                         ACurrentJournal.JournalNumber));
             }
@@ -123,7 +123,7 @@ namespace Ict.Petra.Shared.MFinance
 
                 if (ACurrentJournal.TransactionTypeCode != CommonAccountingTransactionTypesEnum.REVAL.ToString())
                 {
-                    r.AmountInBaseCurrency = r.TransactionAmount / ACurrentJournal.ExchangeRateToBase;
+                    r.AmountInBaseCurrency = Divide(r.TransactionAmount, ACurrentJournal.ExchangeRateToBase);
                 }
 
                 if (r.DebitCreditIndicator)
@@ -172,6 +172,65 @@ namespace Ict.Petra.Shared.MFinance
 
             AMainDS.ATransaction.DefaultView.RowFilter = origTransactionFilter;
             AMainDS.AJournal.DefaultView.RowFilter = origJournalFilter;
+        }
+
+        /// <summary>
+        /// Calculate the base amount for the transactions, and update the totals for the journals and the current batch
+        /// </summary>
+        /// <param name="AMainDS"></param>
+        /// <param name="ACurrentBatch"></param>
+        public static void UpdateTotalsOfRecurringBatch(ref GLBatchTDS AMainDS,
+            ARecurringBatchRow ACurrentBatch)
+        {
+            string origTransactionFilter = AMainDS.ARecurringTransaction.DefaultView.RowFilter;
+            string origJournalFilter = AMainDS.ARecurringJournal.DefaultView.RowFilter;
+
+            ACurrentBatch.BatchDebitTotal = 0.0m;
+            ACurrentBatch.BatchCreditTotal = 0.0m;
+
+            AMainDS.ARecurringJournal.DefaultView.RowFilter =
+                ARecurringJournalTable.GetBatchNumberDBName() + " = " + ACurrentBatch.BatchNumber.ToString();
+
+            foreach (DataRowView journalview in AMainDS.ARecurringJournal.DefaultView)
+            {
+                GLBatchTDSARecurringJournalRow journalrow = (GLBatchTDSARecurringJournalRow)journalview.Row;
+
+                AMainDS.ARecurringTransaction.DefaultView.RowFilter =
+                    ARecurringTransactionTable.GetBatchNumberDBName() + " = " + journalrow.BatchNumber.ToString() + " and " +
+                    ARecurringTransactionTable.GetJournalNumberDBName() + " = " + journalrow.JournalNumber.ToString();
+
+                UpdateTotalsOfRecurringJournal(ref AMainDS, journalrow);
+
+                ACurrentBatch.BatchDebitTotal += journalrow.JournalDebitTotal;
+                ACurrentBatch.BatchCreditTotal += journalrow.JournalCreditTotal;
+            }
+
+            AMainDS.ARecurringTransaction.DefaultView.RowFilter = origTransactionFilter;
+            AMainDS.ARecurringJournal.DefaultView.RowFilter = origJournalFilter;
+        }
+
+        private static int DECIMALS = 10;
+
+        /// <summary>
+        /// use this method to calculate the new amount, using an exchange rate.
+        /// This will round the result to the defined limit of decimal places
+        /// </summary>
+        public static decimal Multiply(decimal AAmount, decimal AExchangeRate)
+        {
+            decimal Result = AAmount * AExchangeRate;
+
+            return Math.Round(Result, DECIMALS);
+        }
+
+        /// <summary>
+        /// use this method to calculate the new amount, using an exchange rate.
+        /// This will round the result to the defined limit of decimal places
+        /// </summary>
+        public static decimal Divide(decimal AAmount, decimal AExchangeRate)
+        {
+            decimal Result = AAmount / AExchangeRate;
+
+            return Math.Round(Result, DECIMALS);
         }
     }
 }

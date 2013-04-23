@@ -648,6 +648,14 @@ namespace Ict.Petra.Server.MFinance.Gift.WebConnectors
                 //Can do this if needed: MainDS.DisableConstraints();
                 DBAccess.GDBAccessObj.SelectToTempTable(MainDS, sqlStmt, tempTableName, Transaction, parameters.ToArray(), 0, 0);
 
+                MainDS.Tables[tempTableName].Columns.Add("DonorDescription");
+
+                foreach (DataRow Row in MainDS.Tables[tempTableName].Rows)
+                {
+                    PPartnerTable Tbl = PPartnerAccess.LoadByPrimaryKey(Convert.ToInt64(Row["DonorKey"]), Transaction);
+                    Row["DonorDescription"] = Tbl[0].PartnerShortName;
+                }
+
                 MainDS.AcceptChanges();
             }
             finally
@@ -845,6 +853,7 @@ namespace Ict.Petra.Server.MFinance.Gift.WebConnectors
                     transaction.DebitCreditIndicator = false;
                     transaction.TransactionAmount = 0;
                     transaction.AmountInBaseCurrency = 0;
+                    transaction.SystemGenerated = true;
                     transaction.TransactionDate = giftBatch.GlEffectiveDate;
 
                     GLDataset.ATransaction.Rows.Add(transaction);
@@ -869,6 +878,7 @@ namespace Ict.Petra.Server.MFinance.Gift.WebConnectors
             transactionForTotals.TransactionNumber = ++journal.LastTransactionNumber;
             transactionForTotals.TransactionAmount = 0;
             transactionForTotals.TransactionDate = giftBatch.GlEffectiveDate;
+            transactionForTotals.SystemGenerated = true;
 
             foreach (GiftBatchTDSAGiftDetailRow giftdetail in AGiftDataset.AGiftDetail.Rows)
             {

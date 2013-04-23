@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank
 //
-// Copyright 2004-2011 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -129,7 +129,7 @@ namespace Ict.Common.DB
         {
             if (AConnection == null)
             {
-                throw new ArgumentNullException("AConnection", "AConnection must not be nil!");
+                throw new ArgumentNullException("AConnection", "AConnection must not be null!");
             }
 
             if (AConnection.State != ConnectionState.Closed)
@@ -137,8 +137,9 @@ namespace Ict.Common.DB
                 try
                 {
                     AConnection.Close();
+                    AConnection.Dispose();
 
-                    // TLogging.Log('Database connection closed.')
+                    // TLogging.Log("Database connection closed.");
                 }
                 catch (Exception exp)
                 {
