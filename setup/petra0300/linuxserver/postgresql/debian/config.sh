@@ -1,8 +1,6 @@
 export OpenPetraOrgPath=/usr/local/openpetraorg/${OrgNameWithoutSpace}
 export CustomerName="${OrgName}"
 export userName=openpetra${OrgNameWithoutSpace}
-export OPENPETRA_LocationPublicKeyFile=/var/www/patches/${OrgNameWithoutSpace}/publickey.xml
-export OPENPETRA_LocationPrivateKeyFile=${OpenPetraOrgPath}/etc30/privatekey.xml
 export OPENPETRA_RDBMSType=postgresql
 export OPENPETRA_DBHOST=localhost
 export OPENPETRA_DBPWD=${RandomDBPassword}

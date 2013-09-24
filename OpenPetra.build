@@ -100,7 +100,7 @@ useful parameters
 
 <target name="translation" description="create the dlls with the i18n messages" >
   <property name="target" value="compile" overwrite="false" />
-  <nant inheritall="false" target="${target}" 
+  <nant inheritall="true" target="${target}" 
         buildfile="i18n/i18n.build" />
 </target>
 
