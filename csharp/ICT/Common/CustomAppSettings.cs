@@ -224,7 +224,7 @@ namespace Ict.Common
 
             ReturnValue = false;
 
-            if (FCmdOpts.IsFlagSet(Key))
+            if (FCmdOpts != null && FCmdOpts.IsFlagSet(Key))
             {
                 ReturnValue = true;
             }
