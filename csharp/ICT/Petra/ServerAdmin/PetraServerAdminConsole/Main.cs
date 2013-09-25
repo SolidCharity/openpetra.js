@@ -351,9 +351,12 @@ public class TAdminConsole
 
                         Console.WriteLine("     e: export the database to yml.gz");
                         Console.WriteLine("     i: import a yml.gz, which will overwrite the database");
-#if DEBUG
-                        Console.WriteLine("     r: Mark all Cached Tables for Refreshing");
-#endif
+
+                        if (TLogging.DebugLevel > 0)
+                        {
+                            Console.WriteLine("     r: Mark all Cached Tables for Refreshing");
+                        }
+
                         Console.WriteLine("     o: controlled Server shutdown (gets all connected clients to disconnect)");
                         Console.WriteLine("     u: unconditional Server shutdown (forces 'hard' disconnection of all Clients!)");
 
@@ -420,7 +423,7 @@ public class TAdminConsole
                     case 'R':
                         Console.WriteLine(Environment.NewLine + "-> Marking all Cached Tables for Refreshing... <-");
 
-                        RefreshAllCachedTables(TRemote);
+                        RefreshAllCachedTables();
 
                         Console.Write(ServerAdminPrompt);
 
@@ -759,7 +762,7 @@ public class TAdminConsole
                 }
                 else if (TAppSettingsManager.GetValue("Command") == "RefreshAllCachedTables")
                 {
-                    RefreshAllCachedTables(TRemote);
+                    RefreshAllCachedTables();
                 }
                 else if (TAppSettingsManager.GetValue("Command") == "AddUser")
                 {

@@ -188,6 +188,16 @@ namespace Ict.Petra.Server.App.Core.ServerAdmin.WebConnectors
         }
 
         /// <summary>
+        /// Marks all DataTables in the Cache to be no longer up-to-date (=out of sync
+        /// with the data that was originally placed in the DataTable).
+        /// </summary>
+        [CheckServerAdminToken]
+        public static void RefreshAllCachedTables()
+        {
+            TServerManagerBase.TheServerManager.RefreshAllCachedTables();
+        }
+
+        /// <summary>
         /// add a new user
         /// </summary>
         /// <returns></returns>

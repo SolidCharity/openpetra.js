@@ -647,6 +647,7 @@ namespace Ict.Common.Verification
         #region Resourcestrings
 
         private static readonly string StrErrorFooter = Catalog.GetString("{0}\r\n    Problem: {2}\r\n    (Severity: {1}, Code={3})");
+        private static readonly string StrErrorNoCodeFooter = Catalog.GetString("{0}\r\n    Problem: {2}\r\n    (Severity: {1})");
         private static readonly string StrStatusFooter = Catalog.GetString("{0}\r\n    Status: {2}\r\n");
 
         #endregion
@@ -690,6 +691,7 @@ namespace Ict.Common.Verification
         {
         }
 
+        /// <summary>
         /// constructor
         /// </summary>
         public TVerificationResultCollection(System.Guid ACurrentDataValidationRunID)
@@ -993,10 +995,6 @@ namespace Ict.Common.Verification
                 }
             }
         }
-
-        private static readonly string StrErrorFooter = Catalog.GetString("{0}\r\n    Problem: {2}\r\n    (Severity: {1}, Code={3})");
-        private static readonly string StrErrorNoCodeFooter = Catalog.GetString("{0}\r\n    Problem: {2}\r\n    (Severity: {1})");
-        private static readonly string StrStatusFooter = Catalog.GetString("{0}\r\n    Status: {2}\r\n");
 
         /// <summary>
         /// Returns a formatted String that contains information about all
