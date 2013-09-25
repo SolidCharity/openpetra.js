@@ -130,6 +130,18 @@ namespace Ict.Tools.NAntTasks
             }
         }
 
+        private bool FCompilingForStandalone = false;
+        /// <summary>
+        /// if we are compiling for standalone, we are allowed to reference the server namespaces from the client
+        /// </summary>
+        [TaskAttribute("CompilingForStandalone", Required = false)]
+        public bool CompilingForStandalone {
+            set
+            {
+                FCompilingForStandalone = value;
+            }
+        }
+
         /// <summary>
         /// create namespace map
         /// </summary>
@@ -311,7 +323,7 @@ namespace Ict.Tools.NAntTasks
                                     filename);
                             }
 
-                            if (Namespace.StartsWith("Ict.Petra.Server")
+                            if (!FCompilingForStandalone && Namespace.StartsWith("Ict.Petra.Server")
                                 && Path.GetDirectoryName(filename).Replace("\\", "/").Contains("ICT/Petra/Client"))
                             {
                                 Console.WriteLine(
@@ -320,7 +332,7 @@ namespace Ict.Tools.NAntTasks
                                     filename);
                             }
 
-                            if (Namespace.StartsWith("Ict.Petra.Server")
+                            if (!FCompilingForStandalone && Namespace.StartsWith("Ict.Petra.Server")
                                 && Path.GetDirectoryName(filename).Replace("\\", "/").Contains("ICT/Petra/Shared"))
                             {
                                 Console.WriteLine(

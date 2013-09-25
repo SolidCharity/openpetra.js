@@ -223,6 +223,7 @@ useful parameters
     CodeRootDir="${dir.csharp}"
     NamespaceMapFilename="${namespaceFile}"
     NamespaceMap3rdParty="${namespaceFile3rdParty}"
+    CompilingForStandalone="${compileForStandalone}"
     DependencyMapFilename="${projectDependenciesFile}"/>
 </target>
 
