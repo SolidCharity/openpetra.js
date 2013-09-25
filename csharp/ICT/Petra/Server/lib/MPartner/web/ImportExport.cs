@@ -1583,7 +1583,7 @@ namespace Ict.Petra.Server.MPartner.ImportExport.WebConnectors
 
             if (APartnerKey != 0)
             {
-                PartnerAccessOk = TPartnerServerLookups.VerifyPartner(APartnerKey,
+                PartnerAccessOk = TPartnerServerLookups.VerifyPartnerAndGetDetails(APartnerKey,
                     out ShortName, out PartnerClass,
                     out IsMergedPartner, out UserCanAccessPartner);
             }
@@ -1604,7 +1604,7 @@ namespace Ict.Petra.Server.MPartner.ImportExport.WebConnectors
                 {
                     PPersonRow PersonRow = AMainDS.PPerson[0];
                     long FamilyKey = PersonRow.FamilyKey;
-                    PartnerAccessOk = TPartnerServerLookups.VerifyPartner(FamilyKey,
+                    PartnerAccessOk = TPartnerServerLookups.VerifyPartnerAndGetDetails(FamilyKey,
                         out ShortName, out PartnerClass,
                         out IsMergedPartner, out UserCanAccessPartner);
 

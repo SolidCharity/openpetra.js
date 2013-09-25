@@ -4,7 +4,7 @@
 // @Authors:
 //       timop, christophert
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -52,7 +52,7 @@ namespace Tests.MFinance.GLBatches
             // nant ResetDatabase
             // nant startPetraServer
             // this may take some time ....
-            new TLogging("TestClient.log");
+            new TLogging("../../log/TestClient.log");
             TPetraConnector.Connect("../../etc/TestClient.config");
             FLedgerNumber = Convert.ToInt32(TAppSettingsManager.GetValue("LedgerNumber"));
         }
@@ -238,7 +238,7 @@ namespace Tests.MFinance.GLBatches
             // export the 2 test batches, with summarize option
             // compare the exported text file
 
-            string TestFile = TAppSettingsManager.GetValue("Testing.Path") + "/MFinance/GLForm/TestData/BatchImportFloatTest.csv";
+            string TestFile = TAppSettingsManager.GetValue("Testing.Path") + "/lib/MFinance/GLForm/TestData/BatchImportFloatTest.csv";
 
             TestFile = Path.GetFullPath(TestFile);
             Assert.IsTrue(File.Exists(TestFile), "File does not exist: " + TestFile);

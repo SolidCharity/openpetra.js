@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -50,7 +50,7 @@ namespace Ict.Testing.Petra.Plugins.Bankimport
         [TestFixtureSetUp]
         public void Init()
         {
-            new TLogging("TestClient.log");
+            new TLogging("../../log/TestClient.log");
             new TAppSettingsManager("../../etc/TestClient.config");
         }
 

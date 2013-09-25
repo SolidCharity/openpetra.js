@@ -4,7 +4,7 @@
 // @Authors:
 //       wolfgangu, timop
 //
-// Copyright 2004-2011 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -348,8 +348,8 @@ namespace Tests.MFinance.GLBatches
         [TestFixtureSetUp]
         public void Init()
         {
-            new TLogging("PetraClient.log");
-            TPetraConnector.Connect("../../../../../etc/TestClient.config");
+            new TLogging("../../log/TestClient.log");
+            TPetraConnector.Connect("../../etc/TestClient.config");
             fLedgerNumber = Convert.ToInt32(TAppSettingsManager.GetValue("LedgerNumber"));
         }
 

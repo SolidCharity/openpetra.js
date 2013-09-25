@@ -59,7 +59,7 @@ namespace Ict.Petra.Server.MCommon.UIConnectors
     ///          However, Server Objects that derive from these objects and that
     ///          are also UIConnectors are feasible.
     /// </summary>
-    public class TFieldOfServiceUIConnector : TConfigurableMBRObject, IPartnerUIConnectorsFieldOfService
+    public class TFieldOfServiceUIConnector : IPartnerUIConnectorsFieldOfService
     {
         /// <summary>Name of the Main DataSet for the Screen</summary>
         private const String DATASETNAME = "FieldOfServiceScreen";

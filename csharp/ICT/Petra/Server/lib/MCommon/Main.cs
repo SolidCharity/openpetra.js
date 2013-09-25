@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -369,6 +369,21 @@ namespace Ict.Petra.Server.MCommon
         /// <returns>void</returns>
         public void ExecuteQuery()
         {
+            bool ownDatabaseConnection = false;
+
+            if (!DBAccess.GDBAccessObj.ConnectionOK)
+            {
+                // we need a separate database object for this thread, since we cannot access the session object
+                DBAccess.GDBAccessObj.EstablishDBConnection(TSrvSetting.RDMBSType,
+                    TSrvSetting.PostgreSQLServer,
+                    TSrvSetting.PostgreSQLServerPort,
+                    TSrvSetting.PostgreSQLDatabaseName,
+                    TSrvSetting.DBUsername,
+                    TSrvSetting.DBPassword,
+                    "");
+                ownDatabaseConnection = true;
+            }
+
             try
             {
                 FAsyncExecProgress.ProgressInformation = "Executing Query...";
@@ -393,6 +408,11 @@ namespace Ict.Petra.Server.MCommon
                  * --> WOULD BRING DOWN THE WHOLE PETRASERVER PROCESS AS A CONSEQUENCE! <--
                  *
                  */
+            }
+
+            if (ownDatabaseConnection)
+            {
+                DBAccess.GDBAccessObj.CloseDBConnection();
             }
         }
 
@@ -620,6 +640,14 @@ namespace Ict.Petra.Server.MCommon
         /// <returns>void</returns>
         public void StopQuery()
         {
+            // TODO this cannot work, since FDataAdapter is always null
+            // and even if FDataAdapter was implemented, we would have a different thread, and I am not sure how to access the Database object from the other thread?
+
+            if (FDataAdapter == null)
+            {
+                return;
+            }
+
             try
             {
                 // Cancel the executing query.
@@ -736,7 +764,7 @@ namespace Ict.Petra.Server.MCommon
     /// as well as on the Server side.
     ///
     /// </summary>
-    public class TAsynchronousExecutionProgress : TConfigurableMBRObject, IAsynchronousExecutionProgress
+    public class TAsynchronousExecutionProgress : IAsynchronousExecutionProgress
     {
         /// <summary>Property value.</summary>
         private String FProgressInformation;

@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -23,7 +23,6 @@
 //
 using System;
 using System.Data;
-using System.Runtime.Serialization;
 using System.Threading;
 using Ict.Petra.Shared.MCommon.Data;
 using Ict.Common.Data;
@@ -82,7 +81,7 @@ namespace Ict.Petra.Shared
     /// settings is probably not quite finished yet (due to time constraints).
     ///
     /// </summary>
-    public class TCacheableTablesManager : MarshalByRefObject, ICacheableTablesManager
+    public class TCacheableTablesManager : ICacheableTablesManager
     {
         /// a static instance for this class
         public static TCacheableTablesManager GCacheableTablesManager;
@@ -223,16 +222,6 @@ namespace Ict.Petra.Shared
                 AppDomain.CurrentDomain.FriendlyName + "'.");
             FDelegateSendClientTask = ADelegateSendClientTask;
             FReadWriteLock = new System.Threading.ReaderWriterLock();
-        }
-
-        /// <summary>
-        /// Ensures that TCacheableTablesManager exists until this AppDomain is unloaded.
-        ///
-        /// </summary>
-        /// <returns>void</returns>
-        public override object InitializeLifetimeService()
-        {
-            return null; // make sure that TCacheableTablesManager exists until this AppDomain is unloaded!
         }
 
         #region Public Methods
@@ -883,16 +872,15 @@ namespace Ict.Petra.Shared
                 WriteLockTakenOut = true;
                 TLogging.LogAtLevel(10, "TCacheableTablesManager.AddCachedTableInternal grabbed a WriterLock.");
 
+                if (ACacheableTable.DataSet != null)
+                {
+                    // TODORemoting: should we solve this problem in a better way?
+                    // TLogging.Log("TCacheableTablesManager: warning: table " + ACacheableTable.TableName + " already belongs to " + ACacheableTable.DataSet.DataSetName);
+                    ACacheableTable = ACacheableTable.Copy();
+                }
+
                 // add the passed in DataTable to the Cache DataSet
-                try
-                {
-                    UDataCacheDataSet.Tables.Add((DataTable)ACacheableTable);
-                }
-                catch (System.InvalidCastException)
-                {
-                    // problem with Mono: https://bugzilla.novell.com/show_bug.cgi?id=521951 Cannot cast from source type to destination type
-                    // it happens after the table has been added, so should not cause any problems
-                }
+                UDataCacheDataSet.Tables.Add(ACacheableTable);
 
                 UDataCacheDataSet.Tables[ACacheableTable.TableName].TableName = ACacheableTableName;
 
@@ -1357,7 +1345,7 @@ namespace Ict.Petra.Shared
     /// It contains only a helper function that is used by every Cache Manager.
     ///
     /// </summary>
-    public class TCacheableTablesLoader : object
+    public class TCacheableTablesLoader
     {
         /// <summary>Holds reference to an instance of TCacheableTablesManager</summary>
         protected TCacheableTablesManager FCacheableTablesManager;
@@ -1483,7 +1471,6 @@ namespace Ict.Petra.Shared
     /// <summary>
     /// This Exception is thrown on several occasions by TCacheableTablesManager.
     /// </summary>
-    [Serializable()]
     public class ECacheableTablesMgrException : ApplicationException
     {
         #region ECacheableTablesMgrException
@@ -1501,23 +1488,6 @@ namespace Ict.Petra.Shared
         {
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public ECacheableTablesMgrException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-        }
-
         #endregion
     }
 
@@ -1526,7 +1496,6 @@ namespace Ict.Petra.Shared
     /// isn't in an up-to-date state. This means it needs to be retrieved anew before
     /// it can be used.
     /// </summary>
-    [Serializable()]
     public class ECacheableTablesMgrTableNotUpToDateException : ECacheableTablesMgrException
     {
         #region ECacheableTablesMgrTableNotUpToDateException
@@ -1542,23 +1511,6 @@ namespace Ict.Petra.Shared
         /// <param name="msg"></param>
         public ECacheableTablesMgrTableNotUpToDateException(String msg) : base(msg)
         {
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public ECacheableTablesMgrTableNotUpToDateException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
         }
 
         #endregion

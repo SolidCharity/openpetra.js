@@ -74,7 +74,7 @@ namespace Ict.Common.DB.Testing
         [SetUp]
         public void Init()
         {
-            new TLogging("test.log");
+            new TLogging("../../log/test.log");
             new TAppSettingsManager("../../etc/TestServer.config");
 
             EstablishDBConnection();

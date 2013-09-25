@@ -34,7 +34,7 @@ using Ict.Testing.NUnitTools;
 using Ict.Petra.Shared;
 using Ict.Petra.Shared.Security;
 using Ict.Petra.Server.App.Core;
-using Ict.Petra.Server.CallForwarding;
+using Ict.Petra.Server.App.Delegates;
 
 namespace Ict.Testing.NUnitPetraServer
 {
@@ -47,8 +47,6 @@ namespace Ict.Testing.NUnitPetraServer
     /// AutoLoginPasswd
     public class TPetraServerConnector
     {
-        private static TClientDomainManager FDomain = null;
-
         /// <summary>
         /// Initialize the Petra server and connect to the database.
         /// this overload looks for the config file itself
@@ -91,33 +89,30 @@ namespace Ict.Testing.NUnitPetraServer
                 TSrvSetting.DBUsername, TSrvSetting.DBPassword, "");
 
             bool SystemEnabled;
-            int ProcessID;
-            TPetraPrincipal UserInfo = (TPetraPrincipal)TClientManager.PerformLoginChecks(TAppSettingsManager.GetValue("AutoLogin").ToUpper(),
+            string WelcomeMessage;
+            IPrincipal ThisUserInfo;
+            Int32 ClientID;
+
+            TConnectedClient CurrentClient = TClientManager.ConnectClient(
+                TAppSettingsManager.GetValue("AutoLogin").ToUpper(),
                 TAppSettingsManager.GetValue("AutoLoginPasswd"),
-                "NUNITTEST", "127.0.0.1", out ProcessID, out SystemEnabled);
-
-            if (FDomain != null)
-            {
-                FDomain.StopClientAppDomain();
-            }
-
-            TClientManager ClientManager = new TClientManager();
-            DomainManager.UClientManagerCallForwarderRef = new TClientManagerCallForwarder(ClientManager);
-
-            // do the same as in Ict.Petra.Server.App.Main.TRemoteLoader.LoadDomainManagerAssembly
-            FDomain = new TClientDomainManager("0",
+                "NUNITTEST", "127.0.0.1",
+                new Version(),
                 TClientServerConnectionType.csctLocal,
-                DomainManager.UClientManagerCallForwarderRef,
-                new TSystemDefaultsCache(),
-                new TCacheableTablesManager(null),
-                UserInfo);
-            FDomain.InitAppDomain(TSrvSetting.ServerSettings);
+                out ClientID,
+                out WelcomeMessage,
+                out SystemEnabled,
+                out ThisUserInfo);
 
-            new TCallForwarding();
+            // the following values are stored in the session object
+            DomainManager.GClientID = ClientID;
+            DomainManager.CurrentClient = CurrentClient;
+            UserInfo.GUserInfo = (TPetraPrincipal)ThisUserInfo;
 
-            // we don't need to establish the database connection anymore
-            // FDomain.EstablishDBConnection();
-
+            TSetupDelegates.Init();
+            TSystemDefaultsCache.GSystemDefaultsCache = new TSystemDefaultsCache();
+            DomainManager.GSiteKey = TSystemDefaultsCache.GSystemDefaultsCache.GetInt64Default(
+                Ict.Petra.Shared.SharedConstants.SYSDEFAULT_SITEKEY);
             return ServerManager;
         }
 
@@ -126,9 +121,7 @@ namespace Ict.Testing.NUnitPetraServer
         /// </summary>
         public static void Disconnect()
         {
-            FDomain.CloseDBConnection();
-            FDomain.StopClientAppDomain();
-            FDomain = null;
+            DomainManager.CurrentClient.EndSession();
         }
     }
 }

@@ -252,6 +252,7 @@ namespace Ict.Petra.Server.MPartner.PartnerFind
             try
             {
                 FFindThread = new Thread(new ThreadStart(FPagedDataSetObject.ExecuteQuery));
+                FFindThread.Name = "PartnerFindPerformSearch" + Guid.NewGuid().ToString();
                 FFindThread.Start();
             }
             catch (Exception)
@@ -661,6 +662,7 @@ namespace Ict.Petra.Server.MPartner.PartnerFind
 
             ThreadStart ThreadStartDelegate = new ThreadStart(FPagedDataSetObject.StopQuery);
             StopQueryThread = new Thread(ThreadStartDelegate);
+            StopQueryThread.Name = "PartnerFindStopQuery" + Guid.NewGuid().ToString();
             StopQueryThread.Start();
 
             /* It might take some time until the executing query is cancelled by the DB,

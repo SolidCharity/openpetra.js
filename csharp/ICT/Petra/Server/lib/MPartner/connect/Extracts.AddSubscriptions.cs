@@ -65,7 +65,7 @@ namespace Ict.Petra.Server.MPartner.Extracts.UIConnectors
     ///          are also UIConnectors are feasible.
     ///
     /// </summary>
-    public class TExtractsAddSubscriptionsUIConnector : TConfigurableMBRObject, IPartnerUIConnectorsExtractsAddSubscriptions
+    public class TExtractsAddSubscriptionsUIConnector : IPartnerUIConnectorsExtractsAddSubscriptions
     {
         private const Int32 MAX_PERCENTAGE_CHECKS = 70;
         private System.Int32 FExtractID;
@@ -102,10 +102,7 @@ namespace Ict.Petra.Server.MPartner.Extracts.UIConnectors
                     throw FSubmitException;
                 }
 
-                return (IAsynchronousExecutionProgress)TCreateRemotableObject.CreateRemotableObject(
-                    typeof(IAsynchronousExecutionProgress),
-                    typeof(TAsynchronousExecutionProgressRemote),
-                    FAsyncExecProgress);
+                return null; // TODORemoting
             }
         }
 
@@ -139,6 +136,7 @@ namespace Ict.Petra.Server.MPartner.Extracts.UIConnectors
             FInspectDT = AInspectDT;
             ThreadStart ThreadStartDelegate = new ThreadStart(SubmitChangesInternal);
             TheThread = new Thread(ThreadStartDelegate);
+            TheThread.Name = "ExtractsAddSubscriptionsSubmitChanges" + Guid.NewGuid().ToString();
             TheThread.Start();
             TLogging.LogAtLevel(6, "TExtractsAddSubscriptionsUIConnector.SubmitChangesAsync thread started.");
         }

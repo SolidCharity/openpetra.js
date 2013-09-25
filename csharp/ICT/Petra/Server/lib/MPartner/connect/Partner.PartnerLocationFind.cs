@@ -48,7 +48,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
     /// Partner Location Search Screen UIConnector
     ///
     /// </summary>
-    public class TPartnerLocationFindUIConnector : TConfigurableMBRObject, IPartnerUIConnectorsPartnerLocationFind
+    public class TPartnerLocationFindUIConnector : IPartnerUIConnectorsPartnerLocationFind
     {
         private TAsynchronousExecutionProgress FAsyncExecProgress;
         private Thread FFindThread;
@@ -59,10 +59,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
         {
             get
             {
-                return (IAsynchronousExecutionProgress)TCreateRemotableObject.CreateRemotableObject(
-                    typeof(IAsynchronousExecutionProgress),
-                    typeof(TAsynchronousExecutionProgressRemote),
-                    FAsyncExecProgress);
+                return null; // TODORemoting
             }
         }
 
@@ -175,6 +172,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
             {
                 ThreadStart ThreadStartDelegate = new ThreadStart(FPagedDataSetObject.ExecuteQuery);
                 FFindThread = new Thread(ThreadStartDelegate);
+                FFindThread.Name = "PartnerLocationFind" + Guid.NewGuid().ToString();
                 FFindThread.Start();
             }
             catch (Exception)

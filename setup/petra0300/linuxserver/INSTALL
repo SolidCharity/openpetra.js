@@ -1,7 +1,6 @@
 required packages:
  sudo (for the initialisation of the database)
- mono-2.0-runtime (>= Mono 2.6.7), also winforms (Ict.Common.* dlls depend on it)
- on Debian eg.: apt-get -t lenny-backports install mono-runtime libmono-data2.0-cil libmono-system-web2.0-cil libmono-system-runtime2.0-cil libmono-winforms2.0-cil
+ mono-openpetra package, available for Debian, Ubuntu and CentOS from http://sourceforge.net/projects/openpetraorg/files/openpetraorg/mono-openpetra/
  one of the following RDBMS:
    postgresql (recommended, default)
    mysql
@@ -9,9 +8,9 @@ required packages:
 The default configuration for the server is to use postgresql. But mysql should now work as well. Sqlite is not recommended for the use on Linux with this tar.gz file.
 
 firewall: 
-in order for clients to connect from outside, you need to open ports 9000 and above (or what you have defined in your config file).
+in order for clients to connect from outside, you need to open port 80 (or 443)
 eg if you are using iptables, add such a line:
-/sbin/iptables -A int-in -j ACCEPT -p tcp --dport 9000:9100
+/sbin/iptables -A int-in -j ACCEPT -p tcp --dport 80
 
 For initialising the installation:
 rename the sample configuration file and change it if you want:
@@ -40,3 +39,6 @@ To backup the database, type:
 
 To restore the database from a backup, type:
   /etc/init.d/MyOpenPetra restore
+
+To see the technical interface of the server:
+  go to http://<yourserver>/openpetra9000/serverSessionManager.asmx

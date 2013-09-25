@@ -49,7 +49,7 @@ namespace Ict.Common.IO.Testing
         [SetUp]
         public void Init()
         {
-            new TLogging("test.log");
+            new TLogging("../../log/test.log");
             new TAppSettingsManager("../../etc/TestClient.config");
             TLogging.DebugLevel = TAppSettingsManager.GetInt16("Client.DebugLevel", 0);
 

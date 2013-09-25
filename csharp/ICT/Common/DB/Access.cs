@@ -491,12 +491,12 @@ namespace Ict.Common.DB
 
                 FSqlConnection = CurrentConnectionInstance.GetConnection(
                     FDataBaseRDBMS,
-                    ADsnOrServer,
-                    ADBPort,
-                    ADatabaseName,
-                    AUsername,
-                    ref APassword,
-                    AConnectionString,
+                    FDsnOrServer,
+                    FDBPort,
+                    FDatabaseName,
+                    FUsername,
+                    ref FPassword,
+                    FConnectionString,
                     new StateChangeEventHandler(this.OnStateChangedHandler));
 
                 if (FSqlConnection == null)
@@ -513,7 +513,7 @@ namespace Ict.Common.DB
             {
                 // always log to console and log file, which database we are connecting to.
                 // see https://sourceforge.net/apps/mantisbt/openpetraorg/view.php?id=156
-                TLogging.Log("    Connecting to database " + ADataBaseType + ": " + CurrentConnectionInstance.GetConnectionString());
+                TLogging.Log("    Connecting to database " + FDbType + ": " + CurrentConnectionInstance.GetConnectionString());
 
                 FSqlConnection.Open();
                 FDataBaseRDBMS.InitConnection(FSqlConnection);
@@ -586,9 +586,6 @@ namespace Ict.Common.DB
         /// <summary>
         /// Closes the DB connection.
         /// </summary>
-        /// <returns>void</returns>
-        /// <exception cref="EDBConnectionNotEstablishedException">Thrown if an attempt is made to close an
-        /// already/still closed connection.</exception>
         public void CloseDBConnection()
         {
             if ((FSqlConnection != null) && (FSqlConnection.State != ConnectionState.Closed))
@@ -1385,7 +1382,7 @@ namespace Ict.Common.DB
                 if ((FSqlConnection == null) || (FSqlConnection.State == ConnectionState.Broken) || (FSqlConnection.State == ConnectionState.Closed))
                 {
                     // reconnect to the database
-                    TLogging.Log(exp.Message);
+                    TLogging.Log("trying to reconnect, because of Exception: " + exp.Message);
 
                     if (FSqlConnection == null)
                     {

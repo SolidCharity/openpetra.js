@@ -84,7 +84,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
     ///          are also UIConnectors are feasible.
     ///
     /// </summary>
-    public partial class TPartnerEditUIConnector : TConfigurableMBRObject, IPartnerUIConnectorsPartnerEdit
+    public partial class TPartnerEditUIConnector : IPartnerUIConnectorsPartnerEdit
     {
         private const String DATASETNAME = "PartnerEditScreen";
 
@@ -1975,7 +1975,9 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
 
                 TVerificationResultCollection SingleVerificationResultCollection;
                 AVerificationResult = new TVerificationResultCollection();
-                TDBTransaction SubmitChangesTransaction = DBAccess.GDBAccessObj.BeginTransaction(IsolationLevel.Serializable);
+                bool NewTransaction;
+                TDBTransaction SubmitChangesTransaction = DBAccess.GDBAccessObj.GetNewOrExistingTransaction(IsolationLevel.Serializable,
+                    out NewTransaction);
 
                 PrepareBankingDetailsForSaving(ref AInspectDS, ref AVerificationResult, SubmitChangesTransaction);
 
@@ -2107,7 +2109,11 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
                         // Must call AcceptChanges so that DataSet.Merge on Client side works
                         // properly if Primary Keys have been changed!
                         AInspectDS.AcceptChanges();
-                        DBAccess.GDBAccessObj.CommitTransaction();
+
+                        if (NewTransaction)
+                        {
+                            DBAccess.GDBAccessObj.CommitTransaction();
+                        }
 
                         /* $IFDEF DEBUGMODE if TLogging.DL >= 9 then Console.WriteLine('Location[0] LocationKey: ' + FSubmissionDS.PLocation[0].LocationKey.ToString + '; PartnerLocation[0] LocationKey: ' +
                          *FSubmissionDS.PPartnerLocation[0].LocationKey.ToString);$ENDIF */
@@ -2115,7 +2121,11 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
                     }
                     else
                     {
-                        DBAccess.GDBAccessObj.RollbackTransaction();
+                        if (NewTransaction)
+                        {
+                            DBAccess.GDBAccessObj.RollbackTransaction();
+                        }
+
                         TLogging.LogAtLevel(8, "TPartnerEditUIConnector.SubmitChanges: Transaction ROLLED BACK!");
                     }
                 }

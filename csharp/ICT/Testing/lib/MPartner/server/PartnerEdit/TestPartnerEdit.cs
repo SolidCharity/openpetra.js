@@ -62,20 +62,13 @@ namespace Tests.MPartner.Server.PartnerEdit
     public class TPartnerEditTest
     {
         /// <summary>
-        /// use automatic property to avoid compiler warning about unused variable FServerManager
-        /// </summary>
-        private TServerManager FServerManager {
-            get; set;
-        }
-
-        /// <summary>
         /// open database connection or prepare other things for this test
         /// </summary>
         [TestFixtureSetUp]
         public void Init()
         {
             new TLogging("../../log/TestServer.log");
-            FServerManager = TPetraServerConnector.Connect("../../etc/TestServer.config");
+            TPetraServerConnector.Connect("../../etc/TestServer.config");
         }
 
         /// <summary>
@@ -966,6 +959,7 @@ namespace Tests.MPartner.Server.PartnerEdit
             TSubmitChangesResult result;
             Int64 PartnerKey;
 
+            DBAccess.GDBAccessObj.BeginTransaction(IsolationLevel.Serializable);
             TPartnerEditUIConnector connector = new TPartnerEditUIConnector();
 
             PartnerEditTDS MainDS = new PartnerEditTDS();
@@ -1015,6 +1009,8 @@ namespace Tests.MPartner.Server.PartnerEdit
 
             // check that Bank record is really deleted
             Assert.IsTrue(!TPartnerServerLookups.VerifyPartner(PartnerKey));
+
+            DBAccess.GDBAccessObj.CommitTransaction();
         }
 
         /// <summary>

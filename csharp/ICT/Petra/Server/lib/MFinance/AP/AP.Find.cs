@@ -70,7 +70,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
     ///          However, Server Objects that derive from these objects and that
     ///          are also UIConnectors are feasible.
     ///</summary>
-    public class TFindUIConnector : TConfigurableMBRObject, IAPUIConnectorsFind
+    public class TFindUIConnector : IAPUIConnectorsFind
     {
         /// <summary>Paged query object</summary>
         TPagedDataSet FPagedDataSetObject;
@@ -86,10 +86,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
         {
             get
             {
-                return (IAsynchronousExecutionProgress)TCreateRemotableObject.CreateRemotableObject(
-                    typeof(IAsynchronousExecutionProgress),
-                    typeof(TAsynchronousExecutionProgressRemote),
-                    FAsyncExecProgress);
+                return null; // TODORemoting
             }
         }
 
@@ -292,6 +289,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
             try
             {
                 FFindThread = new Thread(new ThreadStart(FPagedDataSetObject.ExecuteQuery));
+                FFindThread.Name = "APFind" + Guid.NewGuid().ToString();
                 FFindThread.Start();
             }
             catch (Exception)
@@ -326,6 +324,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
             ThreadStart ThreadStartDelegate = new ThreadStart(FPagedDataSetObject.StopQuery);
 
             StopQueryThread = new Thread(ThreadStartDelegate);
+            StopQueryThread.Name = "APFindStopQuery" + Guid.NewGuid().ToString();
             StopQueryThread.Start();
 
             /* It might take some time until the executing query is cancelled by the DB,

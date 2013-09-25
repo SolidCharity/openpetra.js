@@ -22,12 +22,13 @@ list of available commands:
   compileProject: compile a single project file
       nant compileProject -D:file=delivery/projects/sharpdevelop4/Ict.Testing.ControlTestBench.csproj 
   start: start both the local server and client
-  startPetraServer: run a local Petra Server
-  stopPetraServer: stop the local Petra Server
-  startPetraClient: run the Petra Client
+  startServer: run a local OpenPetra Server
+  stopServer: stop the local OpenPetra server
+  startClient: run the OpenPetra Client
+  startStandalone: run the OpenPetra standalone application, if generateSolution was run with -D:compileForStandalone=true
   deleteBakFiles: delete all backup files
   initConfigFiles: write and overwrite the config files for client, server and testing, and the version.txt
-  test: will run the NUnit tests
+  test: will run the NUnit tests (smaller tests: test-without-display, test-client)
   devzip: build a zip file for developers for easy start
 
 compat:
@@ -100,7 +101,7 @@ useful parameters
 
 <target name="translation" description="create the dlls with the i18n messages" >
   <property name="target" value="compile" overwrite="false" />
-  <nant inheritall="false" target="${target}" 
+  <nant inheritall="true" target="${target}" 
         buildfile="i18n/i18n.build" />
 </target>
 
@@ -387,5 +388,11 @@ useful parameters
 
     <!-- calling script must upload the zip file to sourceforge -->
 </target>
+
+<target name="test-client" depends="initConfigFiles">
+  <loadtasks assembly="${Ict.Tools.NAntTasks.DLL}" unless="${task::exists('GenerateNamespaceMap')}"/>
+  <nant inheritall="false" target="test-client" buildfile="${path::combine(dir.csharp, 'ICT/Testing/ICT.Testing.build')}" verbose="${verbose}"/>
+</target>
+
 </project>
 

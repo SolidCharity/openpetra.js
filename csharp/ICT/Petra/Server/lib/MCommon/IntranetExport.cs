@@ -4,7 +4,7 @@
 // @Authors:
 //       Tim Ingham
 //
-// Copyright 2012 by OM International
+// Copyright 2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -480,7 +480,7 @@ namespace Ict.Petra.Server.MCommon.WebConnectors
 
         private static Boolean ExportField()
         {
-            Int64 MySiteKey = DomainManagerBase.GSiteKey;
+            Int64 MySiteKey = DomainManager.GSiteKey;
 
             /*
              *  From 4GL:
@@ -713,7 +713,7 @@ namespace Ict.Petra.Server.MCommon.WebConnectors
 
             sw.WriteLine("key,value");
             sw.WriteLine("version," + ExportVersion);
-            sw.WriteLine("office," + ((Int64)DomainManagerBase.GSiteKey).ToString("D10"));
+            sw.WriteLine("office," + ((Int64)DomainManager.GSiteKey).ToString("D10"));
             sw.WriteLine("date," + DateTime.Now.ToString(ExportDateFormat));
             sw.WriteLine("time," + DateTime.Now.ToString("HH:mm:ss"));
             sw.WriteLine("options," + AOptionalMetadata);

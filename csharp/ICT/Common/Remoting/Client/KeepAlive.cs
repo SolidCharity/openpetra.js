@@ -69,6 +69,7 @@ namespace Ict.Common.Remoting.Client
 
             // Start KeepAliveThread
             TheThread = new Thread(new ThreadStart(KeepAliveThread));
+            TheThread.Name = "KeepAliveThread" + Guid.NewGuid().ToString();
             TheThread.Start();
         }
 
@@ -135,7 +136,7 @@ namespace Ict.Common.Remoting.Client
             {
                 Register((IKeepAlive)ARemotedObject);
             }
-            else
+            else if (!TClientSettings.RunAsStandalone)
             {
                 TLogging.Log("KeepAlive Register: " + ARemotedObject.GetType().ToString() + " does not implement IKeepAlive");
             }

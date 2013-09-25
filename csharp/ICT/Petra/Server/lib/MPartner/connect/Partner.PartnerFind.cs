@@ -65,7 +65,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
     ///          However, Server Objects that derive from these objects and that
     ///          are also UIConnectors are feasible.
     /// </summary>
-    public class TPartnerFindUIConnector : TConfigurableMBRObject, IPartnerUIConnectorsPartnerFind
+    public class TPartnerFindUIConnector : IPartnerUIConnectorsPartnerFind
     {
         private TPartnerFind FPartnerFind = new TPartnerFind();
 
@@ -81,10 +81,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
         {
             get
             {
-                return (IAsynchronousExecutionProgress)TCreateRemotableObject.CreateRemotableObject(
-                    typeof(IAsynchronousExecutionProgress),
-                    typeof(TAsynchronousExecutionProgressRemote),
-                    FPartnerFind.AsyncExecProgress);
+                return FPartnerFind.AsyncExecProgress;
             }
         }
 

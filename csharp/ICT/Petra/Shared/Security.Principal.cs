@@ -24,7 +24,6 @@
 using System;
 using System.Data;
 using System.Security.Principal;
-using System.Runtime.Serialization;
 using Ict.Common;
 using Ict.Petra.Shared.Security;
 using Ict.Petra.Shared;
@@ -379,25 +378,6 @@ namespace Ict.Petra.Shared.Security
         {
         }
 
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public ELoginMessageAlreadySetException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
-        /// <summary>
-        /// needed for remoting, serialization
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-        }
-
         #endregion
     }
 
@@ -421,25 +401,6 @@ namespace Ict.Petra.Shared.Security
         /// <param name="msg"></param>
         public EProcessIDAlreadySetException(String msg) : base(msg)
         {
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public EProcessIDAlreadySetException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
-        /// <summary>
-        /// needed for remoting, serialization
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
         }
 
         #endregion

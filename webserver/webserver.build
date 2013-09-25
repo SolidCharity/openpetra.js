@@ -213,19 +213,6 @@ list of available commands:
           tofile="${path::combine(dir.webserver, 'SimpleHost.exe')}" 
           overwrite="false"/>
 
-      <!-- create batch script -->
-<echo file="${dir.delivery}/startWebServer1.bat">@echo OFF
-AT > NUL
-IF %ERRORLEVEL% EQU 0 (
-    "${dir.delivery}/startWebServer2.bat"
-) ELSE (
-    runas /user:administrator "cmd /c call ${dir.delivery}/startWebServer2.bat"
-)
-exit
-</echo>
-<echo file="${dir.delivery}/startWebServer2.bat">@echo OFF
-cd &quot;${dir.delivery}\webserver&quot;
-call SimpleHost.exe</echo>
 <echo file="${dir.delivery}/SimpleHost.exe.config">&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;configuration>
     &lt;startup>
@@ -235,16 +222,16 @@ call SimpleHost.exe</echo>
 </echo>
 
       <exec program="cmd.exe" 
-              workingdir="${dir.delivery}"
+              workingdir="${dir.delivery}/webserver"
               spawn="true">
            <arg value="/c" />
            <arg value="start" />
            <arg value="cmd" /> <!-- This window stays open after the process finishes -->
            <arg value="/k" />
-           <arg value="${dir.delivery}/startWebServer1.bat" />
+           <arg value="${dir.delivery}/webserver/SimpleHost.exe" />
       </exec>
+      <echo message="in your browser, go to http://127.0.0.1:8888/"/>
     </if>
-    <echo message="in your browser, go to http://localhost:8081/"/>
   </if>
   <if test="${'unix'==platform::get-name()}" >
       <echo message="in your browser, go to http://localhost:8081/"/>
