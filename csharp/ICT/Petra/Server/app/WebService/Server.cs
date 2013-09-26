@@ -105,6 +105,8 @@ public class TOpenPetraOrg : WebService
                 TSystemDefaultsCache.GSystemDefaultsCache = new TSystemDefaultsCache();
                 DomainManager.GSiteKey = TSystemDefaultsCache.GSystemDefaultsCache.GetInt64Default(
                     Ict.Petra.Shared.SharedConstants.SYSDEFAULT_SITEKEY);
+
+                StringHelper.CurrencyFormatTable = DBAccess.GDBAccessObj.SelectDT("SELECT * FROM PUB_a_currency", "a_currency", null);
             }
             catch (Exception e)
             {

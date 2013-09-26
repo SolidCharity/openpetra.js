@@ -58,6 +58,8 @@ catch (Exception)
     throw;
 }
 
+StringHelper.CurrencyFormatTable = DBAccess.GDBAccessObj.SelectDT("SELECT * FROM PUB_a_currency", "a_currency", null);
+
 return new TStandaloneClientManager();
 
 {##CONNECTORCLIENTSERVER}

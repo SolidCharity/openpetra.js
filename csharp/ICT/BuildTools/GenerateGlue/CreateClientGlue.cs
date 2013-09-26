@@ -549,6 +549,7 @@ public class GenerateClientGlue
 
         if (FCompileForStandalone)
         {
+            Template.AddToCodelet("USINGNAMESPACES", "using Ict.Common.DB;" + Environment.NewLine);
             Template.AddToCodelet("USINGNAMESPACES", "using Ict.Common.Remoting.Server;" + Environment.NewLine);
             Template.AddToCodelet("USINGNAMESPACES", "using Ict.Petra.Server.App.Core;" + Environment.NewLine);
             Template.AddToCodelet("USINGNAMESPACES", "using Ict.Petra.Shared;" + Environment.NewLine);
