@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Reflection;
 using Ict.Common;
 using Ict.Common.IO;
 
@@ -150,6 +151,30 @@ namespace Ict.Common.Remoting.Shared
             else if (type == "System.String")
             {
                 return s;
+            }
+            else if (type.EndsWith("Enum"))
+            {
+                Type t = Type.GetType(type);
+
+                if (t == null)
+                {
+                    foreach (Assembly a in System.AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        t = a.GetType(type);
+
+                        if (t != null)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (t != null)
+                {
+                    return Enum.Parse(t, s);
+                }
+
+                throw new Exception("THttpBinarySerializer.DeserializeObject: unknown enum " + type);
             }
             else // if (type == "binary" || true)
             {

@@ -151,7 +151,7 @@ namespace Ict.Petra.Server.App.WebService
             return false;
         }
 
-        private bool LoginInternal(string username, string password, Version AClientVersion)
+        private eLoginEnum LoginInternal(string username, string password, Version AClientVersion)
         {
             Int32 ClientID;
             string WelcomeMessage;
@@ -181,7 +181,7 @@ namespace Ict.Petra.Server.App.WebService
 
                 TServerManager.TheCastedServerManager.AddDBConnection(DBAccess.GDBAccessObj);
 
-                return true;
+                return eLoginEnum.eLoginSucceeded;
             }
             catch (Exception e)
             {
@@ -191,26 +191,64 @@ namespace Ict.Petra.Server.App.WebService
                 Ict.Common.DB.DBAccess.GDBAccessObj.RollbackTransaction();
                 DBAccess.GDBAccessObj.CloseDBConnection();
                 Session.Clear();
-                return false;
+
+                if (e is EUserNotExistantException || e is EAccessDeniedException)
+                {
+                    return eLoginEnum.eLoginAuthenticationFailed;
+                }
+                else if (e is EUserRetiredException)
+                {
+                    return eLoginEnum.eLoginUserIsRetired;
+                }
+                else if (e is EUserRecordLockedException)
+                {
+                    return eLoginEnum.eLoginUserRecordLocked;
+                }
+                else if (e is ESystemDisabledException)
+                {
+                    return eLoginEnum.eLoginSystemDisabled;
+                }
+                else if (e is EClientVersionMismatchException)
+                {
+                    return eLoginEnum.eLoginVersionMismatch;
+                }
+                else if (e is ELoginFailedServerTooBusyException)
+                {
+                    return eLoginEnum.eLoginServerTooBusy;
+                }
+                else if (e is EDBConnectionNotEstablishedException)
+                {
+                    return eLoginEnum.eLoginServerTooBusy;
+                }
+
+                return eLoginEnum.eLoginFailedForUnspecifiedError;
             }
         }
 
         /// <summary>Login a user</summary>
         [WebMethod(EnableSession = true)]
-        public bool Login(string username, string password)
+        public eLoginEnum Login(string username, string password)
         {
-            bool loggedIn = LoginInternal(username, password, new Version());
-
-            return loggedIn;
+            return LoginInternal(username, password, new Version());
         }
 
         /// <summary>Login a user</summary>
         [WebMethod(EnableSession = true)]
-        public bool LoginClient(string username, string password, string AClientVersion)
+        public eLoginEnum LoginClient(string username, string password, string version)
         {
-            bool loggedIn = LoginInternal(username, password, Version.Parse(AClientVersion));
+            Version ClientVersion;
 
-            return loggedIn;
+            try
+            {
+                ClientVersion = Version.Parse(version);
+            }
+            catch (Exception)
+            {
+                TLogging.Log("LoginClient: invalid version, cannot be parsed: " + version);
+                return eLoginEnum.eLoginVersionMismatch;
+            }
+
+            return LoginInternal(username, password, ClientVersion);
         }
 
         /// <summary>

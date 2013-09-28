@@ -97,9 +97,9 @@ namespace Ict.Common.Remoting.Client
         }
 
         /// <summary>
-        /// todoComment
+        /// Connect to the server and authenticate the user
         /// </summary>
-        public bool ConnectToServer(String AUserName,
+        public eLoginEnum ConnectToServer(String AUserName,
             String APassword,
             out Int32 AProcessID,
             out String AWelcomeMessage,
@@ -109,20 +109,24 @@ namespace Ict.Common.Remoting.Client
         {
             AError = "";
             String ConnectionError;
+            AUserInfo = null;
+            ASystemEnabled = false;
+            AWelcomeMessage = string.Empty;
+            AProcessID = -1;
 
             try
             {
                 FClientManager = TConnectionHelper.Connect();
 
                 // register Client session at the PetraServer
-                bool ReturnValue = ConnectClient(AUserName, APassword,
+                eLoginEnum ReturnValue = ConnectClient(AUserName, APassword,
                     out AProcessID,
                     out AWelcomeMessage,
                     out ASystemEnabled,
                     out ConnectionError,
                     out AUserInfo);
 
-                if (!ReturnValue)
+                if (ReturnValue != eLoginEnum.eLoginSucceeded)
                 {
                     AError = ConnectionError;
                     return ReturnValue;
@@ -130,29 +134,7 @@ namespace Ict.Common.Remoting.Client
             }
             catch (System.Net.Sockets.SocketException)
             {
-                throw new EServerConnectionServerNotReachableException();
-            }
-            catch (EDBConnectionNotEstablishedException exp)
-            {
-                if (exp.Message.IndexOf("Access denied") != -1)
-                {
-                    // Prevent passing out stack trace in case the PetraServer cannot connect
-                    // a Client (to make this happen, somebody would have tampered with the
-                    // DB Password decryption routines...)
-                    throw new EServerConnectionGeneralException("PetraServer misconfiguration!");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            catch (EClientVersionMismatchException)
-            {
-                throw;
-            }
-            catch (ELoginFailedServerTooBusyException)
-            {
-                throw;
+                return eLoginEnum.eLoginServerNotReachable;
             }
             catch (Exception exp)
             {
@@ -178,7 +160,7 @@ namespace Ict.Common.Remoting.Client
                 FPollClientTasks = new TPollClientTasks(FClientID);
             }
 
-            return true;
+            return eLoginEnum.eLoginSucceeded;
         }
 
         /// <summary>
@@ -192,7 +174,7 @@ namespace Ict.Common.Remoting.Client
         /// <param name="AError"></param>
         /// <param name="AUserInfo"></param>
         /// <returns></returns>
-        virtual protected bool ConnectClient(String AUserName,
+        virtual protected eLoginEnum ConnectClient(String AUserName,
             String APassword,
             out Int32 AProcessID,
             out String AWelcomeMessage,
@@ -208,7 +190,7 @@ namespace Ict.Common.Remoting.Client
 
             try
             {
-                FClientManager.ConnectClient(AUserName, APassword,
+                eLoginEnum result = FClientManager.ConnectClient(AUserName, APassword,
                     TClientInfo.ClientComputerName,
                     TClientInfo.ClientIPAddress,
                     new Version(TClientInfo.ClientAssemblyVersion),
@@ -222,45 +204,19 @@ namespace Ict.Common.Remoting.Client
                     out ASystemEnabled,
                     out AUserInfo);
 
-                return true;
-            }
-            catch (EUserNotExistantException exp)
-            {
-                AError = exp.Message;
-                return false;
-            }
-            catch (EUserRetiredException exp)
-            {
-                AError = exp.Message;
-                return false;
-            }
-            catch (EAccessDeniedException exp)
-            {
-                AError = exp.Message;
-                return false;
-            }
-            catch (EUserRecordLockedException exp)
-            {
-                AError = exp.Message;
-                return false;
-            }
-            catch (ESystemDisabledException exp)
-            {
-                AError = exp.Message;
-                return false;
-            }
-            catch (EClientVersionMismatchException)
-            {
-                throw;
-            }
-            catch (ELoginFailedServerTooBusyException)
-            {
-                throw;
+                if (result != eLoginEnum.eLoginSucceeded)
+                {
+                    // TODORemoting: for example for version mismatch, get the details of the server version?
+                    AError = result.ToString();
+                }
+
+                return result;
             }
             catch (Exception exp)
             {
                 TLogging.Log(exp.ToString() + Environment.NewLine + exp.StackTrace, TLoggingType.ToLogfile);
-                throw;
+                AError = exp.Message;
+                return eLoginEnum.eLoginFailedForUnspecifiedError;
             }
         }
 
@@ -318,31 +274,6 @@ namespace Ict.Common.Remoting.Client
 
             return ReturnValue;
         }
-    }
-
-    /// <summary>
-    /// todoComment
-    /// </summary>
-    public class EServerConnectionServerNotReachableException : ApplicationException
-    {
-        #region EServerConnectionServerNotReachableException
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public EServerConnectionServerNotReachableException() : base()
-        {
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="msg"></param>
-        public EServerConnectionServerNotReachableException(String msg) : base(msg)
-        {
-        }
-
-        #endregion
     }
 
     /// <summary>

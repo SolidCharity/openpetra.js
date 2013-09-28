@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -375,6 +375,64 @@ namespace Ict.Common
 
             return ReturnValue;
         }
+    }
+
+    /// <summary>
+    /// return values when the user logs in
+    /// </summary>
+    public enum eLoginEnum
+    {
+        #region eLoginEnum
+        /// <summary>
+        /// everything is fine
+        /// </summary>
+        eLoginSucceeded,
+
+        /// <summary>
+        /// wrong username or password
+        /// </summary>
+        eLoginAuthenticationFailed,
+
+        /// <summary>
+        /// user is retired and therefore not allowed to login
+        /// </summary>
+        eLoginUserIsRetired,
+
+        /// <summary>
+        /// user record is locked for some reason
+        /// </summary>
+        eLoginUserRecordLocked,
+
+        /// <summary>
+        /// server cannot accept more users, too busy
+        /// </summary>
+        eLoginServerTooBusy,
+
+        /// <summary>
+        /// for hosted OpenPetra: too many users logged in at the same time. sign up for a better plan!
+        /// </summary>
+        eLoginExceedingConcurrentUsers,
+
+        /// <summary>
+        /// System is disabled for the moment
+        /// </summary>
+        eLoginSystemDisabled,
+
+        /// <summary>
+        /// version of dlls (or version.txt) of the client does not match the version of the program on the server
+        /// </summary>
+        eLoginVersionMismatch,
+
+        /// <summary>
+        /// cannot reach the server
+        /// </summary>
+        eLoginServerNotReachable,
+
+        /// <summary>
+        /// catch all for any other exception
+        /// </summary>
+        eLoginFailedForUnspecifiedError
+        #endregion
     }
 
     #region EDBConcurrencyException

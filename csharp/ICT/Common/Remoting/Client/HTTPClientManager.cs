@@ -38,7 +38,7 @@ namespace Ict.Common.Remoting.Client
     public interface IClientManager
     {
         /// connect the client to the server
-        void ConnectClient(String AUserName,
+        eLoginEnum ConnectClient(String AUserName,
             String APassword,
             String AClientComputerName,
             String AClientIPAddress,
@@ -68,7 +68,7 @@ namespace Ict.Common.Remoting.Client
     public class THTTPClientManager : IClientManager
     {
         /// connect the client to the server
-        public void ConnectClient(String AUserName,
+        public eLoginEnum ConnectClient(String AUserName,
             String APassword,
             String AClientComputerName,
             String AClientIPAddress,
@@ -91,21 +91,25 @@ namespace Ict.Common.Remoting.Client
             AProcessID = -1;
             AWelcomeMessage = string.Empty;
             ASystemEnabled = true;
+            AUserInfo = null;
 
             THttpConnector.InitConnection(TAppSettingsManager.GetValue("OpenPetra.HTTPServer"));
             SortedList <string, object>Parameters = new SortedList <string, object>();
             Parameters.Add("username", AUserName);
             Parameters.Add("password", APassword);
-            // TODORemoting Parameters.Add("version", Version.ToString());
+            Parameters.Add("version", AClientExeVersion.ToString());
 
-            if ((bool)THttpConnector.CallWebConnector("SessionManager", "Login", Parameters, "System.Boolean")[0] == false)
+            eLoginEnum Result = (eLoginEnum)THttpConnector.CallWebConnector("SessionManager", "LoginClient", Parameters, "Ict.Common.eLoginEnum")[0];
+
+            if (Result != eLoginEnum.eLoginSucceeded)
             {
                 // failed login
-                // TODORemoting
-                throw new EAccessDeniedException();
+                return Result;
             }
 
             AUserInfo = (IPrincipal)THttpConnector.CallWebConnector("SessionManager", "GetUserInfo", null, "binary")[0];
+
+            return eLoginEnum.eLoginSucceeded;
         }
 
         /// <summary>

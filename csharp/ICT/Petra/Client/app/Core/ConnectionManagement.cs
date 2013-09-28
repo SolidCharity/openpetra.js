@@ -46,16 +46,9 @@ namespace Ict.Petra.Client.App.Core
     public class TConnectionManagement : TConnectionManagementBase
     {
         /// <summary>
-        /// todoComment
+        /// Connect to the server and authenticate the user
         /// </summary>
-        /// <param name="AUserName"></param>
-        /// <param name="APassword"></param>
-        /// <param name="AProcessID"></param>
-        /// <param name="AWelcomeMessage"></param>
-        /// <param name="ASystemEnabled"></param>
-        /// <param name="AError"></param>
-        /// <returns></returns>
-        public bool ConnectToServer(String AUserName,
+        public eLoginEnum ConnectToServer(String AUserName,
             String APassword,
             out Int32 AProcessID,
             out String AWelcomeMessage,
@@ -64,9 +57,17 @@ namespace Ict.Petra.Client.App.Core
         {
             IPrincipal LocalUserInfo;
 
-            if (!ConnectToServer(AUserName, APassword, out AProcessID, out AWelcomeMessage, out ASystemEnabled, out AError, out LocalUserInfo))
+            eLoginEnum Result = ConnectToServer(AUserName,
+                APassword,
+                out AProcessID,
+                out AWelcomeMessage,
+                out ASystemEnabled,
+                out AError,
+                out LocalUserInfo);
+
+            if (Result != eLoginEnum.eLoginSucceeded)
             {
-                return false;
+                return Result;
             }
 
             Ict.Petra.Shared.UserInfo.GUserInfo = (TPetraPrincipal)LocalUserInfo;
@@ -76,7 +77,7 @@ namespace Ict.Petra.Client.App.Core
             //
             new TRemote();
 
-            return true;
+            return eLoginEnum.eLoginSucceeded;
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace Ict.Petra.Client.App.Core
         /// <param name="AError"></param>
         /// <param name="AUserInfo"></param>
         /// <returns></returns>
-        protected override bool ConnectClient(String AUserName,
+        protected override eLoginEnum ConnectClient(String AUserName,
             String APassword,
             out Int32 AProcessID,
             out String AWelcomeMessage,
@@ -100,20 +101,22 @@ namespace Ict.Petra.Client.App.Core
         {
             try
             {
-                if (!base.ConnectClient(AUserName,
-                        APassword,
-                        out AProcessID,
-                        out AWelcomeMessage,
-                        out ASystemEnabled,
-                        out AError,
-                        out AUserInfo))
+                eLoginEnum result = base.ConnectClient(AUserName,
+                    APassword,
+                    out AProcessID,
+                    out AWelcomeMessage,
+                    out ASystemEnabled,
+                    out AError,
+                    out AUserInfo);
+
+                if (result != eLoginEnum.eLoginSucceeded)
                 {
-                    return false;
+                    return result;
                 }
 
                 Ict.Petra.Shared.UserInfo.GUserInfo = (TPetraPrincipal)AUserInfo;
 
-                return true;
+                return result;
             }
             catch (ELoginFailedServerTooBusyException)
             {

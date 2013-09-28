@@ -221,7 +221,7 @@ namespace Ict.Testing.NUnitTools
         /// </summary>
         /// <param name="argument"></param>
         /// <param name="ignoreError"></param>
-        private static void nant(String argument, bool ignoreError)
+        public static void nant(String argument, bool ignoreError)
         {
             Process NantProcess = new Process();
 
