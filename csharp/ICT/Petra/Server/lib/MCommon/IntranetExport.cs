@@ -817,7 +817,7 @@ namespace Ict.Petra.Server.MCommon.WebConnectors
             {
                 FZipFileNames.Clear();
                 FExportTrace = "Exporting\r\n";
-                FExportFilePath = TAppSettingsManager.GetValue("OpenPetra.PathTemp") + @"\";
+                FExportFilePath = TAppSettingsManager.GetValue("Server.PathTemp") + @"\";
                 FTransaction = DBAccess.GDBAccessObj.BeginTransaction(IsolationLevel.ReadCommitted);
 
                 if (AExportDonationData)

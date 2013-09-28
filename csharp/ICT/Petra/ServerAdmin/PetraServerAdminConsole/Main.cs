@@ -643,7 +643,7 @@ public class TAdminConsole
     private static string NewSecurityToken()
     {
         SecurityToken = Guid.NewGuid().ToString();
-        string TokenFilename = TAppSettingsManager.GetValue("OpenPetra.PathTemp") +
+        string TokenFilename = TAppSettingsManager.GetValue("Server.PathTemp") +
                                Path.DirectorySeparatorChar + "ServerAdminToken" + SecurityToken + ".txt";
 
         StreamWriter sw = new StreamWriter(TokenFilename);
@@ -654,7 +654,7 @@ public class TAdminConsole
 
     private static void ClearSecurityToken()
     {
-        string TokenFilename = TAppSettingsManager.GetValue("OpenPetra.PathTemp") +
+        string TokenFilename = TAppSettingsManager.GetValue("Server.PathTemp") +
                                Path.DirectorySeparatorChar + "ServerAdminToken" + SecurityToken + ".txt";
 
         File.Delete(TokenFilename);
