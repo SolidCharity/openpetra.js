@@ -514,9 +514,6 @@ namespace Ict.Petra.Client.MReporting.Logic
 
         private void AsyncProgressCheckThread()
         {
-            TAsyncExecProgressState ProgressState;
-            Int16 ProgressPercentage;
-            String ProgressInformation;
             String OldLoggingText;
             DateTime startTime;
 
@@ -525,38 +522,34 @@ namespace Ict.Petra.Client.MReporting.Logic
 
             while (FKeepUpProgressCheck)
             {
-                FReportingGenerator.AsyncExecProgress.ProgressCombinedInfo(out ProgressState, out ProgressPercentage, out ProgressInformation);
+                TProgressState state = FReportingGenerator.Progress;
 
-                switch (ProgressState)
+                if (state.JobFinished)
                 {
-                    case TAsyncExecProgressState.Aeps_Finished:
-                        this.Duration = DateTime.Now - startTime;
+                    this.Duration = DateTime.Now - startTime;
 
-                        if (FReportingGenerator.GetSuccess() == true)
-                        {
-                            this.Parameters.LoadFromDataTable(FReportingGenerator.GetParameter());
-                            this.Results.LoadFromDataTable(FReportingGenerator.GetResult());
-                            this.Results.SetMaxDisplayColumns(this.Parameters.Get("MaxDisplayColumns").ToInt());
-                        }
-                        else
-                        {
-                            TLogging.Log(FReportingGenerator.GetErrorMessage());
-                        }
+                    if (FReportingGenerator.GetSuccess() == true)
+                    {
+                        this.Parameters.LoadFromDataTable(FReportingGenerator.GetParameter());
+                        this.Results.LoadFromDataTable(FReportingGenerator.GetResult());
+                        this.Results.SetMaxDisplayColumns(this.Parameters.Get("MaxDisplayColumns").ToInt());
+                    }
+                    else
+                    {
+                        TLogging.Log(FReportingGenerator.GetErrorMessage());
+                    }
 
-                        // UnRegister Object from the TEnsureKeepAlive Class so that the Object can get GC'd on the PetraServer
-                        TEnsureKeepAlive.UnRegister(FReportingGenerator);
-                        FKeepUpProgressCheck = false;
-                        break;
-
-                    default:
-
-                        if ((ProgressInformation != null) && (!OldLoggingText.Equals(ProgressInformation)))
-                        {
-                            TLogging.Log(ProgressInformation, TLoggingType.ToStatusBar);
-                            OldLoggingText = ProgressInformation;
-                        }
-
-                        break;
+                    // UnRegister Object from the TEnsureKeepAlive Class so that the Object can get GC'd on the PetraServer
+                    TEnsureKeepAlive.UnRegister(FReportingGenerator);
+                    FKeepUpProgressCheck = false;
+                }
+                else
+                {
+                    if ((state.StatusMessage != null) && (!OldLoggingText.Equals(state.StatusMessage)))
+                    {
+                        TLogging.Log(state.StatusMessage, TLoggingType.ToStatusBar);
+                        OldLoggingText = state.StatusMessage;
+                    }
                 }
 
                 if (FKeepUpProgressCheck)

@@ -718,6 +718,26 @@ namespace Ict.Common
     #endregion
 
     /// <summary>
+    /// current state of the long-running procedure
+    /// </summary>
+    [Serializable]
+    public class TProgressState
+    {
+        /// percentage done
+        public int PercentageDone = -1;
+        /// overall amount
+        public decimal AbsoluteOverallAmount = 100.0m;
+        /// status message, which changes during the procedure
+        public string StatusMessage = string.Empty;
+        /// caption, overall description of job
+        public string Caption = string.Empty;
+        /// the client can ask the procedure to stop
+        public bool CancelJob = false;
+        /// if the job has finished, this is set to true. note: sometimes percentage might be inaccurate, or not present at all
+        public bool JobFinished = false;
+    }
+
+    /// <summary>
     /// some static methods for the save conversion of dates to objects and objects to dates
     /// </summary>
     public class TSaveConvert : object

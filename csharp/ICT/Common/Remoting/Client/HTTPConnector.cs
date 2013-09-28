@@ -96,9 +96,26 @@ namespace Ict.Common.Remoting.Client
                 TLogging.Log("returned from server (unmodified): " + result);
             }
 
-            result = result.Replace("<?xml version=\"1.0\" encoding=\"utf-8\"?>", string.Empty).Substring(result.IndexOf("<"));
-            result = result.Substring(result.IndexOf(">") + 1);
-            result = result.Substring(0, result.IndexOf("<"));
+            string OrigResult = result;
+            try
+            {
+                result = result.Replace("<?xml version=\"1.0\" encoding=\"utf-8\"?>", string.Empty).Substring(result.IndexOf("<"));
+                result = result.Substring(result.IndexOf(">") + 1);
+
+                if (result.Length == 0)
+                {
+                    return string.Empty;
+                }
+
+                result = result.Substring(0, result.IndexOf("<"));
+            }
+            catch (Exception e)
+            {
+                TLogging.Log("THttpConnector.TrimResult: problems processing result from server");
+                TLogging.Log(OrigResult);
+                TLogging.Log(e.ToString());
+                throw new Exception("invalid response from server");
+            }
 
             // TLogging.Log("returned from server: " + result);
             return result;

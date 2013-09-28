@@ -37,25 +37,6 @@ namespace Ict.Petra.Server.App.Core
     /// </summary>
     public class TProgressTracker
     {
-        /// <summary>
-        /// current state of the long-running procedure
-        /// </summary>
-        public class TProgressState
-        {
-            /// percentage done
-            public int PercentageDone = -1;
-            /// overall amount
-            public decimal AbsoluteOverallAmount = 100.0m;
-            /// status message, which changes during the procedure
-            public string StatusMessage = string.Empty;
-            /// caption, overall description of job
-            public string Caption = string.Empty;
-            /// the client can ask the procedure to stop
-            public bool CancelJob = false;
-            /// if the job has finished, this is set to true. note: sometimes percentage might be inaccurate, or not present at all
-            public bool JobFinished = false;
-        }
-
         private static SortedList <string, TProgressState>FProgressStates = new SortedList <string, TProgressState>();
 
         /// <summary>

@@ -270,6 +270,15 @@ namespace Ict.Petra.Server.App.WebService
                 if (!FDatabaseObjects.ContainsKey(Thread.CurrentThread.Name))
                 {
                     TDataBase db = new TDataBase();
+
+                    db.EstablishDBConnection(TSrvSetting.RDMBSType,
+                        TSrvSetting.PostgreSQLServer,
+                        TSrvSetting.PostgreSQLServerPort,
+                        TSrvSetting.PostgreSQLDatabaseName,
+                        TSrvSetting.DBUsername,
+                        TSrvSetting.DBPassword,
+                        "");
+
                     FDatabaseObjects.Add(Thread.CurrentThread.Name, db);
                 }
 
