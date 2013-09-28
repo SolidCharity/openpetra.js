@@ -206,7 +206,6 @@ namespace Ict.Common.Remoting.Client
 
                 if (result != eLoginEnum.eLoginSucceeded)
                 {
-                    // TODORemoting: for example for version mismatch, get the details of the server version?
                     AError = result.ToString();
                 }
 

@@ -102,8 +102,8 @@ namespace Ict.Common
         {
             FileMajorPart = System.Convert.ToUInt16(AVersion.Major);
             FileMinorPart = System.Convert.ToUInt16(AVersion.Minor);
-            FileBuildPart = System.Convert.ToUInt16(AVersion.Build);
-            FilePrivatePart = System.Convert.ToUInt16(AVersion.Revision);
+            FileBuildPart = System.Convert.ToUInt16(AVersion.Build == -1 ? 0 : AVersion.Build);
+            FilePrivatePart = System.Convert.ToUInt16(AVersion.Revision == -1 ? 0 : AVersion.Revision);
         }
 
         /// <summary>

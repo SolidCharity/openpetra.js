@@ -918,8 +918,7 @@ namespace Ict.Common.Remoting.Server
                             TSrvSetting.ApplicationVersion.ToString());
                     }
 
-                    if ((AClientExeVersion.CompareTo(new Version()) != 0)
-                        && (TSrvSetting.ApplicationVersion.Compare(new TFileVersionInfo(AClientExeVersion)) != 0))
+                    if (TSrvSetting.ApplicationVersion.Compare(new TFileVersionInfo(AClientExeVersion)) != 0)
                     {
                         ConnectedClient.SessionStatus = TSessionStatus.adsStopped;
                         #region Logging

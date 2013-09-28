@@ -229,7 +229,7 @@ namespace Ict.Petra.Server.App.WebService
         [WebMethod(EnableSession = true)]
         public eLoginEnum Login(string username, string password)
         {
-            return LoginInternal(username, password, new Version());
+            return LoginInternal(username, password, TFileVersionInfo.GetApplicationVersion().ToVersion());
         }
 
         /// <summary>Login a user</summary>

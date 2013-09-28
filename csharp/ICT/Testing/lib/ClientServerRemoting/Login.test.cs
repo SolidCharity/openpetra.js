@@ -147,6 +147,13 @@ namespace Ict.Testing.ClientServerRemoting
             sw.Close();
             Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect("../../etc/TestClient.config"), "client is too new");
 
+            sw = new StreamWriter("../../delivery/bin/version.txt");
+            testVersion = new TFileVersionInfo(new Version());
+            sw.WriteLine(testVersion.ToString());
+            sw.Close();
+            Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect(
+                    "../../etc/TestClient.config"), "version 0.0.0.0 should not be accepted");
+
             // reset values
             sw = new StreamWriter("../../delivery/bin/version.txt");
             sw.WriteLine(ServerVersion.ToString());
