@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -80,7 +80,7 @@ namespace Ict.Testing.NUnitPetraServer
             CommonNUnitFunctions.InitRootPath();
 
             Catalog.Init();
-            TServerManager ServerManager = new TServerManager();
+            TServerManager.TheServerManager = new TServerManager();
 
             DBAccess.GDBAccessObj = new TDataBase();
             DBAccess.GDBAccessObj.EstablishDBConnection(TSrvSetting.RDMBSType,
@@ -97,7 +97,7 @@ namespace Ict.Testing.NUnitPetraServer
                 TAppSettingsManager.GetValue("AutoLogin").ToUpper(),
                 TAppSettingsManager.GetValue("AutoLoginPasswd"),
                 "NUNITTEST", "127.0.0.1",
-                new Version(),
+                TFileVersionInfo.GetApplicationVersion().ToVersion(),
                 TClientServerConnectionType.csctLocal,
                 out ClientID,
                 out WelcomeMessage,
@@ -116,7 +116,7 @@ namespace Ict.Testing.NUnitPetraServer
 
             StringHelper.CurrencyFormatTable = DBAccess.GDBAccessObj.SelectDT("SELECT * FROM PUB_a_currency", "a_currency", null);
 
-            return ServerManager;
+            return (TServerManager)TServerManager.TheServerManager;
         }
 
         /// <summary>
