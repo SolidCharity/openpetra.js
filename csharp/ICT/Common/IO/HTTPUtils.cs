@@ -230,7 +230,8 @@ namespace Ict.Common.IO
 
             try
             {
-                return WebClientUploadValues(url, parameters, 10);
+                // config parameter value for how many times a connection should be attempted until the web call fails
+                return WebClientUploadValues(url, parameters, TAppSettingsManager.GetInt32("HTTPUtils.PostRequests", 10));
             }
             catch (System.Net.WebException e)
             {
