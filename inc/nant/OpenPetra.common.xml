@@ -230,8 +230,6 @@
 <property name="devenv-msbuild" value="sharpdevelop4" overwrite="false" />
 <property name="devenv-xbuild" value="monodevelop2" overwrite="false" />
  <!-- webserver -->
-<property name="dir.webserver" value="${path::combine(dir.delivery, 'webserver')}" overwrite="false" />
-<property name="dir.webserver.bin" value="${path::combine(dir.webserver, 'bin')}" overwrite="false" />
 <property name="webserver.includeSamples" value="true" overwrite="false"/>
 <property name="dir.webforms.source" value="${dir.root}/webserver" overwrite="false"/>
 <property name="dir.webforms.delivery" value="${dir.webserver}" overwrite="false"/>
