@@ -72,7 +72,7 @@ return new THTTPClientManager();
 public class TStandaloneClientManager : IClientManager
 {
     /// check the user name and password
-    public void ConnectClient(String AUserName,
+    public eLoginEnum ConnectClient(String AUserName,
         String APassword,
         String AClientComputerName,
         String AClientIPAddress,
@@ -96,30 +96,27 @@ public class TStandaloneClientManager : IClientManager
         AWelcomeMessage = string.Empty;
         ASystemEnabled = true;
 
-        try
-        {
-            TClientManager.ConnectClient(
-                AUserName,
-                APassword,
-                "localhost",
-                "127.0.0.1",
-                new Version(TClientInfo.ClientAssemblyVersion),
-                TClientServerConnectionType.csctLocal,
-                out AClientID,
-                out AWelcomeMessage,
-                out ASystemEnabled,
-                out AUserInfo);
-        }
-        catch (Exception e)
-        {
-            TLogging.Log(e.Message);
-            TLogging.Log(e.StackTrace);
+        eLoginEnum Result = TClientManager.ConnectClient(
+            AUserName,
+            APassword,
+            "localhost",
+            "127.0.0.1",
+            new Version(TClientInfo.ClientAssemblyVersion),
+            TClientServerConnectionType.csctLocal,
+            out AClientID,
+            out AWelcomeMessage,
+            out ASystemEnabled,
+            out AUserInfo);
 
-            // Login not successful
-            throw new EAccessDeniedException();
+        if (Result != eLoginEnum.eLoginSucceeded)
+        {
+            // failed login
+            return Result;
         }
 
         AUserInfo = UserInfo.GUserInfo;
+
+        return eLoginEnum.eLoginSucceeded;
     }
 
     /// <summary>
