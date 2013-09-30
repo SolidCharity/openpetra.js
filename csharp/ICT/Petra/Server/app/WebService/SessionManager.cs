@@ -151,12 +151,16 @@ namespace Ict.Petra.Server.App.WebService
             return false;
         }
 
-        private eLoginEnum LoginInternal(string username, string password, Version AClientVersion)
+        private eLoginEnum LoginInternal(string username, string password, Version AClientVersion,
+            out Int32 AClientID,
+            out string AWelcomeMessage,
+            out Boolean ASystemEnabled,
+            out IPrincipal AUserInfo)
         {
-            Int32 ClientID;
-            string WelcomeMessage;
-            bool SystemEnabled;
-            IPrincipal ThisUserInfo;
+            AUserInfo = null;
+            ASystemEnabled = true;
+            AWelcomeMessage = string.Empty;
+            AClientID = -1;
 
             try
             {
@@ -166,16 +170,16 @@ namespace Ict.Petra.Server.App.WebService
                     HttpContext.Current.Request.UserHostAddress,
                     AClientVersion,
                     TClientServerConnectionType.csctRemote,
-                    out ClientID,
-                    out WelcomeMessage,
-                    out SystemEnabled,
-                    out ThisUserInfo);
+                    out AClientID,
+                    out AWelcomeMessage,
+                    out ASystemEnabled,
+                    out AUserInfo);
                 Session["LoggedIn"] = true;
 
                 // the following values are stored in the session object
-                DomainManager.GClientID = ClientID;
+                DomainManager.GClientID = AClientID;
                 DomainManager.CurrentClient = CurrentClient;
-                UserInfo.GUserInfo = (TPetraPrincipal)ThisUserInfo;
+                UserInfo.GUserInfo = (TPetraPrincipal)AUserInfo;
 
                 DBAccess.GDBAccessObj.UserID = username.ToUpper();
 
@@ -191,37 +195,7 @@ namespace Ict.Petra.Server.App.WebService
                 Ict.Common.DB.DBAccess.GDBAccessObj.RollbackTransaction();
                 DBAccess.GDBAccessObj.CloseDBConnection();
                 Session.Clear();
-
-                if (e is EUserNotExistantException || e is EAccessDeniedException)
-                {
-                    return eLoginEnum.eLoginAuthenticationFailed;
-                }
-                else if (e is EUserRetiredException)
-                {
-                    return eLoginEnum.eLoginUserIsRetired;
-                }
-                else if (e is EUserRecordLockedException)
-                {
-                    return eLoginEnum.eLoginUserRecordLocked;
-                }
-                else if (e is ESystemDisabledException)
-                {
-                    return eLoginEnum.eLoginSystemDisabled;
-                }
-                else if (e is EClientVersionMismatchException)
-                {
-                    return eLoginEnum.eLoginVersionMismatch;
-                }
-                else if (e is ELoginFailedServerTooBusyException)
-                {
-                    return eLoginEnum.eLoginServerTooBusy;
-                }
-                else if (e is EDBConnectionNotEstablishedException)
-                {
-                    return eLoginEnum.eLoginServerTooBusy;
-                }
-
-                return eLoginEnum.eLoginFailedForUnspecifiedError;
+                return TClientManager.LoginErrorFromException(e);
             }
         }
 
@@ -229,12 +203,18 @@ namespace Ict.Petra.Server.App.WebService
         [WebMethod(EnableSession = true)]
         public eLoginEnum Login(string username, string password)
         {
-            return LoginInternal(username, password, TFileVersionInfo.GetApplicationVersion().ToVersion());
+            string WelcomeMessage;
+            bool SystemEnabled;
+            IPrincipal UserInfo;
+            Int32 ClientID;
+
+            return LoginInternal(username, password, TFileVersionInfo.GetApplicationVersion().ToVersion(),
+                out ClientID, out WelcomeMessage, out SystemEnabled, out UserInfo);
         }
 
         /// <summary>Login a user</summary>
         [WebMethod(EnableSession = true)]
-        public eLoginEnum LoginClient(string username, string password, string version)
+        public string LoginClient(string username, string password, string version)
         {
             Version ClientVersion;
 
@@ -245,10 +225,26 @@ namespace Ict.Petra.Server.App.WebService
             catch (Exception)
             {
                 TLogging.Log("LoginClient: invalid version, cannot be parsed: " + version);
-                return eLoginEnum.eLoginVersionMismatch;
+                return THttpBinarySerializer.SerializeObjectWithType(eLoginEnum.eLoginVersionMismatch);
             }
 
-            return LoginInternal(username, password, ClientVersion);
+            string WelcomeMessage;
+            bool SystemEnabled;
+            IPrincipal UserInfo;
+            Int32 ClientID;
+            eLoginEnum Result = LoginInternal(username, password, ClientVersion,
+                out ClientID, out WelcomeMessage, out SystemEnabled, out UserInfo);
+
+            if (Result != eLoginEnum.eLoginSucceeded)
+            {
+                return THttpBinarySerializer.SerializeObjectWithType(Result);
+            }
+
+            return THttpBinarySerializer.SerializeObjectWithType(Result) + "," +
+                   THttpBinarySerializer.SerializeObjectWithType(ClientID) + "," +
+                   THttpBinarySerializer.SerializeObjectWithType(WelcomeMessage) + "," +
+                   THttpBinarySerializer.SerializeObjectWithType(SystemEnabled) + "," +
+                   THttpBinarySerializer.SerializeObjectWithType(UserInfo);
         }
 
         /// <summary>
@@ -385,20 +381,6 @@ namespace Ict.Petra.Server.App.WebService
         }
 
 #if TODORemoting
-        void ConnectClient(String AUserName,
-            String APassword,
-            String AClientComputerName,
-            String AClientIPAddress,
-            System.Version AClientExeVersion,
-            TClientServerConnectionType AClientServerConnectionType,
-            out String AClientName,
-            out System.Int32 AClientID,
-            out TExecutingOSEnum AServerOS,
-            out Int32 AProcessID,
-            out String AWelcomeMessage,
-            out Boolean ASystemEnabled,
-            out IPrincipal AUserInfo);
-
         /**
          * Calling DisconnectClient tears down the Client's AppDomain and therefore
          * kills all remoted objects for the Client that were not released before.

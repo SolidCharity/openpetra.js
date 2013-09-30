@@ -78,35 +78,35 @@ public class TStandaloneClientManager : IClientManager
         String AClientIPAddress,
         System.Version AClientExeVersion,
         TClientServerConnectionType AClientServerConnectionType,
-        out String AClientName,
         out System.Int32 AClientID,
-        out string ACrossDomainURL,
-        out TExecutingOSEnum AServerOS,
-        out Int32 AProcessID,
         out String AWelcomeMessage,
         out Boolean ASystemEnabled,
         out IPrincipal AUserInfo)
     {
-        // TODORemoting
-        AClientName = string.Empty;
-        AClientID = -1;
-        ACrossDomainURL = string.Empty;
-        AServerOS = TExecutingOSEnum.eosLinux;
-        AProcessID = -1;
-        AWelcomeMessage = string.Empty;
+        eLoginEnum Result = eLoginEnum.eLoginSucceeded;
+        AUserInfo = null;
         ASystemEnabled = true;
+        AWelcomeMessage = string.Empty;
+        AClientID = -1;
 
-        eLoginEnum Result = TClientManager.ConnectClient(
-            AUserName,
-            APassword,
-            "localhost",
-            "127.0.0.1",
-            new Version(TClientInfo.ClientAssemblyVersion),
-            TClientServerConnectionType.csctLocal,
-            out AClientID,
-            out AWelcomeMessage,
-            out ASystemEnabled,
-            out AUserInfo);
+        try
+        {
+            TClientManager.ConnectClient(
+                AUserName,
+                APassword,
+                "localhost",
+                "127.0.0.1",
+                new Version(TClientInfo.ClientAssemblyVersion),
+                TClientServerConnectionType.csctLocal,
+                out AClientID,
+                out AWelcomeMessage,
+                out ASystemEnabled,
+                out AUserInfo);
+        }
+        catch (Exception e)
+        {
+            Result =  TClientManager.LoginErrorFromException(e);
+        }
 
         if (Result != eLoginEnum.eLoginSucceeded)
         {
@@ -122,7 +122,7 @@ public class TStandaloneClientManager : IClientManager
     /// <summary>
     /// disconnect
     /// </summary>
-    public Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
+    public Boolean DisconnectClient(out String ACantDisconnectReason)
     {
         ACantDisconnectReason = string.Empty;
         return true;
@@ -131,7 +131,7 @@ public class TStandaloneClientManager : IClientManager
     /// <summary>
     /// disconnect
     /// </summary>
-    public Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
+    public Boolean DisconnectClient(String AReason, out String ACantDisconnectReason)
     {
         ACantDisconnectReason = string.Empty;
         return true;

@@ -44,11 +44,7 @@ namespace Ict.Common.Remoting.Client
             String AClientIPAddress,
             System.Version AClientExeVersion,
             TClientServerConnectionType AClientServerConnectionType,
-            out String AClientName,
-            out System.Int32 AClientID,
-            out string ACrossDomainURL,
-            out TExecutingOSEnum AServerOS,
-            out Int32 AProcessID,
+            out Int32 AClientID,
             out String AWelcomeMessage,
             out Boolean ASystemEnabled,
             out IPrincipal AUserInfo);
@@ -56,12 +52,12 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// disconnect
         /// </summary>
-        Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason);
+        Boolean DisconnectClient(out String ACantDisconnectReason);
 
         /// <summary>
         /// disconnect
         /// </summary>
-        Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason);
+        Boolean DisconnectClient(String AReason, out String ACantDisconnectReason);
     }
 
     /// client manager for the connection to the server via http
@@ -74,24 +70,15 @@ namespace Ict.Common.Remoting.Client
             String AClientIPAddress,
             System.Version AClientExeVersion,
             TClientServerConnectionType AClientServerConnectionType,
-            out String AClientName,
-            out System.Int32 AClientID,
-            out string ACrossDomainURL,
-            out TExecutingOSEnum AServerOS,
-            out Int32 AProcessID,
+            out Int32 AClientID,
             out String AWelcomeMessage,
             out Boolean ASystemEnabled,
             out IPrincipal AUserInfo)
         {
-            // TODORemoting
-            AClientName = string.Empty;
-            AClientID = -1;
-            ACrossDomainURL = string.Empty;
-            AServerOS = TExecutingOSEnum.eosLinux;
-            AProcessID = -1;
             AWelcomeMessage = string.Empty;
             ASystemEnabled = true;
             AUserInfo = null;
+            AClientID = -1;
 
             THttpConnector.InitConnection(TAppSettingsManager.GetValue("OpenPetra.HTTPServer"));
             SortedList <string, object>Parameters = new SortedList <string, object>();
@@ -99,7 +86,8 @@ namespace Ict.Common.Remoting.Client
             Parameters.Add("password", APassword);
             Parameters.Add("version", AClientExeVersion.ToString());
 
-            eLoginEnum Result = (eLoginEnum)THttpConnector.CallWebConnector("SessionManager", "LoginClient", Parameters, "Ict.Common.eLoginEnum")[0];
+            List <object>ResultList = THttpConnector.CallWebConnector("SessionManager", "LoginClient", Parameters, "list");
+            eLoginEnum Result = (eLoginEnum)ResultList[0];
 
             if (Result != eLoginEnum.eLoginSucceeded)
             {
@@ -107,7 +95,10 @@ namespace Ict.Common.Remoting.Client
                 return Result;
             }
 
-            AUserInfo = (IPrincipal)THttpConnector.CallWebConnector("SessionManager", "GetUserInfo", null, "binary")[0];
+            AClientID = (Int32)ResultList[1];
+            AWelcomeMessage = (string)ResultList[2];
+            ASystemEnabled = (Boolean)ResultList[3];
+            AUserInfo = (IPrincipal)ResultList[4];
 
             return eLoginEnum.eLoginSucceeded;
         }
@@ -115,7 +106,7 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// disconnect
         /// </summary>
-        public Boolean DisconnectClient(System.Int32 AClientID, out String ACantDisconnectReason)
+        public Boolean DisconnectClient(out String ACantDisconnectReason)
         {
             THttpConnector.CallWebConnector("SessionManager", "Logout", null, "System.Boolean");
             ACantDisconnectReason = string.Empty;
@@ -125,7 +116,7 @@ namespace Ict.Common.Remoting.Client
         /// <summary>
         /// disconnect
         /// </summary>
-        public Boolean DisconnectClient(System.Int32 AClientID, String AReason, out String ACantDisconnectReason)
+        public Boolean DisconnectClient(String AReason, out String ACantDisconnectReason)
         {
             THttpConnector.CallWebConnector("SessionManager", "Logout", null, "System.Boolean");
             ACantDisconnectReason = string.Empty;

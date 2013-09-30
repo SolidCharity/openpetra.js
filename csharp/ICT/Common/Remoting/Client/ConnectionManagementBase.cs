@@ -43,9 +43,7 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         public static TConnectionManagementBase GConnectionManagement = null;
 
-        private String FClientName;
         private Int32 FClientID;
-        private TExecutingOSEnum FServerOS;
         private TEnsureKeepAlive FKeepAlive;
         private TPollClientTasks FPollClientTasks;
         private IClientManager FClientManager;
@@ -55,35 +53,12 @@ namespace Ict.Common.Remoting.Client
         /// </summary>
         protected Hashtable FRemotingURLs;
 
-        /// <summary>
-        /// we will always contact the server on this URL
-        /// </summary>
-        protected string FCrossDomainURI;
-
-        /// <summary>todoComment</summary>
-        public String ClientName
-        {
-            get
-            {
-                return FClientName;
-            }
-        }
-
         /// <summary>todoComment</summary>
         public Int32 ClientID
         {
             get
             {
                 return FClientID;
-            }
-        }
-
-        /// <summary>todoComment</summary>
-        public TExecutingOSEnum ServerOS
-        {
-            get
-            {
-                return FServerOS;
             }
         }
 
@@ -195,11 +170,7 @@ namespace Ict.Common.Remoting.Client
                     TClientInfo.ClientIPAddress,
                     new Version(TClientInfo.ClientAssemblyVersion),
                     DetermineClientServerConnectionType(),
-                    out FClientName,
                     out FClientID,
-                    out FCrossDomainURI,
-                    out FServerOS,
-                    out AProcessID,
                     out AWelcomeMessage,
                     out ASystemEnabled,
                     out AUserInfo);
@@ -241,7 +212,7 @@ namespace Ict.Common.Remoting.Client
                     FPollClientTasks.StopPollClientTasks();
                 }
 
-                ReturnValue = FClientManager.DisconnectClient(FClientID, out ACantDisconnectReason);
+                ReturnValue = FClientManager.DisconnectClient(out ACantDisconnectReason);
             }
             catch (System.Net.Sockets.SocketException)
             {

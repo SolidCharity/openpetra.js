@@ -30,6 +30,7 @@ using System.Security.Principal;
 using System.Resources;
 using GNU.Gettext;
 using Ict.Common;
+using Ict.Common.DB;
 using Ict.Common.Verification;
 using Ict.Common.Remoting.Shared;
 using System.Threading;
@@ -821,9 +822,7 @@ namespace Ict.Common.Remoting.Server
         /// <summary>
         /// Called by a Client to request connection to the Petra Server.
         ///
-        /// Creates an AppDomain, loads Petra Module DLL's into it and returns
-        /// .NET Remoting URLs for intantiated objects that represent the Petra Module
-        /// Root Namespaces (eg. MPartner, MFinance).
+        /// Authenticate the user and create a sesssion for the user.
         ///
         /// </summary>
         /// <param name="AUserName">Username with which the Client connects</param>
@@ -984,6 +983,8 @@ namespace Ict.Common.Remoting.Server
                     // Login Checks were successful!
                     ConnectedClient.SessionStatus = TSessionStatus.adsConnectingLoginOK;
 
+                    #endregion
+
                     // Retrieve Welcome message
                     try
                     {
@@ -1053,6 +1054,43 @@ namespace Ict.Common.Remoting.Server
 
             #endregion
             return ConnectedClient;
+        }
+
+        /// <summary>
+        /// convert exception to error code
+        /// </summary>
+        public static eLoginEnum LoginErrorFromException(Exception e)
+        {
+            if (e is EUserNotExistantException || e is EAccessDeniedException)
+            {
+                return eLoginEnum.eLoginAuthenticationFailed;
+            }
+            else if (e is EUserRetiredException)
+            {
+                return eLoginEnum.eLoginUserIsRetired;
+            }
+            else if (e is EUserRecordLockedException)
+            {
+                return eLoginEnum.eLoginUserRecordLocked;
+            }
+            else if (e is ESystemDisabledException)
+            {
+                return eLoginEnum.eLoginSystemDisabled;
+            }
+            else if (e is EClientVersionMismatchException)
+            {
+                return eLoginEnum.eLoginVersionMismatch;
+            }
+            else if (e is ELoginFailedServerTooBusyException)
+            {
+                return eLoginEnum.eLoginServerTooBusy;
+            }
+            else if (e is EDBConnectionNotEstablishedException)
+            {
+                return eLoginEnum.eLoginServerTooBusy;
+            }
+
+            return eLoginEnum.eLoginFailedForUnspecifiedError;
         }
 
         /// <summary>
@@ -1202,7 +1240,5 @@ namespace Ict.Common.Remoting.Server
             Console.WriteLine("TClientManager.PerformGC: GC performed");
             return (int)GC.GetTotalMemory(false);
         }
-
-        #endregion
     }
 }
