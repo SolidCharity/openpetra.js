@@ -72,7 +72,7 @@ namespace Ict.Petra.Server.App.Core
         /// <returns></returns>
         static public TProgressState GetCurrentState(string AClientID)
         {
-            if (FProgressStates.ContainsKey(AClientID))
+            if ((AClientID != null) && FProgressStates.ContainsKey(AClientID))
             {
                 if (FProgressStates[AClientID].PercentageDone > 100)
                 {
