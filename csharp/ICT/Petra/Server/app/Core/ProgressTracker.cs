@@ -93,14 +93,19 @@ namespace Ict.Petra.Server.App.Core
         /// </summary>
         /// <param name="AClientID"></param>
         /// <param name="AStatusMessage"></param>
-        /// <param name="ACurrentAbsolutAmount"></param>
-        static public void SetCurrentState(string AClientID, string AStatusMessage, Decimal ACurrentAbsolutAmount)
+        /// <param name="ACurrentAbsoluteAmount"></param>
+        static public void SetCurrentState(string AClientID, string AStatusMessage, Decimal ACurrentAbsoluteAmount)
         {
             if (FProgressStates.ContainsKey(AClientID))
             {
                 TProgressState state = FProgressStates[AClientID];
-                state.StatusMessage = AStatusMessage;
-                state.PercentageDone = Convert.ToInt32((ACurrentAbsolutAmount / state.AbsoluteOverallAmount) * 100.0m);
+
+                if (AStatusMessage.Length > 0)
+                {
+                    state.StatusMessage = AStatusMessage;
+                }
+
+                state.PercentageDone = Convert.ToInt32((ACurrentAbsoluteAmount / state.AbsoluteOverallAmount) * 100.0m);
 
                 if (TLogging.DebugLevel >= DEBUG_PROGRESS)
                 {

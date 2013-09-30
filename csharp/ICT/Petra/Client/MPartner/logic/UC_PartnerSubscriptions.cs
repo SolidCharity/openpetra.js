@@ -4,7 +4,7 @@
 // @Authors:
 //       christiank
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -140,23 +140,17 @@ namespace Ict.Petra.Client.MPartner
             }
         }
 
-        /// <summary>todoComment</summary>
-        public IAsynchronousExecutionProgress AsyncExecProgress
+        /// <summary>Get the current state of progress</summary>
+        public TProgressState Progress
         {
             get
             {
-                IAsynchronousExecutionProgress ReturnValue;
-
                 if (FPartnerUIConnectorsExtracts != null)
                 {
-                    ReturnValue = FPartnerUIConnectorsExtracts.AsyncExecProgress;
-                }
-                else
-                {
-                    ReturnValue = null;
+                    return FPartnerUIConnectorsExtracts.Progress;
                 }
 
-                return ReturnValue;
+                return null;
             }
         }
 

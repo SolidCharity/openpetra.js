@@ -179,40 +179,38 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
             // Check whether this thread should still execute
             while (FKeepUpSearchFinishedCheck)
             {
-                TAsyncExecProgressState ThreadStatus;
-
-                if (FSearchForSuppliers)
-                {
-                    ThreadStatus = FSupplierFindObject.AsyncExecProgress.ProgressState;
-                }
-                else
-                {
-                    ThreadStatus = FInvoiceFindObject.AsyncExecProgress.ProgressState;
-                }
+                TProgressState ThreadStatus;
 
                 /* The next line of code calls a function on the PetraServer
                  * > causes a bit of data traffic everytime! */
-                switch (ThreadStatus)
+                if (FSearchForSuppliers)
                 {
-                    case TAsyncExecProgressState.Aeps_Finished:
-                        FKeepUpSearchFinishedCheck = false;
+                    ThreadStatus = FSupplierFindObject.Progress;
+                }
+                else
+                {
+                    ThreadStatus = FInvoiceFindObject.Progress;
+                }
 
-                        // see also http://stackoverflow.com/questions/6184/how-do-i-make-event-callbacks-into-my-win-forms-thread-safe
-                        if (InvokeRequired)
-                        {
-                            Invoke(new SimpleDelegate(FinishThread));
-                        }
-                        else
-                        {
-                            FinishThread();
-                        }
+                if (ThreadStatus.JobFinished)
+                {
+                    FKeepUpSearchFinishedCheck = false;
 
-                        break;
-
-                    case TAsyncExecProgressState.Aeps_Stopped:
-                        FKeepUpSearchFinishedCheck = false;
-                        EnableDisableUI(true);
-                        return;
+                    // see also http://stackoverflow.com/questions/6184/how-do-i-make-event-callbacks-into-my-win-forms-thread-safe
+                    if (InvokeRequired)
+                    {
+                        Invoke(new SimpleDelegate(FinishThread));
+                    }
+                    else
+                    {
+                        FinishThread();
+                    }
+                }
+                else if (ThreadStatus.CancelJob)
+                {
+                    FKeepUpSearchFinishedCheck = false;
+                    EnableDisableUI(true);
+                    return;
                 }
 
                 // Sleep a bit, then loop...

@@ -170,37 +170,6 @@ namespace Ict.Common
     };
 
     /// <summary>
-    /// enum for states in the asynchronous execution
-    /// </summary>
-    public enum TAsyncExecProgressState
-    {
-        /// <summary>
-        /// read to start
-        /// </summary>
-        Aeps_ReadyToStart,
-
-        /// <summary>
-        /// currently running
-        /// </summary>
-        Aeps_Executing,
-
-        /// <summary>
-        /// finished
-        /// </summary>
-        Aeps_Finished,
-
-        /// <summary>
-        /// is stopping at the moment
-        /// </summary>
-        Aeps_Stopping,
-
-        /// <summary>
-        /// stopped
-        /// </summary>
-        Aeps_Stopped
-    };
-
-    /// <summary>
     /// different states when submitting some data to the server
     /// </summary>
     public enum TSubmitChangesResult

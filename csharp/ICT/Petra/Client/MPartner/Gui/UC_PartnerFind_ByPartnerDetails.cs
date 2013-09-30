@@ -1214,7 +1214,7 @@ namespace Ict.Petra.Client.MPartner.Gui
                 Application.DoEvents();
 
                 // Stop asynchronous search operation
-                FPartnerFindObject.AsyncExecProgress.Cancel();
+                FPartnerFindObject.StopSearch();
             }
         }
 
@@ -1498,7 +1498,7 @@ namespace Ict.Petra.Client.MPartner.Gui
                 // Enable/disable according to how the search operation ended
                 if (Convert.ToBoolean(AEnable))
                 {
-                    if (FPartnerFindObject.AsyncExecProgress.ProgressState != TAsyncExecProgressState.Aeps_Stopped)
+                    if (FPartnerFindObject.Progress.JobFinished)
                     {
                         // Search operation ended without interruption
                         if (FPagedDataTable.Rows.Count > 0)
@@ -1646,26 +1646,27 @@ namespace Ict.Petra.Client.MPartner.Gui
             {
                 /* The next line of code calls a function on the PetraServer
                  * > causes a bit of data traffic everytime! */
-                switch (FPartnerFindObject.AsyncExecProgress.ProgressState)
+                TProgressState state = FPartnerFindObject.Progress;
+
+                if (state.JobFinished)
                 {
-                    case TAsyncExecProgressState.Aeps_Finished:
-                        FKeepUpSearchFinishedCheck = false;
+                    FKeepUpSearchFinishedCheck = false;
 
-                        // Fetch the first page of data
-                        try
-                        {
-                            FPagedDataTable = grdResult.LoadFirstDataPage(@GetDataPagedResult);
-                        }
-                        catch (Exception E)
-                        {
-                            MessageBox.Show(E.ToString());
-                        }
-                        break;
-
-                    case TAsyncExecProgressState.Aeps_Stopped:
-                        FKeepUpSearchFinishedCheck = false;
-                        EnableDisableUI(true);
-                        return;
+                    // Fetch the first page of data
+                    try
+                    {
+                        FPagedDataTable = grdResult.LoadFirstDataPage(@GetDataPagedResult);
+                    }
+                    catch (Exception E)
+                    {
+                        MessageBox.Show(E.ToString());
+                    }
+                }
+                else if (state.CancelJob)
+                {
+                    FKeepUpSearchFinishedCheck = false;
+                    EnableDisableUI(true);
+                    return;
                 }
 
                 // Sleep for some time. After that, this function is called again automatically.

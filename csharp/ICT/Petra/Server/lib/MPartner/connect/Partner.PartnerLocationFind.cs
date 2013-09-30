@@ -4,7 +4,7 @@
 // @Authors:
 //       timh, timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -50,16 +50,15 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
     /// </summary>
     public class TPartnerLocationFindUIConnector : IPartnerUIConnectorsPartnerLocationFind
     {
-        private TAsynchronousExecutionProgress FAsyncExecProgress;
         private Thread FFindThread;
         private TPagedDataSet FPagedDataSetObject;
 
-        /// <summary>Property accessor Returns reference to the Asynchronous execution control object to the caller</summary>
-        public IAsynchronousExecutionProgress AsyncExecProgress
+        /// <summary>Get the current state of progress</summary>
+        public TProgressState Progress
         {
             get
             {
-                return null; // TODORemoting
+                return FPagedDataSetObject.Progress;
             }
         }
 
@@ -75,9 +74,7 @@ namespace Ict.Petra.Server.MPartner.Partner.UIConnectors
             OdbcParameter miParam;
             DataRow CriteriaRow;
 
-            FAsyncExecProgress = new TAsynchronousExecutionProgress();
             FPagedDataSetObject = new TPagedDataSet(new PartnerFindTDSSearchResultTable());
-            FPagedDataSetObject.AsyncExecProgress = FAsyncExecProgress;
             ColumnNameMapping = null;
 
             // get the first and only row

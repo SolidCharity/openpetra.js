@@ -75,18 +75,15 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
         /// <summary>Paged query object</summary>
         TPagedDataSet FPagedDataSetObject;
 
-        /// <summary>Asynchronous execution control object</summary>
-        TAsynchronousExecutionProgress FAsyncExecProgress;
-
         /// <summary>Thread that is used for asynchronously executing the Find query</summary>
         Thread FFindThread;
 
-        /// <summary>Returns reference to the Asynchronous execution control object to the caller</summary>
-        public IAsynchronousExecutionProgress AsyncExecProgress
+        /// <summary>Get the current state of progress</summary>
+        public TProgressState Progress
         {
             get
             {
-                return null; // TODORemoting
+                return FPagedDataSetObject.Progress;
             }
         }
 
@@ -171,16 +168,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
         /// <param name="ACriteriaData">HashTable containing non-empty Find parameters</param>
         public void PerformSearch(DataTable ACriteriaData)
         {
-            FAsyncExecProgress = new TAsynchronousExecutionProgress();
-
             FPagedDataSetObject = new TPagedDataSet(null);
-
-            // Pass the TAsynchronousExecutionProgress object to FPagedDataSetObject
-            // so that it can update execution status
-            FPagedDataSetObject.AsyncExecProgress = FAsyncExecProgress;
-
-            // Register Event Handler for the StopAsyncronousExecution event
-            FAsyncExecProgress.StopAsyncronousExecution += new System.EventHandler(this.StopSearch);
 
             DataRow CriteriaRow = PrepareDataRow(ACriteriaData);
             Int32 ledgerNumber = (Int32)CriteriaRow["LedgerNumber"];
@@ -301,8 +289,6 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
         /// <summary>
         /// Stops the query execution.
         ///
-        /// Is intended to be called as an Event from FAsyncExecProgress.Cancel.
-        ///
         /// @comment It might take some time until the executing query is cancelled by
         /// the DB, but this procedure returns immediately. The reason for this is that
         /// we consider the query cancellation as done since the application can
@@ -311,11 +297,7 @@ namespace Ict.Petra.Server.MFinance.AP.UIConnectors
         /// errors that state that a ADO.NET command is still executing!).
         ///
         /// </summary>
-        /// <param name="ASender">Object that requested the stopping (not evaluated)</param>
-        /// <param name="AArgs">(not evaluated)
-        /// </param>
-        /// <returns>void</returns>
-        public void StopSearch(object ASender, EventArgs AArgs)
+        public void StopSearch()
         {
             Thread StopQueryThread;
 

@@ -27,14 +27,15 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Data.Common;
 using System.Data.Odbc;
-
 using Ict.Common;
 using Ict.Common.Data;
 using Ict.Common.DB;
 using Ict.Common.Remoting.Shared;
 using Ict.Common.Remoting.Server;
 using Ict.Common.Remoting.Client;
+using Ict.Petra.Server.App.Core;
 using Ict.Petra.Shared;
+using Ict.Petra.Server.MCommon.WebConnectors;
 using Ict.Petra.Shared.MPartner.Partner.Data;
 using Ict.Petra.Server.MPartner.Partner.Data.Access;
 
@@ -251,10 +252,9 @@ namespace Ict.Petra.Server.MCommon
     /// in a separate Thread!
     ///
     /// </summary>
-    public class TPagedDataSet : object
+    public class TPagedDataSet
     {
-        /// <summary>Asynchronous execution control object</summary>
-        TAsynchronousExecutionProgress FAsyncExecProgress;
+        private string FProgressID;
 
         /// <summary>An instance of TAsyncFindParameters containing parameters for the query execution</summary>
         TAsyncFindParameters FFindParameters;
@@ -294,17 +294,12 @@ namespace Ict.Petra.Server.MCommon
             }
         }
 
-        /// <summary>Returns reference to the Asynchronous execution control object to the caller</summary>
-        public TAsynchronousExecutionProgress AsyncExecProgress
+        /// <summary>get the current progress</summary>
+        public TProgressState Progress
         {
             get
             {
-                return FAsyncExecProgress;
-            }
-
-            set
-            {
-                FAsyncExecProgress = value;
+                return TProgressTracker.GetCurrentState(FProgressID);
             }
         }
 
@@ -386,8 +381,8 @@ namespace Ict.Petra.Server.MCommon
 
             try
             {
-                FAsyncExecProgress.ProgressInformation = "Executing Query...";
-                FAsyncExecProgress.ProgressState = TAsyncExecProgressState.Aeps_Executing;
+                FProgressID = Guid.NewGuid().ToString();
+                TProgressTracker.InitProgressTracker(FProgressID, "Executing Query...", 100.0m);
 
                 // Create SQL statement and execute it to return all records
                 ExecuteFullQuery();
@@ -397,7 +392,7 @@ namespace Ict.Petra.Server.MCommon
                 TLogging.Log(this.GetType().FullName + ".ExecuteQuery:  Exception occured: " + exp.ToString());
 
                 // Inform the caller that something has gone wrong...
-                FAsyncExecProgress.ProgressState = TAsyncExecProgressState.Aeps_Stopped;
+                TProgressTracker.CancelJob(FProgressID);
 
                 /*
                  *     WE MUST 'SWALLOW' ANY EXCEPTION HERE, OTHERWISE THE WHOLE
@@ -468,32 +463,22 @@ namespace Ict.Petra.Server.MCommon
             {
                 // Note: these exceptions are thrown when a Query was cancelled. This works
                 // only with MS.NET though, but not with mono (at least up to 1.1.13.2)
-                FAsyncExecProgress.ProgressInformation = "Query cancelled!";
-                FAsyncExecProgress.ProgressState = TAsyncExecProgressState.Aeps_Stopped;
+                TProgressTracker.SetCurrentState(FProgressID, "Query cancelled!", 0.0m);
+                TProgressTracker.CancelJob(FProgressID);
                 return;
             }
             catch (Exception)
             {
-                FAsyncExecProgress.ProgressInformation = "Query cancelled!";
-                FAsyncExecProgress.ProgressState = TAsyncExecProgressState.Aeps_Stopped;
-                return;
-            }
-
-            // Check if query execution cancellation was requested  necessary only for mono (at least up to 1.1.13.2)
-            if (FAsyncExecProgress.FCancelExecution)
-            {
-                TLogging.LogAtLevel(7, "Query got cancelled!");
-                FAsyncExecProgress.ProgressInformation = "Query cancelled!";
-                FAsyncExecProgress.ProgressState = TAsyncExecProgressState.Aeps_Stopped;
+                TProgressTracker.SetCurrentState(FProgressID, "Query cancelled!", 0.0m);
+                TProgressTracker.CancelJob(FProgressID);
                 return;
             }
 
             TLogging.LogAtLevel(7, "TPagedDataSet  FDataAdapter.Fill finished. FTotalRecords: " + FTotalRecords.ToString());
             FPageDataTable = FTmpDataTable.Clone();
             FPageDataTable.TableName = FFindParameters.FSearchName;
-            FAsyncExecProgress.ProgressInformation = "Query executed.";
-            FAsyncExecProgress.ProgressPercentage = 100;
-            FAsyncExecProgress.ProgressState = TAsyncExecProgressState.Aeps_Finished;
+            TProgressTracker.SetCurrentState(FProgressID, "Query executed.", 100.0m);
+            TProgressTracker.FinishJob(FProgressID);
         }
 
         /// <summary>
@@ -573,9 +558,8 @@ namespace Ict.Petra.Server.MCommon
                 }
             }
 
-            FAsyncExecProgress.ProgressInformation = "Query executed.";
-            FAsyncExecProgress.ProgressPercentage = 100;
-            FAsyncExecProgress.ProgressState = TAsyncExecProgressState.Aeps_Finished;
+            TProgressTracker.SetCurrentState(FProgressID, "Query executed.", 100.0m);
+            TProgressTracker.FinishJob(FProgressID);
             return FPageDataTable;
         }
 
@@ -747,142 +731,6 @@ namespace Ict.Petra.Server.MCommon
         #endregion
         #endregion
     }
-
-    #region TAsynchronousExecutionProgress
-
-    /// <summary>
-    /// Universal class for providing progress information and results for
-    /// asynchronous executions of any kind (eg. updating a ProgressBar on the Client
-    /// side).
-    ///
-    /// This class will be instantiated by some object ('Instantiator') to be able to
-    /// tell a 'Listener' object how much progress has been done on a certain task.
-    /// For this the 'Instantiator' will create an instance of this class and have
-    /// a Property that accesses this instance. The 'Listener' object can use the
-    /// IAsynchronousExecutionProgress interface to read Properties and call the
-    /// Cancel method. The 'Listener' object can be instantiated on the Client side
-    /// as well as on the Server side.
-    ///
-    /// </summary>
-    public class TAsynchronousExecutionProgress : IAsynchronousExecutionProgress
-    {
-        /// <summary>Property value.</summary>
-        private String FProgressInformation;
-
-        /// <summary>Property value.</summary>
-        Int16 FProgressPercentage;
-
-        /// <summary>Property value.</summary>
-        System.Object FResult;
-
-        /// <summary>Property value.</summary>
-        TAsyncExecProgressState FProgressState;
-
-        /// <summary>Set to true when the Cancel method is called (monitor this in the 'Instantiator' to know if to stop).</summary>
-        internal Boolean FCancelExecution;
-
-        /// <summary>Text that explains what is currently going on.</summary>
-        public String ProgressInformation
-        {
-            get
-            {
-                return FProgressInformation;
-            }
-
-            set
-            {
-                FProgressInformation = value;
-            }
-        }
-
-        /// <summary>A value between 0 and 100 that tells to which degree the progress is finished.</summary>
-        public Int16 ProgressPercentage
-        {
-            get
-            {
-                return FProgressPercentage;
-            }
-
-            set
-            {
-                FProgressPercentage = value;
-            }
-        }
-
-        /// <summary>Indicates the ProgressState. (Default: Aeps_ReadyToStart)</summary>
-        public TAsyncExecProgressState ProgressState
-        {
-            get
-            {
-                return FProgressState;
-            }
-
-            set
-            {
-                FProgressState = value;
-            }
-        }
-        /// <summary>Can be used by the 'Instantiator' to pass a result to the 'Listener'</summary>
-        public object Result
-        {
-            get
-            {
-                return FResult;
-            }
-
-            set
-            {
-                FResult = value;
-            }
-        }
-
-        /// <summary>Event that fires when the Cancel method is called (only the 'Instantiator' should subscribe to that).</summary>
-        public event System.EventHandler StopAsyncronousExecution;
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        public TAsynchronousExecutionProgress() : base()
-        {
-            FProgressState = TAsyncExecProgressState.Aeps_ReadyToStart;
-        }
-
-        /// <summary>
-        /// Returns ProgressState, ProgressPercentage and ProgressInformation properties
-        /// in one call. This saves considerable bandwidth over calling these properties
-        /// seperately!
-        ///
-        /// </summary>
-        /// <param name="ProgressState">See ProgressState property</param>
-        /// <param name="ProgressPercentage">See ProgressPercentage property</param>
-        /// <param name="ProgressInformation">See ProgressInformation property
-        /// </param>
-        /// <returns>void</returns>
-        public void ProgressCombinedInfo(out TAsyncExecProgressState ProgressState, out Int16 ProgressPercentage, out String ProgressInformation)
-        {
-            ProgressState = FProgressState;
-            ProgressPercentage = FProgressPercentage;
-            ProgressInformation = FProgressInformation;
-        }
-
-        /// <summary>
-        /// Call this method from the 'Listener' object to signal the 'Instantiator' that the execution should be stopped
-        /// </summary>
-        /// <returns>void</returns>
-        public void Cancel()
-        {
-            TLogging.LogAtLevel(6, "TAsynchronousExecutionProgress.Cancel called!");
-            FCancelExecution = true;
-            FProgressState = TAsyncExecProgressState.Aeps_Stopping;
-
-            // Fire event
-            if (StopAsyncronousExecution != null)
-            {
-                StopAsyncronousExecution(this, new System.EventArgs());
-            }
-        }
-    }
-    #endregion
 
     #region TDynamicSearchHelper
 

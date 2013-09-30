@@ -5,7 +5,7 @@
 //       timop
 //       Tim Ingham
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -127,26 +127,26 @@ namespace Ict.Petra.Client.MFinance.Gui.AP
             {
                 /* The next line of code calls a function on the PetraServer
                  * > causes a bit of data traffic everytime! */
-                switch (FFindObject.AsyncExecProgress.ProgressState)
+                TProgressState state = FFindObject.Progress;
+
+                if (state.JobFinished)
                 {
-                    case TAsyncExecProgressState.Aeps_Finished:
-                        FKeepUpSearchFinishedCheck = false;
+                    FKeepUpSearchFinishedCheck = false;
 
-                        // see also http://stackoverflow.com/questions/6184/how-do-i-make-event-callbacks-into-my-win-forms-thread-safe
-                        if (InvokeRequired)
-                        {
-                            Invoke(new SimpleDelegate(FinishThread));
-                        }
-                        else
-                        {
-                            FinishThread();
-                        }
-
-                        break;
-
-                    case TAsyncExecProgressState.Aeps_Stopped:
-                        FKeepUpSearchFinishedCheck = false;
-                        return;
+                    // see also http://stackoverflow.com/questions/6184/how-do-i-make-event-callbacks-into-my-win-forms-thread-safe
+                    if (InvokeRequired)
+                    {
+                        Invoke(new SimpleDelegate(FinishThread));
+                    }
+                    else
+                    {
+                        FinishThread();
+                    }
+                }
+                else if (state.CancelJob)
+                {
+                    FKeepUpSearchFinishedCheck = false;
+                    return;
                 }
 
                 // Sleep a bit, then loop...
