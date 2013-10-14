@@ -36,6 +36,7 @@ using System.Security.Permissions;
 using System.Text;
 using System.Threading;
 using GNU.Gettext;
+using System.Web;
 
 using Ict.Common;
 using Ict.Common.Remoting.Server;
@@ -187,6 +188,13 @@ namespace Ict.Common.Remoting.Server
 
             FFirstInstance = (FNumberServerManagerInstances == 0);
             FNumberServerManagerInstances++;
+
+            if (HttpContext.Current != null)
+            {
+                HttpContext.Current.Server.ScriptTimeout = Convert.ToInt32(
+                    TimeSpan.FromMinutes(TAppSettingsManager.GetInt32("WebRequestTimeOutInMinutes", 15)).
+                    TotalSeconds);
+            }
         }
 
         /// <summary>

@@ -79,6 +79,10 @@ namespace Ict.Common.IO
             {
                 WebRequest request = base.GetWebRequest(address);
 
+                request.Timeout = Convert.ToInt32(
+                    TimeSpan.FromMinutes(TAppSettingsManager.GetInt32("WebRequestTimeOutInMinutes", 15)).
+                    TotalMilliseconds);
+
                 var castRequest = request as HttpWebRequest;
 
                 if (castRequest != null)
