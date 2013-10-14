@@ -26,6 +26,7 @@ using System.Data;
 using System.Configuration;
 using System.IO;
 using System.Security.Principal;
+using System.Threading;
 using Ict.Common;
 using Ict.Common.DB;
 using Ict.Common.Remoting.Server;
@@ -105,6 +106,7 @@ namespace Ict.Testing.NUnitPetraServer
                 out ThisUserInfo);
 
             // the following values are stored in the session object
+            Thread.CurrentThread.Name = "testserver";
             DomainManager.GClientID = ClientID;
             DomainManager.CurrentClient = CurrentClient;
             UserInfo.GUserInfo = (TPetraPrincipal)ThisUserInfo;
