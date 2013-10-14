@@ -4,7 +4,7 @@
 // @Authors:
 //       AlanP
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2013 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -68,7 +68,7 @@ namespace Tests.MFinance.Client.ExchangeRates
         /// </summary>
         public override void Setup()
         {
-            new TLogging("TestClient.log");
+            new TLogging("../../log/TestClient.log");
 
             FConnectedToServer = false;
             try

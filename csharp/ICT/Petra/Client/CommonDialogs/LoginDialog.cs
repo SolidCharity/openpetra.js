@@ -307,8 +307,8 @@ namespace Ict.Petra.Client.CommonDialogs
             {
                 this.Cursor = Cursors.Default;
 
-                // TODO what todo on connection failure?
-                if (ConnectionError.Length > 0)
+                // TODORemoting do not show the error code???
+                if ((ConnectionError.Length > 0) && (ConnectionError.IndexOf(" ") != -1))
                 {
                     // this message box shows if the password is wrong
                     // otherwise there has already been a message box usually
