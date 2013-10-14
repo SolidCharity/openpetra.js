@@ -72,10 +72,17 @@ namespace Ict.Common.Remoting.Shared
 
                 TLogging.Log(e.ToString());
             }
-            return Convert.ToBase64String(memoryStream.ToArray());
+            string encoded = Convert.ToBase64String(memoryStream.ToArray());
+
+            if (encoded.Length > 1024 * 1024 * 4)
+            {
+                TLogging.Log("Warning: THttpBinarySerializer.SerializeObject: Binary parameter is too long: " + encoded.Length.ToString());
+            }
+
+            return encoded;
         }
 
-        /// serialize any object. depending on the type of the object, it will serialized in binary format
+        /// serialize any object. depending on the type of the object, it will be serialized in binary format
         static public string SerializeObject(object o)
         {
             if (o == null)
@@ -91,7 +98,7 @@ namespace Ict.Common.Remoting.Shared
                                         ));
         }
 
-        /// serialize any object. depending on the type of the object, it will serialized in binary format
+        /// serialize any object. depending on the type of the object, it will be serialized in binary format
         static public string SerializeObjectWithType(object o)
         {
             if (o == null)
