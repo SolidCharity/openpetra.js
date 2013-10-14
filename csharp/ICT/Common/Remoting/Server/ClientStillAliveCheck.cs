@@ -126,7 +126,13 @@ namespace Ict.Common.Remoting.Server
                 DateTime LastPollingTime;
 
                 // Check whether this Thread should still execute
+                // TODORemoting; need to do something so that NUnit tests do not use clientstillactivecheck
                 while (UKeepServerAliveCheck)
+                {
+                    Thread.Sleep(500);
+                }
+
+                return;
                 {
                     if (TLogging.DL >= 10)
                     {
