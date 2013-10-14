@@ -106,7 +106,6 @@ namespace Ict.Testing.NUnitPetraServer
                 out ThisUserInfo);
 
             // the following values are stored in the session object
-            Thread.CurrentThread.Name = "testserver";
             DomainManager.GClientID = ClientID;
             DomainManager.CurrentClient = CurrentClient;
             UserInfo.GUserInfo = (TPetraPrincipal)ThisUserInfo;
