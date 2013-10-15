@@ -3,7 +3,13 @@
 
 <include buildfile="../../../inc/nant/OpenPetra.csharp.xml"/> 
 
+<target name="cleanup">
+    <nant inheritall="false" target="stopServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>
+</target>
+
 <target name="test-client">
+    <property name="nant.onfailure" value="cleanup" />
+
     <!-- stop old server that might still be running from earlier (failed) builds -->
     <nant inheritall="false" target="stopServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>
     <nant inheritall="false" target="startServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>
@@ -73,6 +79,8 @@
 </target>
 
 <target name="test-main-navigation-screens">
+    <property name="nant.onfailure" value="cleanup" />
+
     <!-- stop old server that might still be running from earlier (failed) builds -->
     <nant inheritall="false" target="stopServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>
     <nant inheritall="false" target="startServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>
