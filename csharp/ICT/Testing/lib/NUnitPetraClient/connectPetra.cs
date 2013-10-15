@@ -81,11 +81,13 @@ namespace Ict.Testing.NUnitPetraClient
             TSharedFinanceValidationHelper.GetValidPostingDateRangeDelegate = @TServerLookup.TMFinance.GetCurrentPostingRangeDates;
             TSharedFinanceValidationHelper.GetValidPeriodDatesDelegate = @TServerLookup.TMFinance.GetCurrentPeriodDates;
 
-            if !(Connect(TAppSettingsManager.GetValue("AutoLogin"), TAppSettingsManager.GetValue("AutoLoginPasswd"),
+            if (eLoginEnum.eLoginSucceeded != Connect(TAppSettingsManager.GetValue("AutoLogin"), TAppSettingsManager.GetValue("AutoLoginPasswd"),
                          TAppSettingsManager.GetInt64("SiteKey")))
             {
                 throw new Exception("login failed");
             }
+
+            return eLoginEnum.eLoginSucceeded;
         }
 
         private static eLoginEnum Connect(String AUserName, String APassword, Int64 ASiteKey)
