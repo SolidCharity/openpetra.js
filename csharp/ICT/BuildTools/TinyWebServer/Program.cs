@@ -29,6 +29,7 @@ using System.Web.Hosting;
 using System.Net;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace Ict.Tools.TinyWebServer
 {
@@ -39,6 +40,9 @@ namespace Ict.Tools.TinyWebServer
     {
         static string FLogFile = "../Ict.Tools.WebServer.log";
         static TimeSpan? FMaxRunTime = new Nullable <TimeSpan>();
+        static ThreadedHttpListenerWrapper Fthlw;
+        static DateTime FTimeStarted = DateTime.Now;
+        static bool FStopServer = false;
 
         static void Log(string AMessage)
         {
@@ -48,6 +52,23 @@ namespace Ict.Tools.TinyWebServer
             {
                 sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " " + AMessage);
                 sw.Close();
+            }
+        }
+
+        static void ThreadCheckMaxRunTime()
+        {
+            while (!FStopServer)
+            {
+                if (FTimeStarted.Add(FMaxRunTime.Value).CompareTo(DateTime.Now) < 0)
+                {
+                    Log("Stopping the server after maximum run time defined in command line parameter: " +
+                        FMaxRunTime.Value.ToString());
+                    FStopServer = true;
+                    Fthlw.Stop();
+                    break;
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(10));
             }
         }
 
@@ -79,7 +100,7 @@ namespace Ict.Tools.TinyWebServer
                     ;
                 }
 
-                ThreadedHttpListenerWrapper thlw = (ThreadedHttpListenerWrapper)ApplicationHost.CreateApplicationHost(
+                Fthlw = (ThreadedHttpListenerWrapper)ApplicationHost.CreateApplicationHost(
                     typeof(ThreadedHttpListenerWrapper), "/", physicalDir);
 
                 string port = "8888";
@@ -106,11 +127,11 @@ namespace Ict.Tools.TinyWebServer
                     "http://+:" + port + "/"
                 };
 
-                thlw.Configure(prefixes, "/", Directory.GetCurrentDirectory());
+                Fthlw.Configure(prefixes, "/", Directory.GetCurrentDirectory());
 
                 try
                 {
-                    thlw.Start();
+                    Fthlw.Start();
                 }
                 catch (HttpListenerException)
                 {
@@ -130,26 +151,19 @@ namespace Ict.Tools.TinyWebServer
 
                 if (FMaxRunTime.HasValue)
                 {
-                    Message += " for a maximum run time: " + FMaxRunTime.Value.ToString("HH:mm:ss");
+                    Message += " for a maximum run time: " + FMaxRunTime.Value.ToString();
                 }
 
                 Log(Message);
 
-                DateTime TimeStarted = DateTime.Now;
-
-                while (true)
+                if (FMaxRunTime.HasValue)
                 {
-                    thlw.ProcessRequest();
+                    (new Thread(() => ThreadCheckMaxRunTime())).Start();
+                }
 
-                    if (FMaxRunTime.HasValue)
-                    {
-                        if (TimeStarted.Add(FMaxRunTime.Value).CompareTo(DateTime.Now) > 0)
-                        {
-                            Log("Stopping the server after maximum run time defined in command line parameter: " +
-                                FMaxRunTime.Value.ToString("HH:mm:ss"));
-                            break;
-                        }
-                    }
+                while (!FStopServer)
+                {
+                    Fthlw.ProcessRequest();
                 }
             }
             catch (Exception e)
