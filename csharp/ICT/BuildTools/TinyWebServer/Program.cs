@@ -37,6 +37,20 @@ namespace Ict.Tools.TinyWebServer
 /// </summary>
     class TTinyASMXServer
     {
+        static string FLogFile = "../Ict.Tools.WebServer.log";
+        static TimeSpan? FMaxRunTime = new Nullable <TimeSpan>();
+
+        static void Log(string AMessage)
+        {
+            Console.WriteLine(AMessage);
+
+            using (StreamWriter sw = new StreamWriter(FLogFile, true))
+            {
+                sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " " + AMessage);
+                sw.Close();
+            }
+        }
+
         static void Main(string[] args)
         {
             try
@@ -76,7 +90,17 @@ namespace Ict.Tools.TinyWebServer
                     port = parameters[1];
                 }
 
-                Console.WriteLine("trying to listen on port " + port);
+                if (parameters.Length > 2)
+                {
+                    FLogFile = parameters[2];
+                }
+
+                if (parameters.Length > 3)
+                {
+                    FMaxRunTime = TimeSpan.FromMinutes(Convert.ToInt32(parameters[3]));
+                }
+
+                Log("trying to listen on port " + port);
 
                 string[] prefixes = new string[] {
                     "http://+:" + port + "/"
@@ -92,8 +116,8 @@ namespace Ict.Tools.TinyWebServer
                 {
                     Console.WriteLine();
                     Console.WriteLine();
-                    Console.WriteLine("we cannot listen on this port. perhaps you need to run as administrator once: ");
-                    Console.WriteLine(
+                    Log("we cannot listen on this port. perhaps you need to run as administrator once: ");
+                    Log(
                         "  netsh http add urlacl url=http://+:" + port + "/ user=" + Environment.MachineName + "\\" + Environment.UserName);
                     Console.WriteLine();
                     Console.WriteLine();
@@ -102,16 +126,35 @@ namespace Ict.Tools.TinyWebServer
                     throw;
                 }
 
-                Console.WriteLine("Listening for requests on http://127.0.0.1:" + port + "/");
+                string Message = "Listening for requests on http://127.0.0.1:" + port + "/";
+
+                if (FMaxRunTime.HasValue)
+                {
+                    Message += " for a maximum run time: " + FMaxRunTime.Value.ToString("HH:mm:ss");
+                }
+
+                Log(Message);
+
+                DateTime TimeStarted = DateTime.Now;
 
                 while (true)
                 {
                     thlw.ProcessRequest();
+
+                    if (FMaxRunTime.HasValue)
+                    {
+                        if (TimeStarted.Add(FMaxRunTime.Value).CompareTo(DateTime.Now) > 0)
+                        {
+                            Log("Stopping the server after maximum run time defined in command line parameter: " +
+                                FMaxRunTime.Value.ToString("HH:mm:ss"));
+                            break;
+                        }
+                    }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Log(e.ToString());
             }
         }
     }
