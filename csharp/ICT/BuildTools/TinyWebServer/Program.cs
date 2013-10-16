@@ -48,7 +48,7 @@ namespace Ict.Tools.TinyWebServer
         {
             Console.WriteLine(AMessage);
 
-            using (StreamWriter sw = new StreamWriter(FLogFile, true))
+            using (StreamWriter sw = new StreamWriter(FLogFile.Replace("/", Path.DirectorySeparatorChar), true))
             {
                 sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " " + AMessage);
                 sw.Close();
