@@ -149,8 +149,6 @@
               spawn="true">
            <arg value="/c" />
            <arg value="start" />
-           <arg value="cmd" /> <!-- This window stays open after the process finishes -->
-           <arg value="/k" />
            <arg value="${dir.delivery}/Ict.Tools.TinyWebServer.exe ${Server.Port} &quot;${dir.log}/Ict.Tools.WebServer.log&quot; ${TinyServer.MaximumRuntime.InMinutes}" />
       </exec>
     </if>
