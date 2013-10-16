@@ -82,7 +82,7 @@ namespace Ict.Testing.NUnitPetraClient
             TSharedFinanceValidationHelper.GetValidPeriodDatesDelegate = @TServerLookup.TMFinance.GetCurrentPeriodDates;
 
             if (eLoginEnum.eLoginSucceeded != Connect(TAppSettingsManager.GetValue("AutoLogin"), TAppSettingsManager.GetValue("AutoLoginPasswd"),
-                         TAppSettingsManager.GetInt64("SiteKey")))
+                    TAppSettingsManager.GetInt64("SiteKey")))
             {
                 throw new Exception("login failed");
             }
