@@ -261,16 +261,20 @@ namespace Ict.Testing.NUnitTools
 
             string nantLogFile = rootPath + Path.DirectorySeparatorChar + "nant.txt";
 
-            if (!File.Exists(nantLogFile))
+            if (File.Exists(nantLogFile))
             {
-                FileStream fs = File.Create(nantLogFile);
-                fs.Close();
+                try
+                {
+                    StreamReader sr = new StreamReader(nantLogFile);
+                    TLogging.Log(sr.ReadToEnd());
+                    sr.Close();
+                    File.Delete(nantLogFile);
+                }
+                catch (System.IO.IOException)
+                {
+                    TLogging.Log("Problem reading log file, but continuing anyway: " + nantLogFile);
+                }
             }
-
-            StreamReader sr = new StreamReader(nantLogFile);
-            TLogging.Log(sr.ReadToEnd());
-            sr.Close();
-            File.Delete(rootPath + Path.DirectorySeparatorChar + "nant.txt");
 
             if ((NantProcess.ExitCode != 0) && !ignoreError)
             {

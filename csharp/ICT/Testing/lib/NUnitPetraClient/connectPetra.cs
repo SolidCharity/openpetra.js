@@ -52,7 +52,7 @@ namespace Ict.Testing.NUnitPetraClient
     public class TPetraConnector
     {
         /// connect to the server
-        public static eLoginEnum Connect(string AConfigName)
+        public static eLoginEnum Connect(string AConfigName, bool AThrowExceptionOnLoginFailure = true)
         {
             TUnhandledThreadExceptionHandler UnhandledThreadExceptionHandler;
 
@@ -81,13 +81,15 @@ namespace Ict.Testing.NUnitPetraClient
             TSharedFinanceValidationHelper.GetValidPostingDateRangeDelegate = @TServerLookup.TMFinance.GetCurrentPostingRangeDates;
             TSharedFinanceValidationHelper.GetValidPeriodDatesDelegate = @TServerLookup.TMFinance.GetCurrentPeriodDates;
 
-            if (eLoginEnum.eLoginSucceeded != Connect(TAppSettingsManager.GetValue("AutoLogin"), TAppSettingsManager.GetValue("AutoLoginPasswd"),
-                    TAppSettingsManager.GetInt64("SiteKey")))
+            eLoginEnum Result = Connect(TAppSettingsManager.GetValue("AutoLogin"), TAppSettingsManager.GetValue("AutoLoginPasswd"),
+                TAppSettingsManager.GetInt64("SiteKey"));
+
+            if ((Result != eLoginEnum.eLoginSucceeded) && AThrowExceptionOnLoginFailure)
             {
                 throw new Exception("login failed");
             }
 
-            return eLoginEnum.eLoginSucceeded;
+            return Result;
         }
 
         private static eLoginEnum Connect(String AUserName, String APassword, Int64 ASiteKey)

@@ -144,13 +144,13 @@
 </echo>
       <!-- maximum runtime of server, eg. on Jenkins, so that the workspace is not blocked forever if the server cannot be stopped -->
       <property name="TinyServer.MaximumRuntime.InMinutes" value="120" overwrite="false"/>
-      <echo message="starting: ${dir.delivery}/Ict.Tools.TinyWebServer.exe ${Server.Port} &quot;${dir.log}/Ict.Tools.WebServer.log&quot; ${TinyServer.MaximumRuntime.InMinutes}"/>
+      <echo message="starting: Ict.Tools.TinyWebServer.exe ${Server.Port} &quot;${dir.log}\Ict.Tools.WebServer.log&quot; ${TinyServer.MaximumRuntime.InMinutes}"/>
       <exec program="cmd.exe" 
               workingdir="${dir.delivery}"
               spawn="true">
            <arg value="/c" />
            <arg value="start" />
-           <arg value="${dir.delivery}/Ict.Tools.TinyWebServer.exe ${Server.Port} &quot;${dir.log}/Ict.Tools.WebServer.log&quot; ${TinyServer.MaximumRuntime.InMinutes}" />
+           <arg value="Ict.Tools.TinyWebServer.exe ${Server.Port} &quot;${dir.log}\Ict.Tools.WebServer.log&quot; ${TinyServer.MaximumRuntime.InMinutes}" />
       </exec>
     </if>
   </if>

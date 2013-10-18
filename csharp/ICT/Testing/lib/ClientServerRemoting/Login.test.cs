@@ -54,11 +54,6 @@ namespace Ict.Testing.ClientServerRemoting
             new TLogging("../../log/test.log");
             new TAppSettingsManager("../../etc/TestServer.config");
             CommonNUnitFunctions.InitRootPath();
-
-            // stop any server that might still be running
-            CommonNUnitFunctions.nant("stopServer", true);
-
-            CommonNUnitFunctions.nant("startServer", false);
         }
 
         /// <summary>
@@ -67,7 +62,6 @@ namespace Ict.Testing.ClientServerRemoting
         [TearDown]
         public void TearDown()
         {
-            CommonNUnitFunctions.nant("stopServer", true);
         }
 
         /// <summary>
@@ -84,7 +78,7 @@ namespace Ict.Testing.ClientServerRemoting
             string tempConfigFile = Path.GetTempFileName();
 
             // Testing successful login
-            Assert.AreEqual(eLoginEnum.eLoginSucceeded, TPetraConnector.Connect("../../etc/TestClient.config"), "should connect fine");
+            Assert.AreEqual(eLoginEnum.eLoginSucceeded, TPetraConnector.Connect("../../etc/TestClient.config", false), "should connect fine");
             TPetraConnector.Disconnect();
 
             // pass invalid password
@@ -93,14 +87,14 @@ namespace Ict.Testing.ClientServerRemoting
                     "key=\"AutoLoginPasswd\" value=\"demoFalse\""));
             sw.Close();
 
-            Assert.AreEqual(eLoginEnum.eLoginAuthenticationFailed, TPetraConnector.Connect(tempConfigFile), "should fail on wrong password");
+            Assert.AreEqual(eLoginEnum.eLoginAuthenticationFailed, TPetraConnector.Connect(tempConfigFile, false), "should fail on wrong password");
 
             // pass invalid user
             sw = new StreamWriter(tempConfigFile);
             sw.Write(config.Replace("key=\"AutoLogin\" value=\"demo\"",
                     "key=\"AutoLogin\" value=\"demoNonExisting\""));
             sw.Close();
-            Assert.AreEqual(eLoginEnum.eLoginAuthenticationFailed, TPetraConnector.Connect(tempConfigFile), "should fail on wrong user");
+            Assert.AreEqual(eLoginEnum.eLoginAuthenticationFailed, TPetraConnector.Connect(tempConfigFile, false), "should fail on wrong user");
 
             // clean up
             File.Delete(tempConfigFile);
@@ -119,7 +113,7 @@ namespace Ict.Testing.ClientServerRemoting
             sr.Close();
 
             Assert.AreEqual(eLoginEnum.eLoginSucceeded, TPetraConnector.Connect(
-                    "../../etc/TestClient.config"), "connecting with the same version number");
+                    "../../etc/TestClient.config", false), "connecting with the same version number");
             TPetraConnector.Disconnect();
 
             StreamWriter sw = new StreamWriter("../../delivery/bin/version.txt");
@@ -129,7 +123,7 @@ namespace Ict.Testing.ClientServerRemoting
             sw.WriteLine(testVersion.ToString());
             sw.Close();
             Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect(
-                    "../../etc/TestClient.config"), "client is too new, only change in private part");
+                    "../../etc/TestClient.config", false), "client is too new, only change in private part");
 
             sw = new StreamWriter("../../delivery/bin/version.txt");
             testVersion =
@@ -137,7 +131,7 @@ namespace Ict.Testing.ClientServerRemoting
                         ServerVersion.FilePrivatePart));
             sw.WriteLine(testVersion.ToString());
             sw.Close();
-            Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect("../../etc/TestClient.config"), "client is too old");
+            Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect("../../etc/TestClient.config", false), "client is too old");
 
             sw = new StreamWriter("../../delivery/bin/version.txt");
             testVersion =
@@ -145,14 +139,14 @@ namespace Ict.Testing.ClientServerRemoting
                         ServerVersion.FilePrivatePart));
             sw.WriteLine(testVersion.ToString());
             sw.Close();
-            Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect("../../etc/TestClient.config"), "client is too new");
+            Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect("../../etc/TestClient.config", false), "client is too new");
 
             sw = new StreamWriter("../../delivery/bin/version.txt");
             testVersion = new TFileVersionInfo(new Version());
             sw.WriteLine(testVersion.ToString());
             sw.Close();
             Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect(
-                    "../../etc/TestClient.config"), "version 0.0.0.0 should not be accepted");
+                    "../../etc/TestClient.config", false), "version 0.0.0.0 should not be accepted");
 
             // reset values
             sw = new StreamWriter("../../delivery/bin/version.txt");
