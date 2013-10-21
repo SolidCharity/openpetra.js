@@ -349,6 +349,21 @@ useful parameters
 &lt;project name="OpenPetra-userconfig">
     &lt;property name="DBMS.Type" value="sqlite"/>
     &lt;property name="DBMS.Password" value=""/>
+    &lt;property name="Server.Port" value="${Server.Port}"/>
+&lt;/project>
+    </echo>
+</target>
+
+<!-- need to set the server port here, since it is not passed when called the Unit tests, so they are not using the server port defined on the command line -->
+<target name="set-server-port-for-jenkins">
+    <echo file="OpenPetra.build.config">&lt;?xml version="1.0"?>
+&lt;project name="OpenPetra-userconfig">
+    &lt;property name="Server.Port" value="${Server.Port}"/>
+    &lt;property name="DBMS.Type" value="${DBMS.Type}"/>
+    &lt;property name="DBMS.DBHostOrFile" value="${DBMS.DBHostOrFile}"/>
+    &lt;property name="DBMS.DBName" value="${DBMS.DBName}"/>
+    &lt;property name="DBMS.UserName" value="${DBMS.UserName}"/>
+    &lt;property name="DBMS.Password" value="${DBMS.Password}"/>
 &lt;/project>
     </echo>
 </target>

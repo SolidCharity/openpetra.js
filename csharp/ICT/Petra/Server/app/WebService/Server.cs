@@ -157,7 +157,7 @@ public class TOpenPetraOrg : WebService
         return loggedIn;
     }
 
-    private TDataBase GetDatabaseFromSession()
+    private TDataBase GetDatabaseFromSession(bool AOpenConnection = true)
     {
         if (HttpContext.Current.Session["DBAccessObj"] == null)
         {
@@ -174,7 +174,10 @@ public class TOpenPetraOrg : WebService
                 // disconnect normal users after 3 hours of inactivity
                 TheServerManager.DisconnectTimedoutDatabaseConnections(3 * 60 * 60, "");
 
-                TheServerManager.EstablishDBConnection();
+                if (AOpenConnection)
+                {
+                    TheServerManager.EstablishDBConnection();
+                }
             }
         }
 

@@ -89,7 +89,7 @@ namespace Ict.Common.DB
         /// <summary>
         /// delegate for getting the database object for this current session
         /// </summary>
-        public delegate TDataBase DBAccessObjectGetter();
+        public delegate TDataBase DBAccessObjectGetter(bool AOpenConnection = true);
 
         private static DBAccessObjectSetter MGDBAccessObjDelegateSet = null;
         private static DBAccessObjectGetter MGDBAccessObjDelegateGet = null;
@@ -128,6 +128,22 @@ namespace Ict.Common.DB
                 {
                     return MGDBAccessObjDelegateGet();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Get Database object but don't establish it if it is not open yet;
+        /// this is useful for disconnetion when the version of client and server don't match
+        /// </summary>
+        public static TDataBase GetGDBAccessObjWithoutOpening()
+        {
+            if (MGDBAccessObjDelegateGet == null)
+            {
+                return MGDBAccessObj;
+            }
+            else
+            {
+                return MGDBAccessObjDelegateGet(false);
             }
         }
     }

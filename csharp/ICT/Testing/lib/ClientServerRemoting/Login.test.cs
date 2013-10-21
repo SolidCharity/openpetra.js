@@ -116,42 +116,28 @@ namespace Ict.Testing.ClientServerRemoting
                     "../../etc/TestClient.config", false), "connecting with the same version number");
             TPetraConnector.Disconnect();
 
-            StreamWriter sw = new StreamWriter("../../delivery/bin/version.txt");
-            TFileVersionInfo testVersion =
+            TFileVersionInfo.FManualApplicationVersion =
                 new TFileVersionInfo(new Version(ServerVersion.FileMajorPart, ServerVersion.FileMinorPart, ServerVersion.FileBuildPart,
                         ServerVersion.FilePrivatePart + 1));
-            sw.WriteLine(testVersion.ToString());
-            sw.Close();
             Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect(
                     "../../etc/TestClient.config", false), "client is too new, only change in private part");
 
-            sw = new StreamWriter("../../delivery/bin/version.txt");
-            testVersion =
+            TFileVersionInfo.FManualApplicationVersion =
                 new TFileVersionInfo(new Version(ServerVersion.FileMajorPart, ServerVersion.FileMinorPart, ServerVersion.FileBuildPart - 1,
                         ServerVersion.FilePrivatePart));
-            sw.WriteLine(testVersion.ToString());
-            sw.Close();
             Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect("../../etc/TestClient.config", false), "client is too old");
 
-            sw = new StreamWriter("../../delivery/bin/version.txt");
-            testVersion =
+            TFileVersionInfo.FManualApplicationVersion =
                 new TFileVersionInfo(new Version(ServerVersion.FileMajorPart, ServerVersion.FileMinorPart, ServerVersion.FileBuildPart + 1,
                         ServerVersion.FilePrivatePart));
-            sw.WriteLine(testVersion.ToString());
-            sw.Close();
             Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect("../../etc/TestClient.config", false), "client is too new");
 
-            sw = new StreamWriter("../../delivery/bin/version.txt");
-            testVersion = new TFileVersionInfo(new Version());
-            sw.WriteLine(testVersion.ToString());
-            sw.Close();
+            TFileVersionInfo.FManualApplicationVersion = new TFileVersionInfo(new Version());
             Assert.AreEqual(eLoginEnum.eLoginVersionMismatch, TPetraConnector.Connect(
                     "../../etc/TestClient.config", false), "version 0.0.0.0 should not be accepted");
 
             // reset values
-            sw = new StreamWriter("../../delivery/bin/version.txt");
-            sw.WriteLine(ServerVersion.ToString());
-            sw.Close();
+            TFileVersionInfo.FManualApplicationVersion = ServerVersion;
         }
 
         /// <summary>

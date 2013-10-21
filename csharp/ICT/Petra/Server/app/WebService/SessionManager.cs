@@ -192,8 +192,13 @@ namespace Ict.Petra.Server.App.WebService
                 TLogging.Log(e.Message);
                 TLogging.Log(e.StackTrace);
                 Session["LoggedIn"] = false;
-                Ict.Common.DB.DBAccess.GDBAccessObj.RollbackTransaction();
-                DBAccess.GDBAccessObj.CloseDBConnection();
+                TDataBase db = DBAccess.GetGDBAccessObjWithoutOpening();
+
+                if (db != null)
+                {
+                    db.CloseDBConnection();
+                }
+
                 Session.Clear();
                 return TClientManager.LoginErrorFromException(e);
             }
@@ -252,7 +257,7 @@ namespace Ict.Petra.Server.App.WebService
         /// </summary>
         private static SortedList <string, TDataBase>FDatabaseObjects = new SortedList <string, TDataBase>();
 
-        static private TDataBase GetDatabaseFromSession()
+        static private TDataBase GetDatabaseFromSession(bool AOpenConnection = true)
         {
             // if another thread gets called, then the session object is null
             if (HttpContext.Current == null)
@@ -267,13 +272,16 @@ namespace Ict.Petra.Server.App.WebService
                 {
                     TDataBase db = new TDataBase();
 
-                    db.EstablishDBConnection(TSrvSetting.RDMBSType,
-                        TSrvSetting.PostgreSQLServer,
-                        TSrvSetting.PostgreSQLServerPort,
-                        TSrvSetting.PostgreSQLDatabaseName,
-                        TSrvSetting.DBUsername,
-                        TSrvSetting.DBPassword,
-                        "");
+                    if (AOpenConnection)
+                    {
+                        db.EstablishDBConnection(TSrvSetting.RDMBSType,
+                            TSrvSetting.PostgreSQLServer,
+                            TSrvSetting.PostgreSQLServerPort,
+                            TSrvSetting.PostgreSQLDatabaseName,
+                            TSrvSetting.DBUsername,
+                            TSrvSetting.DBPassword,
+                            "");
+                    }
 
                     FDatabaseObjects.Add(Thread.CurrentThread.Name, db);
                 }
@@ -295,7 +303,10 @@ namespace Ict.Petra.Server.App.WebService
                     // disconnect normal users after 3 hours of inactivity
                     TServerManager.TheCastedServerManager.DisconnectTimedoutDatabaseConnections(3 * 60 * 60, "");
 
-                    TServerManager.TheCastedServerManager.EstablishDBConnection();
+                    if (AOpenConnection)
+                    {
+                        TServerManager.TheCastedServerManager.EstablishDBConnection();
+                    }
                 }
             }
 
