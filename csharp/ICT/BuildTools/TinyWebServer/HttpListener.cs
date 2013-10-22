@@ -86,7 +86,16 @@ namespace Ict.Tools.TinyWebServer
         /// </summary>
         public void ProcessRequest()
         {
-            HttpListenerContext ctx = FListener.GetContext();
+            HttpListenerContext ctx = null;
+            try
+            {
+                ctx = FListener.GetContext();
+            }
+            catch (ThreadAbortException)
+            {
+                Console.WriteLine("Server stopped probably because a file in the application directory was changed");
+                return;
+            }
             TMyHttpWorkerRequest workerRequest =
                 new TMyHttpWorkerRequest(ctx, FVirtualDir, FPhysicalDir);
 

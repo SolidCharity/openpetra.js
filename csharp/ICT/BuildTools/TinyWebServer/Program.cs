@@ -162,7 +162,15 @@ namespace Ict.Tools.TinyWebServer
 
                 while (!FStopServer)
                 {
-                    Fthlw.ProcessRequest();
+                    try
+                    {
+                        Fthlw.ProcessRequest();
+                    }
+                    catch (AppDomainUnloadedException e)
+                    {
+                        Log(e.Message);
+                        break;
+                    }
                 }
             }
             catch (Exception e)
