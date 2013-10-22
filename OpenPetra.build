@@ -329,19 +329,24 @@ useful parameters
   <nant inheritall="true" target="previewWinform" buildfile="${path::combine(dir.csharp, 'ICT/Petra/Client/Ict.Petra.Client.build')}" verbose="${verbose}"/>
 </target>
 
-<target name="test" depends="initConfigFiles">
+<target name="test" depends="initConfigFiles, set-server-port-for-jenkins">
   <loadtasks assembly="${Ict.Tools.NAntTasks.DLL}" unless="${task::exists('GenerateNamespaceMap')}"/>
   <nant inheritall="false" target="test-all" buildfile="${path::combine(dir.csharp, 'ICT/Testing/ICT.Testing.build')}" verbose="${verbose}"/>
 </target>
 
-<target name="test-without-display" depends="initConfigFiles">
+<target name="test-without-display" depends="initConfigFiles, set-server-port-for-jenkins">
   <loadtasks assembly="${Ict.Tools.NAntTasks.DLL}" unless="${task::exists('GenerateNamespaceMap')}"/>
   <nant inheritall="false" target="test-without-display" buildfile="${path::combine(dir.csharp, 'ICT/Testing/ICT.Testing.build')}" verbose="${verbose}"/>
 </target>
 
-<target name="test-main-navigation-screens" depends="initConfigFiles">
+<target name="test-main-navigation-screens" depends="initConfigFiles, set-server-port-for-jenkins">
   <loadtasks assembly="${Ict.Tools.NAntTasks.DLL}" unless="${task::exists('GenerateNamespaceMap')}"/>
   <nant inheritall="false" target="test-main-navigation-screens" buildfile="${path::combine(dir.csharp, 'ICT/Testing/ICT.Testing.build')}" verbose="${verbose}"/>
+</target>
+
+<target name="test-client" depends="initConfigFiles, set-server-port-for-jenkins">
+  <loadtasks assembly="${Ict.Tools.NAntTasks.DLL}" unless="${task::exists('GenerateNamespaceMap')}"/>
+  <nant inheritall="false" target="test-client" buildfile="${path::combine(dir.csharp, 'ICT/Testing/ICT.Testing.build')}" verbose="${verbose}"/>
 </target>
 
 <target name="enable-sqlite-config-for-jenkins">
@@ -354,18 +359,22 @@ useful parameters
     </echo>
 </target>
 
-<!-- need to set the server port here, since it is not passed when called the Unit tests, so they are not using the server port defined on the command line -->
+<!-- need to set the server port here, since it is not passed when called the Unit tests, so they are not using the server port defined on the command line;
+     only applies if no local OpenPetra.build.config file exists -->
 <target name="set-server-port-for-jenkins">
-    <echo file="OpenPetra.build.config">&lt;?xml version="1.0"?>
-&lt;project name="OpenPetra-userconfig">
-    &lt;property name="Server.Port" value="${Server.Port}"/>
-    &lt;property name="DBMS.Type" value="${DBMS.Type}"/>
-    &lt;property name="DBMS.DBHostOrFile" value="${DBMS.DBHostOrFile}"/>
-    &lt;property name="DBMS.DBName" value="${DBMS.DBName}"/>
-    &lt;property name="DBMS.UserName" value="${DBMS.UserName}"/>
-    &lt;property name="DBMS.Password" value="${DBMS.Password}"/>
-&lt;/project>
-    </echo>
+    <if test="${not file::exists('OpenPetra.build.config') and not file::exists('OpenPetra.build.config.my')}">
+        <echo file="OpenPetra.build.config">&lt;?xml version="1.0"?>
+    &lt;project name="OpenPetra-userconfig">
+        &lt;property name="Server.Port" value="${Server.Port}"/>
+        &lt;property name="PostgreSQL.Version" value="${PostgreSQL.Version}"/>
+        &lt;property name="DBMS.Type" value="${DBMS.Type}"/>
+        &lt;property name="DBMS.DBHostOrFile" value="${DBMS.DBHostOrFile}"/>
+        &lt;property name="DBMS.DBName" value="${DBMS.DBName}"/>
+        &lt;property name="DBMS.UserName" value="${DBMS.UserName}"/>
+        &lt;property name="DBMS.Password" value="${DBMS.Password}"/>
+    &lt;/project>
+        </echo>
+    </if>
 </target>
 
 <target name="devzip">
@@ -408,11 +417,6 @@ useful parameters
     </zip>
 
     <!-- calling script must upload the zip file to sourceforge -->
-</target>
-
-<target name="test-client" depends="initConfigFiles">
-  <loadtasks assembly="${Ict.Tools.NAntTasks.DLL}" unless="${task::exists('GenerateNamespaceMap')}"/>
-  <nant inheritall="false" target="test-client" buildfile="${path::combine(dir.csharp, 'ICT/Testing/ICT.Testing.build')}" verbose="${verbose}"/>
 </target>
 
 </project>
