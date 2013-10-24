@@ -38,6 +38,7 @@ using Ict.Common.Remoting.Server;
 using Ict.Common.Remoting.Shared;
 using Ict.Common.Remoting.Client;
 using Tests.HTTPRemoting.Interface;
+using Ict.Petra.Server.App.Core;
 
 namespace Tests.HTTPRemoting.Service
 {
@@ -58,7 +59,7 @@ namespace Tests.HTTPRemoting.Service
         /// <summary>
         /// sample webconnector method
         /// </summary>
-        static public DateTime TestDateTime(DateTime date, out DateTime outDate)
+        static public DateTime TestDateTime(DateTime date, out DateTime outDateTomorrow)
         {
             Console.WriteLine("ToShortDateString(): " + date.ToShortDateString());
             Console.WriteLine("ToUniversalTime(): " + date.ToUniversalTime());
@@ -69,7 +70,7 @@ namespace Tests.HTTPRemoting.Service
             Console.WriteLine("ToUniversalTime(): " + date.ToUniversalTime());
             Console.WriteLine("ToLocalTime(): " + date.ToLocalTime());
 
-            outDate = date;
+            outDateTomorrow = DateTime.Today.AddDays(1);
             return date;
         }
 
@@ -79,6 +80,30 @@ namespace Tests.HTTPRemoting.Service
         static public string HelloSubWorld()
         {
             return "HelloSubWorld from the server!!!";
+        }
+
+        /// <summary>
+        /// sample webconnector method that takes a long time and uses the ProgressTracker
+        /// </summary>
+        static public string LongRunningJob()
+        {
+            string ClientID = DomainManager.GClientID.ToString();
+
+            // enable DebugLevel to show progress state on console
+            TLogging.DebugLevel = 1;
+            TProgressTracker.InitProgressTracker(ClientID,
+                "LongRunningJob",
+                100);
+
+            for (int i = 0; i < 10; i++)
+            {
+                Thread.Sleep(500);
+                TProgressTracker.SetCurrentState(ClientID, "working", Convert.ToDecimal(i * 10));
+            }
+
+            TProgressTracker.FinishJob(ClientID);
+
+            return "done";
         }
     }
 

@@ -242,6 +242,10 @@ namespace Ict.Common.IO
                 TLogging.Log("Trying to download: ");
                 LogRequest(url, parameters);
                 TLogging.Log(e.Message);
+                TLogging.Log("Error message from server:");
+                StreamReader sr = new StreamReader(e.Response.GetResponseStream());
+                TLogging.Log(sr.ReadToEnd());
+                sr.Close();
             }
 
             return String.Empty;

@@ -23,9 +23,13 @@
 //
 using System;
 using System.Net;
+using System.Threading;
+using System.Windows.Forms;
 using Ict.Common;
 using Ict.Common.Remoting.Client;
 using Ict.Common.Remoting.Shared;
+using Ict.Petra.Client.CommonDialogs;
+using Ict.Petra.Client.App.Core.RemoteObjects;
 using Tests.HTTPRemoting.Interface;
 using Tests.HTTPRemoting.Client;
 
@@ -46,6 +50,9 @@ namespace Ict.Testing.HTTPRemoting.Client
                 new TClientSettings();
 
                 // initialize the client
+                new TRemoteTest();
+
+                // need to call this as well to make the progress dialog work
                 new TRemote();
 
                 // allow self signed ssl certificate for test purposes
@@ -59,20 +66,32 @@ namespace Ict.Testing.HTTPRemoting.Client
 
                 Catalog.Init("en-GB", "en-GB");
 
-                IMyUIConnector MyUIConnector = TRemote.MyService.SubNamespace.MyUIConnector();
-                TRemote.TMyService.TMySubNamespace test = TRemote.MyService.SubNamespace;
+                IMyUIConnector MyUIConnector = TRemoteTest.MyService.SubNamespace.MyUIConnector();
+                TRemoteTest.TMyService.TMySubNamespace test = TRemoteTest.MyService.SubNamespace;
 
                 while (true)
                 {
                     try
                     {
                         TLogging.Log("before call");
-                        TLogging.Log(TRemote.MyService.HelloWorld("Hello World"));
+                        TLogging.Log(TRemoteTest.MyService.HelloWorld("Hello World"));
                         TLogging.Log("after call");
                     }
                     catch (Exception e)
                     {
                         TLogging.Log("problem with MyService HelloWorld: " + Environment.NewLine + e.ToString());
+                    }
+
+                    try
+                    {
+                        DateTime DateTomorrow;
+                        TLogging.Log("should show today's date: " + TRemoteTest.MyService.TestDateTime(DateTime.Today,
+                                out DateTomorrow).ToShortDateString());
+                        TLogging.Log("should show tomorrow's date: " + DateTomorrow.ToShortDateString());
+                    }
+                    catch (Exception e)
+                    {
+                        TLogging.Log("problem with TestDateTime: " + Environment.NewLine + e.ToString());
                     }
 
                     try
@@ -91,6 +110,17 @@ namespace Ict.Testing.HTTPRemoting.Client
                     catch (Exception e)
                     {
                         TLogging.Log("problem with HelloWorldUIConnector: " + Environment.NewLine + e.ToString());
+                    }
+
+                    // start long running job
+                    Thread t = new Thread(() => TRemoteTest.MyService.LongRunningJob());
+
+                    using (TProgressDialog dialog = new TProgressDialog(t))
+                    {
+                        if (dialog.ShowDialog() == DialogResult.Cancel)
+                        {
+                            return;
+                        }
                     }
 
                     Console.WriteLine("Press ENTER to say Hello World again... ");

@@ -37,6 +37,8 @@ using Ict.Common;
 using Ict.Common.Remoting.Server;
 using Ict.Common.Remoting.Shared;
 using Ict.Common.Remoting.Client;
+using Ict.Petra.Server.App.Core;
+using Ict.Petra.Server.MCommon.WebConnectors;
 using Tests.HTTPRemoting.Interface;
 
 namespace Tests.HTTPRemoting.Service
@@ -69,15 +71,26 @@ namespace Tests.HTTPRemoting.Service
         }
 
         /// <summary>
+        /// sample webconnector method that takes a long time and uses the ProgressTracker
+        /// </summary>
+        [WebMethod(EnableSession = true)]
+        public string LongRunningJob()
+        {
+            return TMyServiceWebConnector.LongRunningJob();
+        }
+
+        /// <summary>
         /// some tests for remoting DateTime objects
         /// </summary>
-        /// <param name="date"></param>
-        /// <param name="outDate"></param>
-        /// <returns></returns>
         [WebMethod(EnableSession = true)]
-        public DateTime TestDateTime(DateTime date, out DateTime outDate)
+        public string TestDateTime(string date)
         {
-            return TMyServiceWebConnector.TestDateTime(date, out outDate);
+            DateTime outDateTomorrow;
+
+            DateTime result = TMyServiceWebConnector.TestDateTime((DateTime)THttpBinarySerializer.DeserializeObject(date,
+                    "binary"), out outDateTomorrow);
+
+            return THttpBinarySerializer.SerializeObjectWithType(outDateTomorrow) + "," + THttpBinarySerializer.SerializeObjectWithType(result);
         }
 
         /// create a new UIConnector

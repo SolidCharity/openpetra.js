@@ -41,7 +41,7 @@ namespace Tests.HTTPRemoting.Client
     /// The properties MPartner, MFinance, etc. represent the top-most level of the
     /// Petra Partner, Finance, etc. Petra Module Namespaces in the PetraServer.
     /// </summary>
-    public class TRemote
+    public class TRemoteTest
     {
         /// <summary>
         /// my service class
@@ -57,11 +57,20 @@ namespace Tests.HTTPRemoting.Client
             }
 
             /// some tests for remoting DateTime objects
-            public DateTime TestDateTime(DateTime date, out DateTime outDate)
+            public DateTime TestDateTime(DateTime date, out DateTime outDateTomorrow)
             {
-                // TODORemoting
-                outDate = DateTime.Now;
-                return DateTime.Now;
+                SortedList <string, object>parameters = new SortedList <string, object>();
+                parameters.Add("date", date);
+                List <object>Result = THttpConnector.CallWebConnector("Sample", "TestDateTime", parameters, "list");
+                outDateTomorrow = (DateTime)Result[0];
+                return (DateTime)Result[1];
+            }
+
+            /// sample webconnector method that takes a long time and uses the ProgressTracker
+            public string LongRunningJob()
+            {
+                SortedList <string, object>parameters = new SortedList <string, object>();
+                return (string)THttpConnector.CallWebConnector("Sample", "LongRunningJob", parameters, "System.String")[0];
             }
 
             private TMySubNamespace FMySubNamespace = new TMySubNamespace();
@@ -136,7 +145,7 @@ namespace Tests.HTTPRemoting.Client
         }
 
 
-        /// <summary>Reference to the topmost level of the Petra Common Module Namespace</summary>
+        /// <summary>Reference to the TMyService object</summary>
         public static TMyService MyService
         {
             get
@@ -150,7 +159,7 @@ namespace Tests.HTTPRemoting.Client
         /// <summary>
         ///
         /// </summary>
-        public TRemote()
+        public TRemoteTest()
         {
             UMyServiceObject = new TMyService();
         }
