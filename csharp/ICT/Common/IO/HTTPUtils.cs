@@ -75,6 +75,32 @@ namespace Ict.Common.IO
                 get; set;
             }
 
+            private bool FInUse = false;
+            public bool InUse {
+                get
+                {
+                    return FInUse;
+                }
+            }
+
+            public byte[] Get(string AUrl, NameValueCollection AParameters = null)
+            {
+                byte[] result = null;
+                FInUse = true;
+
+                if (AParameters == null)
+                {
+                    result = DownloadData(AUrl);
+                }
+                else
+                {
+                    result = UploadValues(AUrl, AParameters);
+                }
+
+                FInUse = false;
+                return result;
+            }
+
             protected override WebRequest GetWebRequest(Uri address)
             {
                 WebRequest request = base.GetWebRequest(address);
@@ -108,7 +134,7 @@ namespace Ict.Common.IO
 
             byte[] buf;
 
-            if (FWebClient == null)
+            if ((FWebClient == null) || FWebClient.InUse)
             {
                 FWebClient = new WebClientWithSession();
             }
@@ -127,7 +153,7 @@ namespace Ict.Common.IO
 
             try
             {
-                buf = FWebClient.DownloadData(url);
+                buf = FWebClient.Get(url);
 
                 if ((buf != null) && (buf.Length > 0))
                 {
@@ -177,20 +203,20 @@ namespace Ict.Common.IO
         {
             byte[] buf;
 
-            if (FWebClient == null)
+            if ((FWebClient == null) || FWebClient.InUse)
             {
                 FWebClient = new WebClientWithSession();
             }
 
             try
             {
-                buf = FWebClient.UploadValues(url, parameters);
+                buf = FWebClient.Get(url, parameters);
             }
             catch (System.NotSupportedException)
             {
                 // System.NotSupportedException: WebClient does not support concurrent I/O operations
                 FWebClient = new WebClientWithSession(FWebClient.CookieContainer);
-                buf = FWebClient.UploadValues(url, parameters);
+                buf = FWebClient.Get(url, parameters);
             }
             catch (System.Net.WebException ex)
             {
