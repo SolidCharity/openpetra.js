@@ -54,6 +54,7 @@ namespace Ict.Testing.ClientServerRemoting
             new TLogging("../../log/test.log");
             new TAppSettingsManager("../../etc/TestServer.config");
             CommonNUnitFunctions.InitRootPath();
+            CommonNUnitFunctions.StartOpenPetraServer();
         }
 
         /// <summary>
@@ -62,6 +63,8 @@ namespace Ict.Testing.ClientServerRemoting
         [TearDown]
         public void TearDown()
         {
+            // clean up
+            CommonNUnitFunctions.nant("stopServer", false);
         }
 
         /// <summary>

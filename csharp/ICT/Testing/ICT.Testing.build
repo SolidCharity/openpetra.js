@@ -10,11 +10,13 @@
 <target name="test-client">
     <property name="nant.onfailure" value="cleanup" />
 
+    <!-- this test will start and stop the server itself -->
+    <NUnitConsole assemblyname="${dir.bin}/Ict.Testing.lib.ClientServerRemoting.dll" />
+
     <!-- stop old server that might still be running from earlier (failed) builds -->
     <nant inheritall="false" target="stopServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>
     <nant inheritall="false" target="startServer" buildfile="${path::combine(dir.root, 'OpenPetra.build')}" verbose="${verbose}"/>
 
-    <NUnitConsole assemblyname="${dir.bin}/Ict.Testing.lib.ClientServerRemoting.dll" />
     <NUnitConsole assemblyname="${dir.bin}/Ict.Testing.lib.Common.Controls.dll" />
     <NUnitConsole assemblyname="${dir.bin}/Ict.Testing.lib.MFinance.GLForm.dll" testcase="Tests.MFinance.GLBatches.TGLBatchesTest.TestCreateBatchAndPost"/>
     <NUnitConsole assemblyname="${dir.bin}/Ict.Testing.lib.MFinance.ExchangeRates.dll" />

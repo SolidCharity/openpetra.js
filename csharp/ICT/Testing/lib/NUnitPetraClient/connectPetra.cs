@@ -28,6 +28,7 @@ using System.Net.Sockets;
 using System.Runtime.Remoting;
 using System.Threading;
 using System.Windows.Forms;
+using System.IO;
 using Ict.Common;
 using Ict.Common.DB;
 using Ict.Common.Data;
@@ -90,6 +91,27 @@ namespace Ict.Testing.NUnitPetraClient
             }
 
             return Result;
+        }
+
+        /// <summary>
+        /// connect the client, but use some special parameters
+        /// </summary>
+        public static eLoginEnum Connect(string AConfigName, string AParameters)
+        {
+            string tempConfigFile = Path.GetTempFileName();
+            StreamReader sr = new StreamReader(AConfigName);
+            string config = sr.ReadToEnd();
+
+            sr.Close();
+
+            StreamWriter sw = new StreamWriter(tempConfigFile);
+            sw.Write(config.Replace("</appSettings>", AParameters + "</appSettings>"));
+            sw.Close();
+
+            eLoginEnum result = TPetraConnector.Connect(tempConfigFile);
+            File.Delete(tempConfigFile);
+
+            return result;
         }
 
         private static eLoginEnum Connect(String AUserName, String APassword, Int64 ASiteKey)

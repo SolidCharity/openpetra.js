@@ -26,6 +26,7 @@ using System.Data;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Threading;
 using Ict.Petra.Shared.MFinance.Account.Data;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
@@ -212,6 +213,60 @@ namespace Ict.Testing.NUnitTools
         }
 
         /// <summary>
+        /// execute commands in the server admin console
+        /// </summary>
+        public static string OpenPetraServerAdminConsole(string ACommand, string AParameters = "")
+        {
+            Process process = new Process();
+
+            string argument = "-Command:" + ACommand;
+
+            if (Ict.Common.Utilities.DetermineExecutingOS() >= TExecutingOSEnum.eosWinNTOrLater)
+            {
+                process.StartInfo.FileName = "PetraServerAdminConsole.exe";
+                process.StartInfo.Arguments = "-C:../../etc/ServerAdmin.config " + argument + " " + AParameters;
+            }
+            else
+            {
+                process.StartInfo.FileName = "mono";
+                process.StartInfo.Arguments = "PetraServerAdminConsole.exe -C:../../etc/ServerAdmin.config " + argument + " " + AParameters;
+            }
+
+            process.StartInfo.WorkingDirectory = rootPath + "/delivery/bin".Replace('/', Path.DirectorySeparatorChar);
+            process.StartInfo.UseShellExecute = false;
+            process.EnableRaisingEvents = false;
+            process.StartInfo.ErrorDialog = false;
+            process.StartInfo.RedirectStandardOutput = true;
+
+            if (!process.Start())
+            {
+                TLogging.Log("failed to start " + process.StartInfo.FileName + " " + process.StartInfo.Arguments);
+            }
+            else
+            {
+                process.WaitForExit(60000);
+                Debug.Print("OS says OpenPetraServerAdminConsole process is finished");
+            }
+
+            if (process.ExitCode != 0)
+            {
+                throw new Exception("OpenPetraServerAdminConsole did not succeed");
+            }
+
+            return process.StandardOutput.ReadToEnd();
+        }
+
+        /// <summary>
+        /// start the OpenPetra server
+        /// </summary>
+        public static void StartOpenPetraServer(string AParameters = "")
+        {
+            CommonNUnitFunctions.nant("startServer " + AParameters, false);
+            // wait a few seconds, otherwise the client will not connect
+            Thread.Sleep(Convert.ToInt32(TimeSpan.FromSeconds(5.0).TotalMilliseconds));
+        }
+
+        /// <summary>
         /// Actually this setting shall be done manually.
         /// </summary>
         private static string pathAndFileNameToNantExe = "nant";
@@ -236,12 +291,6 @@ namespace Ict.Testing.NUnitTools
             {
                 NantProcess.StartInfo.FileName = pathAndFileNameToNantExe;
                 NantProcess.StartInfo.Arguments = argument.Replace("\\", "/") + " -logfile:nant.txt";
-            }
-
-            // this is needed for running the NUnit tests with sqlite on Jenkins
-            if (TAppSettingsManager.GetValue("Server.RDBMSType").ToLower() == "sqlite")
-            {
-                NantProcess.StartInfo.Arguments += " -D:DBMS.Type=sqlite -D:DBMS.Password=";
             }
 
             NantProcess.StartInfo.WorkingDirectory = rootPath;
