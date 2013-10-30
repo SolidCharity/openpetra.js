@@ -60,7 +60,13 @@ namespace Ict.Common.Remoting.Server
                 }
                 else
                 {
-                    return Convert.ToInt32(HttpContext.Current.Session["ClientID"]);
+                    if (TSession.HasVariable("ClientID"))
+                    {
+                        string ClientID = TSession.GetVariable("ClientID").ToString();
+                        return Convert.ToInt32(ClientID);
+                    }
+
+                    throw new Exception("invalid session, does not have a client ID");
                 }
             }
 
@@ -79,7 +85,7 @@ namespace Ict.Common.Remoting.Server
                 }
                 else
                 {
-                    HttpContext.Current.Session["ClientID"] = value;
+                    TSession.SetVariable("ClientID", value);
                 }
             }
         }
@@ -104,7 +110,7 @@ namespace Ict.Common.Remoting.Server
                 }
                 else
                 {
-                    return (TConnectedClient)HttpContext.Current.Session["ConnectedClient"];
+                    return (TConnectedClient)TSession.GetVariable("ConnectedClient");
                 }
             }
 
@@ -123,7 +129,7 @@ namespace Ict.Common.Remoting.Server
                 }
                 else
                 {
-                    HttpContext.Current.Session["ConnectedClient"] = value;
+                    TSession.SetVariable("ConnectedClient", value);
                 }
             }
         }

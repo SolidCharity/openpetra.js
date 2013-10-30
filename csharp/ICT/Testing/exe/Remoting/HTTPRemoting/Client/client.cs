@@ -25,6 +25,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
+using System.Collections.Generic;
 using Ict.Common;
 using Ict.Common.Remoting.Client;
 using Ict.Common.Remoting.Shared;
@@ -65,6 +66,20 @@ namespace Ict.Testing.HTTPRemoting.Client
                 TClientInfo.InitializeUnit();
 
                 Catalog.Init("en-GB", "en-GB");
+
+                SortedList <string, object>Parameters = new SortedList <string, object>();
+                Parameters.Add("username", "demo");
+                Parameters.Add("password", "demo");
+                Parameters.Add("version", TFileVersionInfo.GetApplicationVersion().ToString());
+
+                List <object>ResultList = THttpConnector.CallWebConnector("SessionManager", "LoginClient", Parameters, "list");
+                eLoginEnum Result = (eLoginEnum)ResultList[0];
+
+                if (Result != eLoginEnum.eLoginSucceeded)
+                {
+                    // failed login
+                    return;
+                }
 
                 IMyUIConnector MyUIConnector = TRemoteTest.MyService.SubNamespace.MyUIConnector();
                 TRemoteTest.TMyService.TMySubNamespace test = TRemoteTest.MyService.SubNamespace;

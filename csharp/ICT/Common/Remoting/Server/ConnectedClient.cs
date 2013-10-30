@@ -296,9 +296,7 @@ namespace Ict.Common.Remoting.Server
             // clear the session object
             if (HttpContext.Current != null)
             {
-                // Session Abandon causes problems in Mono 2.10.x see https://bugzilla.novell.com/show_bug.cgi?id=669807
-                // TODO Session.Abandon();
-                HttpContext.Current.Session.Clear();
+                TSession.Clear();
             }
 
             FClientDisconnectionFinishedTime = DateTime.Now;

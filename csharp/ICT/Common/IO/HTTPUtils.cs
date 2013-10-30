@@ -26,6 +26,7 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Text;
+using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
@@ -121,6 +122,7 @@ namespace Ict.Common.IO
         }
 
         private static WebClientWithSession FWebClient = null;
+        private static CookieContainer SessionCookieContainer = null;
 
         /// <summary>
         /// read from a website;
@@ -134,10 +136,7 @@ namespace Ict.Common.IO
 
             byte[] buf;
 
-            if ((FWebClient == null) || FWebClient.InUse)
-            {
-                FWebClient = new WebClientWithSession();
-            }
+            SetWebClient(url);
 
             if (TLogging.DebugLevel > 0)
             {
@@ -199,23 +198,42 @@ namespace Ict.Common.IO
             }
         }
 
+        private static void SetWebClient(string url)
+        {
+            if (FWebClient == null)
+            {
+                FWebClient = new WebClientWithSession();
+            }
+            else if (FWebClient.InUse)
+            {
+                if (SessionCookieContainer == null)
+                {
+                    SessionCookieContainer = new CookieContainer();
+
+                    CookieContainer cc = FWebClient.CookieContainer;
+
+                    foreach (Cookie c in cc.GetCookies(new Uri(url)))
+                    {
+                        if (c.Name == "OpenPetraSessionID")
+                        {
+                            SessionCookieContainer.Add(
+                                new Cookie(c.Name, c.Value, c.Path, c.Domain));
+                        }
+                    }
+                }
+
+                FWebClient = new WebClientWithSession(SessionCookieContainer);
+            }
+        }
+
         private static string WebClientUploadValues(string url, NameValueCollection parameters, int ANumberOfAttempts = 0)
         {
             byte[] buf;
 
-            if ((FWebClient == null) || FWebClient.InUse)
-            {
-                FWebClient = new WebClientWithSession();
-            }
+            SetWebClient(url);
 
             try
             {
-                buf = FWebClient.Get(url, parameters);
-            }
-            catch (System.NotSupportedException)
-            {
-                // System.NotSupportedException: WebClient does not support concurrent I/O operations
-                FWebClient = new WebClientWithSession(FWebClient.CookieContainer);
                 buf = FWebClient.Get(url, parameters);
             }
             catch (System.Net.WebException ex)
@@ -224,9 +242,15 @@ namespace Ict.Common.IO
 
                 if (httpWebResponse != null)
                 {
-                    if (httpWebResponse.StatusDescription == SESSION_ALREADY_CLOSED)
+                    if (httpWebResponse.StatusCode == HttpStatusCode.NotFound)
                     {
                         throw new Exception(SESSION_ALREADY_CLOSED);
+                    }
+
+                    if (httpWebResponse.StatusCode == HttpStatusCode.InternalServerError)
+                    {
+                        // do not retry if code 500 returns
+                        throw;
                     }
                 }
 

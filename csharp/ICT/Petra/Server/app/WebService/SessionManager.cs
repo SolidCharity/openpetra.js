@@ -174,7 +174,7 @@ namespace Ict.Petra.Server.App.WebService
                     out AWelcomeMessage,
                     out ASystemEnabled,
                     out AUserInfo);
-                Session["LoggedIn"] = true;
+                TSession.SetVariable("LoggedIn", true);
 
                 // the following values are stored in the session object
                 DomainManager.GClientID = AClientID;
@@ -191,7 +191,7 @@ namespace Ict.Petra.Server.App.WebService
             {
                 TLogging.Log(e.Message);
                 TLogging.Log(e.StackTrace);
-                Session["LoggedIn"] = false;
+                TSession.SetVariable("LoggedIn", false);
                 TDataBase db = DBAccess.GetGDBAccessObjWithoutOpening();
 
                 if (db != null)
@@ -289,7 +289,7 @@ namespace Ict.Petra.Server.App.WebService
                 return FDatabaseObjects[Thread.CurrentThread.Name];
             }
 
-            if (HttpContext.Current.Session["DBAccessObj"] == null)
+            if (TSession.GetVariable("DBAccessObj") == null)
             {
                 if (TServerManager.TheServerManager == null)
                 {
@@ -310,7 +310,7 @@ namespace Ict.Petra.Server.App.WebService
                 }
             }
 
-            return (TDataBase)HttpContext.Current.Session["DBAccessObj"];
+            return (TDataBase)TSession.GetVariable("DBAccessObj");
         }
 
         static private void SetDatabaseForSession(TDataBase database)
@@ -321,24 +321,24 @@ namespace Ict.Petra.Server.App.WebService
                 System.Threading.Thread.CurrentThread.Name = "MainThread" + Guid.NewGuid().ToString();;
             }
 
-            HttpContext.Current.Session["DBAccessObj"] = database;
+            TSession.SetVariable("DBAccessObj", database);
         }
 
         static private TPetraPrincipal GetUserInfoFromSession()
         {
-            return (TPetraPrincipal)HttpContext.Current.Session["UserInfo"];
+            return (TPetraPrincipal)TSession.GetVariable("UserInfo");
         }
 
         static private void SetUserInfoForSession(TPetraPrincipal userinfo)
         {
-            HttpContext.Current.Session["UserInfo"] = userinfo;
+            TSession.SetVariable("UserInfo", userinfo);
         }
 
         /// <summary>check if the user has logged in successfully</summary>
         [WebMethod(EnableSession = true)]
         public bool IsUserLoggedIn()
         {
-            object loggedIn = Session["LoggedIn"];
+            object loggedIn = TSession.GetVariable("LoggedIn");
 
             if ((null != loggedIn) && ((bool)loggedIn == true))
             {

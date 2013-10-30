@@ -87,6 +87,7 @@ namespace Ict.Tools.TinyWebServer
         public void ProcessRequest()
         {
             HttpListenerContext ctx = null;
+
             try
             {
                 ctx = FListener.GetContext();
