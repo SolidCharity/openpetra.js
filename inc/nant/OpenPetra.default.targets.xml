@@ -118,7 +118,7 @@
               spawn="true">
         <environment>
           <variable name="PATH" path="${MonoBinPath};${environment::get-variable('PATH')}"/>
-          <variable name="MONO_PATH" path="${MonoBinPath}\..\lib\mono\4.0"/>
+          <variable name="MONO_PATH" path="${MonoBinPath}\.."/>
           <variable name="MONO_OPTIONS" value="--debug"/>
           <!-- see http://www.mono-project.com/IOMap -->
           <!-- <variable name="MONO_IOMAP" value="all"/> -->
@@ -162,7 +162,7 @@
               spawn="false">
         <environment>
           <variable name="PATH" path="${environment::get-variable('PATH')};${MonoBinPath}"/>
-          <variable name="MONO_PATH" path="${MonoBinPath}\..\lib\mono\4.0"/>
+          <variable name="MONO_PATH" path="${MonoBinPath}\.."/>
           <variable name="MONO_OPTIONS" value="--debug"/>
         </environment>
       </exec>
