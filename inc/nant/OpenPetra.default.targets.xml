@@ -155,6 +155,12 @@
     </if>
   </if>
   <if test="${'unix'==platform::get-name()}" >
+      <!-- create symbolic link for Samples -->
+      <if test="${not directory::exists(dir.delivery + '/Samples')}">
+        <exec program="bash"
+            workingdir="${dir.delivery}"
+            commandline="-c &quot;ln -s ../webserver/Samples&quot;"/>
+      </if>
       <echo message="in your browser, go to http://localhost:${Server.Port}/"/>
       <exec program="xsp4" 
               workingdir="${dir.delivery}"

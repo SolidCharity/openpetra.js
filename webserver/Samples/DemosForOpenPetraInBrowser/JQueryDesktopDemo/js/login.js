@@ -14,7 +14,7 @@ jQuery(document).ready(function() {
     $("#btnLogin").click(function() {
       $.ajax({
           type: "POST",
-          url: "../server.asmx/Login",
+          url: "/server.asmx/Login",
           data: JSON.stringify({'username': $("#username").val(), 'password': $("#password").val()}),
           contentType: "application/json; charset=utf-8",
           dataType: "json",
