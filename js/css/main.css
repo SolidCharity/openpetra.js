@@ -1,0 +1,13 @@
+body {
+  min-height: 2000px;
+  padding-top: 70px;
+}
+
+.list-group .nav {
+  display: none;
+}
+
+.nav-tabs > li .close {
+	margin: -2px 0 0 10px;
+	font-size: 18px;
+}

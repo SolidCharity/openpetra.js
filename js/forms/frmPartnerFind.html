@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+      <script src="js/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" src="../js/jquery-2.0.3.min.js"></script>
+  </head>
+<body>
+<!-- ab hier kommt das Formular -->
+<form class="form-horizontal" id="formPartnerFind">
+<fieldset>
+
+<div class="tabbable">
+    <h1>Find by Partner Details</h1>
+</div>
+<!-- Text input-->
+<div >
+    <label class="col-lg-2 control-label" for=""><h3>Find Criteria</h3></label>
+    <legend ></legend>
+</div>
+<!-- Partener Name -->
+<div class="form-group row">
+    <div class="col-md-8">
+        <label class=" col-md-3 control-label" for="firstname">Partner Name:</label>    
+        <div class="col-md-4">
+            <input id="firstname" name="firstname" type="text" placeholder="" class="form-control">
+        </div>
+    </div>
+</div>
+<!-- Personal (First)Name -->
+<div class="form-group row">
+    <div class="col-md-8">
+        <label class=" col-md-3 control-label" for="familyname">Personal(First)Name:</label>
+        <div class="col-md-4">
+            <input id="personal first name" name="personal first name" type="text" placeholder="" class="form-control">
+        </div>
+    </div>    
+</div>
+<!-- Address 1 -->
+<div class="form-group row">
+    <div class="col-md-8">
+        <label class="col-md-3 control-label" for="familyname">Address 1:</label>
+        <div class="col-md-4">
+            <input id="address" name="address" type="text" placeholder="" class="form-control">
+        </div>
+     </div>   
+</div>
+<!-- City/Town -->
+<div class="form-group row">
+    <div class="col-md-8">
+        <label class="col-md-3 control-label" for="familyname">City/Town:</label>
+        <div class="col-md-4">
+            <input  id="city/town" name="city/town" type="text" placeholder="" class="form-control"/>
+        </div>
+    </div>
+</div>
+<!-- Post Code -->
+<div class="form-group row">
+    <div class="col-md-8">
+        <label class="col-md-3 control-label" for="familyname">Post Code:</label>
+        <div class="col-md-4">
+            <input id="post code" name="post code" type="text" placeholder="" class="form-control"/>
+        </div>
+    </div>
+</div>
+<!-- Country -->
+<div class="form-group row">
+    <div class="col-md-8">
+        <label class="col-md-3 control-label" for="">Country:</label>        
+            <div class="col-md-4">
+            <select    name="" id="familyname" class="form-control">
+                <option></option>
+                <option value="01">Jan (01)</option>
+                <option value="02">Feb (02)</option>
+                <option value="03">Mar (03)</option>
+                <option value="04">Apr (04)</option>
+                <option value="05">May (05)</option>
+                <option value="06">June (06)</option>
+                <option value="07">July (07)</option>
+                <option value="08">Aug (08)</option>
+                <option value="09">Sep (09)</option>
+                <option value="10">Oct (10)</option>
+                <option value="11">Nov (11)</option>
+                <option value="12">Dec (12)</option>
+            </select>
+            </div>
+    </div> 
+</div>         
+<!-- Multiple Checkboxes (inline) -->
+<div class="form-group row">
+  <div class="col-md-8">
+    <label  class="col-md-3 control-label" for="checkboxes-0">Mailing Addresses Only:</label>
+      <div class="col-md-4">
+        <input   id="checkboxes-0" name="checkboxes" type="checkbox" class="">
+      </div>
+  </div>
+</div>
+<!-- Linie -->
+<div><legend></legend></div>
+<!-- Button Search -->
+<div class="form-group row">    
+    <div class="col-xs-1">
+        <div class="col-lg-10">
+            <button class="btn btn-primary">Search</button>
+        </div>
+    </div>
+     <div class="col-xs-10"></div>
+    <div class="col-xs-1">    
+        <div class="col-lg-10">
+            <button class="btn btn-primary" class="form-control">Clear</button>
+        </div>
+    </div>  
+</div>
+<div><legend></legend></div>
+<div >
+    <label class="col-lg-2 control-label" for=""><h3>Find Result</h3></label>
+</div>
+<table class="table table-striped">
+    <tr>
+        <td class="active">Class</td>
+        <td class="success">Partner Name</td>
+        <td class="warning">City</td>
+        <td class="danger">Add2</td>
+        <td class="active">Partner Key</td>
+        <td class="success">Partner Status</td>
+        <td class="danger">Location Key</td>
+    </tr>
+</table>
+</fieldset>
+</form>
+</body>
+</html>
