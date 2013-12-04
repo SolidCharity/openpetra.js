@@ -26,6 +26,7 @@
     <script type="text/javascript" src="/ThirdParty/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="/ThirdParty/Bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/navigation.aspx"></script>
   </head>
 
   <body>

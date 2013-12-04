@@ -29,7 +29,7 @@ function OpenTab(name, title)
         } 
         else if (name == "frmPartnerFind")
         {
-            $("#wnd" + name).load("forms/frmPartnerFind.html",
+            $("#wnd" + name).load("/forms/frmPartnerFind.html",
                     function() {
                         $("#formPartnerFind").submit(function(e)
                         {
@@ -114,36 +114,4 @@ jQuery(document).ready(function() {
     });
 
     $("#tabHome").click(function() { ActivateTab("Home"); });
-
-    // TODO: fetch menu items from the server??? disable modules the user has no access permissions for
-    AddMenuGroup("Partner", "Partner", function(parent) 
-        {
-            AddMenuItem(parent, "Partners_Partners", "Partners", "Partners");
-            AddMenuItem(parent, "Partners_Extracts", "Extracts", "Partner Extracts");
-            AddMenuItem(parent, "Partners_Reports", "Reports", "Partner Reports");
-            AddMenuItem(parent, "Partners_Setup", "Setup", "Partner Setup");
-        });
-
-    AddMenuGroup("Finance", "Finance", function(parent) 
-        {
-            AddMenuItem(parent, "Finance_GiftProcessing", "Gift Processing", "Gift Processing");
-            AddMenuItem(parent, "Finance_AccountsPayable", "Accounts Payable", "Accounts Payable");
-            AddMenuItem(parent, "Finance_Budgets", "Budgets", "Budgets");
-            AddMenuItem(parent, "Finance_GeneralLedger", "General Ledger", "General Ledger");
-            AddMenuItem(parent, "Finance_Setup", "Setup", "Finance Setup");
-        });
-        
-    AddMenuGroup("Personnel", "Personnel", function(parent) 
-        {
-            AddMenuItem(parent, "Personnel_Partners", "Partners", "Personnel Partners");
-            AddMenuItem(parent, "Personnel_Extracts", "Extracts", "Personnel Extracts");
-            AddMenuItem(parent, "Personnel_Reports", "Reports", "Personnel Reports");
-            AddMenuItem(parent, "Personnel_Setup", "Setup", "Personnel Setup");
-        });
-    AddMenuGroup("SystemManager", "System Manager", function(parent) 
-        {
-            AddMenuItem(parent, "SystemManager_Security", "Security", "Security");
-            AddMenuItem(parent, "SystemManager_Database", "Database", "Database");
-        });
 });
-
