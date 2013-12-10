@@ -18,7 +18,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="/ThirdParty/Bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/ThirdParty/jQueryUI/css/ui-lightness/jquery-ui.custom.min.css">
+    <link rel="stylesheet" href="/ThirdParty/jQueryUI/css/default/jquery-ui.custom.min.css">
     <link href="/css/main.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
