@@ -12,11 +12,11 @@ function OpenTab(name, title)
         
         // TODO fetch screen content from the server
         screenContent = "<h1>" + title + "</h1>";
-        if (name == "Partners_Partners")
+        if (name == "Partner_Partners")
         {
             screenContent = "<h3>Maintain Partners</h3>";
             screenContent += "<a href='javascript:OpenTab(\"frmPartnerFind\", \"Partner Find\")'>Find Partners</a><br/>";
-            screenContent += "<a href='#'>Work with Last Partner</a><br/>";
+            screenContent += "<a href='javascript:OpenTab(\"frmPartnerEdit\", \"Partner Edit\")'>Work with Last Partner</a><br/>";
             screenContent += "<a href='#'>Delete Partner</a><br/>";
             screenContent += "<h3>Create Partner</h3>";
             screenContent += "<a href='#'>Add new Family</a><br/>";
@@ -27,19 +27,11 @@ function OpenTab(name, title)
             screenContent += "<a href='#'>Add new Unit</a><br/>";
             $("#wnd" + name).html(screenContent);
         } 
-        else if (name == "frmPartnerFind")
+        else if (name.substring(0, "frm".length) === "frm")
         {
-            $("#wnd" + name).load("/forms/frmPartnerFind.html",
-                    function() {
-                        $("#formPartnerFind").submit(function(e)
-                        {
-                            alert("TODO find partner");
-                            e.preventDefault();
-                        });
-                    });
+            $("#wnd" + name).load("/lib/loadform.aspx?form=" + name);
         }
-        
-        
+
         $("#btnClose" + name).click(function(e) 
         {
             e.preventDefault();
