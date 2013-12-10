@@ -167,6 +167,7 @@
             workingdir="${dir.delivery}"
             commandline="-c &quot;for f in ../js/*;do ln -s $f; done&quot;"/>
       </if>
+      <delete file="${dir.bin}/sqlite3.dll"/>
       <echo message="in your browser, go to http://localhost:${Server.Port}/"/>
       <exec program="xsp4" 
               workingdir="${dir.delivery}"
