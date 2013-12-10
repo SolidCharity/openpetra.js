@@ -18,18 +18,18 @@
 
     <!-- Bootstrap core CSS -->
     <link href="/ThirdParty/Bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/main.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="ThirdParty/html5shiv/html5shiv.js"></script>
-      <script src="ThirdParty/Respond/respond.min.js"></script>
+      <script src="/ThirdParty/html5shiv/html5shiv.js"></script>
+      <script src="/ThirdParty/Respond/respond.min.js"></script>
     <![endif]-->
 
     <script type="text/javascript" src="/ThirdParty/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="/ThirdParty/Bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
-    <script type="text/javascript" src="js/navigation.aspx"></script>
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/navigation.aspx"></script>
   </head>
 
   <body>
