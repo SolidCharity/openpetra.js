@@ -2,6 +2,9 @@
     Inherits="Ict.Petra.WebServer.TMainWindow"
     validateRequest="false"
     src="Main.aspx.cs" %>
+<%
+    Response.CacheControl = "no-cache";
+%>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -33,7 +36,7 @@
 
     <!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" id="topnavigation">
-      <div class="container">
+      <div class="container-liquid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="icon-bar"></span>
@@ -67,15 +70,15 @@
       </div>
     </div>
     
-    <div class="container">
+    <div class="container-liquid">
       <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-2">
           <div class="bs-sidebar">
             <div class="list-group" id="LeftNavigation">
             </div>
           </div>
         </div>
-        <div class="col-md-9" role="main">
+        <div class="col-md-10" role="main">
             <ul class="nav nav-tabs" id="TabbedWindows">
               <li class="tab active" id="tabHome"><a href="#">Home</a></li>
             </ul>        
