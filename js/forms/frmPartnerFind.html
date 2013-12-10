@@ -118,15 +118,11 @@
      <div class="col-xs-6"></div>
     <div class="col-xs-1">    
         <div class="col-lg-10">
-            <button class="btn" class="form-control">Clear</button>
+            <button class="btn" class="form-control" id="btnClear">Clear</button>
             <script>
-                $('.clearMeFocus')
-                .focus( function() {
-                if ( $(this).val() == this.defaultValue ) { $(this).val(''); }
-                })
-                .blur( function() {
-                if ( $(this).val()=='' ) { $(this).val(this.defaultValue); }
-                });
+				$("#btnClear").click(function(e) {
+					$('#formPartnerFind')[0].reset();
+				});
             </script>
         </div>
     </div>  
