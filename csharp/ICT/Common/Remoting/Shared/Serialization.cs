@@ -5,6 +5,7 @@
 //       timop
 //
 // Copyright 2004-2013 by OM International
+// Copyright 2010-2013 by SolidCharity
 //
 // This file is part of OpenPetra.org.
 //
@@ -32,16 +33,44 @@ using System.Collections.Specialized;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection;
+using System.Web.Script.Serialization;
 using Ict.Common;
 using Ict.Common.IO;
 
 namespace Ict.Common.Remoting.Shared
 {
-    /// serialize and deserialize complex types in binary
+    /// serialize and deserialize complex types using JSON
+    /// TODO: rename the class
     public class THttpBinarySerializer
     {
+        static private string DataSetToJson(DataSet ADataset)
+        {
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+            Dictionary<string, List<Dictionary<string, object>>> dataset = 
+                new Dictionary<string, List<Dictionary<string, object>>>();
+            List<Dictionary<string, object>> table = null;
+            Dictionary<string, object> row = null;
+
+            foreach (DataTable dt in ADataset.Tables)
+            {
+                table = new List<Dictionary<string, object>>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    row = new Dictionary<string, object>();
+                    foreach (DataColumn col in dt.Columns)
+                    {
+                        row.Add(col.ColumnName.Trim(), dr[col]);
+                    }
+                    table.Add(row);
+                }
+                dataset.Add(dt.TableName, table);
+            }
+            return serializer.Serialize(dataset);
+        }
+        
         /// <summary>
-        /// serialize any object. if it is a complex type, use Base64
+        /// serialize any object. if it is a complex type, use JSON
         /// </summary>
         static public string SerializeObject(object o, bool binary)
         {
@@ -58,6 +87,11 @@ namespace Ict.Common.Remoting.Shared
             if (o == null)
             {
                 return "null";
+            }
+
+            if (o is DataSet)
+            {
+                return DataSetToJson((DataSet)o);
             }
 
             MemoryStream memoryStream = new MemoryStream();
@@ -183,12 +217,16 @@ namespace Ict.Common.Remoting.Shared
 
                 throw new Exception("THttpBinarySerializer.DeserializeObject: unknown enum " + type);
             }
-            else // if (type == "binary" || true)
+            else if (s != null && s.Length > 9) // if (type == "binary" || true)
             {
                 MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(s));
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 BinaryFormatter binaryFormatter = new BinaryFormatter();
                 return binaryFormatter.Deserialize(memoryStream);
+            }
+            else
+            {
+                return null;
             }
         }
     }
