@@ -3,13 +3,13 @@ jQuery(document).ready(function() {
         e.preventDefault();
         $.ajax({
           type: "POST",
-          url: "/server.asmx/Login",
+          url: "/serverSessionManager.asmx/Login",
           data: JSON.stringify({'username': $("#txtEmail").val(), 'password': $("#txtPassword").val()}),
           contentType: "application/json; charset=utf-8",
           dataType: "json",
           success: function(data, status, response) {
             result = JSON.parse(response.responseText);
-            if (result['d'] == true)
+            if (result['d'] == 0)
             {
                 // alert("Successful logged in");
                 window.location = "Main.aspx";
@@ -21,6 +21,8 @@ jQuery(document).ready(function() {
             }
           },
           error: function(response, status, error) {
+            console.debug(error);
+            console.debug(JSON.stringify(response.responseJSON));
             alert("Server error, please try again later");
           },
           fail: function(msg) {

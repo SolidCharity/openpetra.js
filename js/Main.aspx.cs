@@ -24,7 +24,7 @@
 using System;
 using System.Web;
 using System.Web.UI;
-using PetraWebService;
+using Ict.Petra.Server.App.WebService;
 
 namespace Ict.Petra.WebServer
 {
@@ -33,7 +33,7 @@ namespace Ict.Petra.WebServer
         protected void Page_Load(object sender, EventArgs e)
         {
             // check for valid user
-            TOpenPetraOrg myServer = new TOpenPetraOrg();
+            TOpenPetraOrgSessionManager myServer = new TOpenPetraOrgSessionManager();
 
             if (!myServer.IsUserLoggedIn())
             {

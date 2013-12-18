@@ -80,7 +80,7 @@ jQuery(document).ready(function() {
     $("#logout").click(function() {
       $.ajax({
           type: "POST",
-          url: "/server.asmx/Logout",
+          url: "/serverSessionManager.asmx/Logout",
           data: "{}",
           contentType: "application/json; charset=utf-8",
           dataType: "json",

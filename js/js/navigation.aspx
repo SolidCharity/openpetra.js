@@ -2,11 +2,11 @@
 <%@ Assembly Name="Ict.Petra.Server.app.JsClient" %>
 <%@ Assembly Name="Ict.Petra.Server.app.WebService" %>
 <%@ Import Namespace="Ict.Petra.Server.app.JSClient" %>
-<%@ Import Namespace="PetraWebService" %>
+<%@ Import Namespace="Ict.Petra.Server.App.WebService" %>
 <%
     Response.ContentType = "text/javascript";
     Response.CacheControl = "no-cache";
-	TOpenPetraOrg myServer = new TOpenPetraOrg();
+	TOpenPetraOrgSessionManager myServer = new TOpenPetraOrgSessionManager();
 
 	if (!myServer.IsUserLoggedIn())
 	{
