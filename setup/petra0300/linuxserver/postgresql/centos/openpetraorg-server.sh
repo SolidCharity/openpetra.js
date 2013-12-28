@@ -48,7 +48,7 @@ log_end_msg() { [ $1 -eq 0 ] && RES=OK; logger ${RES:=FAIL}; }
 start() {
     log_daemon_msg "Starting OpenPetra.org server"
 
-    su $userName -c "PATH=$mono_path/bin:$PATH $FASTCGI_MONO_SERVER /socket=tcp:127.0.0.1:$OPENPETRA_PORT /applications=/:/var/www/html /appconfigfile=/home/$userName/etc/PetraServerConsole.config&"
+    su $userName -c ". $mono_path/env.sh; $FASTCGI_MONO_SERVER /socket=tcp:127.0.0.1:$OPENPETRA_PORT /applications=/:/var/www/html /appconfigfile=/home/$userName/etc/PetraServerConsole.config&"
     status=0
     log_end_msg $status
 }
@@ -58,7 +58,7 @@ stop() {
     log_daemon_msg "Stopping OpenPetra.org server"
     cd $OpenPetraOrgPath/bin30
     
-    su $userName -c "$mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:/home/$userName/etc/PetraServerAdminConsole.config -Command:Stop"
+    su $userName -c ". $mono_path/env.sh; $mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:/home/$userName/etc/PetraServerAdminConsole.config -Command:Stop"
     
     status=0
     log_end_msg $status
@@ -67,7 +67,7 @@ stop() {
 # load a new database from a yml.gz file. this will overwrite the current database!
 loadYmlGz() {
     cd $OpenPetraOrgPath/bin30
-    su $userName -c "$mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:/home/$userName/etc/PetraServerAdminConsole.config -Command:LoadYmlGz -YmlGzFile:$ymlgzfile"
+    su $userName -c ". $mono_path/env.sh; $mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:/home/$userName/etc/PetraServerAdminConsole.config -Command:LoadYmlGz -YmlGzFile:$ymlgzfile"
     status=0
     log_end_msg $status
 }
@@ -75,7 +75,7 @@ loadYmlGz() {
 # display a menu to check for logged in users etc
 menu() {
     cd $OpenPetraOrgPath/bin30
-    su $userName -c "$mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:/home/$userName/etc/PetraServerAdminConsole.config"
+    su $userName -c ". $mono_path/env.sh; $mono --runtime=v4.0 --server PetraServerAdminConsole.exe -C:/home/$userName/etc/PetraServerAdminConsole.config"
 }
 
 # backup the postgresql database
