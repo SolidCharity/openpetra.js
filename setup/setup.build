@@ -287,6 +287,25 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
   <!-- result is in setupDir for building the rpm package -->
 </target>
 
+<target name="buildServerDebianPostgresqlOBS">
+  <property name="WithLinuxClient" value="false"/>
+  <property name="WithWindowsClient" value="false"/>
+  <property name="LinuxTargetDistribution-list" value="debian-postgresql"/>
+  <property name="HostedPort" value="9000"/>
+  <property name="PostgreSQL.Version" value="9.2"/>
+  <call target="nanttasks"/>
+  <call target="minimalGenerateSolution"/>
+  <property name="solution" value="Server"/>
+  <call target="quickCompile"/>
+  <property name="DBMS.Type" value="postgresql"/>
+  <call target="createSQLStatements"/>
+  <property name="BuildArchive" value="server" overwrite="true"/>
+  <call target="prepareSetupDirForTarFile"/>
+  <move file="${setupDir}/debian/openpetraorg-server.sh" tofile="${setupDir}/openpetraorg-server.sh"/>
+
+  <!-- result is in setupDir for building the rpm package -->
+</target>
+
 <target name="buildWindowsRemoteClient" help="build the windows remote client, and the patches">
   <property name="WithLinuxClient" value="false"/>
   <property name="WithWindowsClient" value="true"/>
