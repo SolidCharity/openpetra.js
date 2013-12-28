@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="shortcut icon" href="/img/favicon.png">
+    <link rel="shortcut icon" href="img/favicon.png">
 
     <title>OpenPetra.js Login</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/ThirdParty/Bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="ThirdParty/Bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="css/login.css" rel="stylesheet">
@@ -22,7 +22,7 @@
       <script src="ThirdParty/Respond/respond.min.js"></script>
     <![endif]-->
 
-    <script type="text/javascript" src="/ThirdParty/jQuery/jquery.min.js"></script>
+    <script type="text/javascript" src="ThirdParty/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="js/login.js"></script>
   </head>
 
