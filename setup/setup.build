@@ -449,6 +449,7 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
 
   <copy todir="${setupDir}/js30">
     <fileset basedir="${dir.root}/js">
+      <include name="*" />
       <include name="*/*"/>
     </fileset>
   </copy>
