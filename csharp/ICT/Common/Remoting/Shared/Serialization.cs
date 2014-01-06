@@ -47,28 +47,33 @@ namespace Ict.Common.Remoting.Shared
         {
             JavaScriptSerializer serializer = new JavaScriptSerializer();
 
-            Dictionary<string, List<Dictionary<string, object>>> dataset = 
-                new Dictionary<string, List<Dictionary<string, object>>>();
-            List<Dictionary<string, object>> table = null;
-            Dictionary<string, object> row = null;
+            Dictionary <string, List <Dictionary <string, object>>>dataset =
+                new Dictionary <string, List <Dictionary <string, object>>>();
+            List <Dictionary <string, object>>table = null;
+            Dictionary <string, object>row = null;
 
             foreach (DataTable dt in ADataset.Tables)
             {
-                table = new List<Dictionary<string, object>>();
+                table = new List <Dictionary <string, object>>();
+
                 foreach (DataRow dr in dt.Rows)
                 {
-                    row = new Dictionary<string, object>();
+                    row = new Dictionary <string, object>();
+
                     foreach (DataColumn col in dt.Columns)
                     {
                         row.Add(col.ColumnName.Trim(), dr[col]);
                     }
+
                     table.Add(row);
                 }
+
                 dataset.Add(dt.TableName, table);
             }
+
             return serializer.Serialize(dataset);
         }
-        
+
         /// <summary>
         /// serialize any object. if it is a complex type, use JSON
         /// </summary>
@@ -217,7 +222,7 @@ namespace Ict.Common.Remoting.Shared
 
                 throw new Exception("THttpBinarySerializer.DeserializeObject: unknown enum " + type);
             }
-            else if (s != null && s.Length > 9) // if (type == "binary" || true)
+            else if ((s != null) && (s.Length > 9)) // if (type == "binary" || true)
             {
                 MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(s));
                 memoryStream.Seek(0, SeekOrigin.Begin);

@@ -52,7 +52,7 @@ namespace Ict.Common.Remoting.Server
         {
             string sessionID = GetSessionID();
 
-            if (sessionID != string.Empty && !FSessionObjects.ContainsKey(sessionID))
+            if ((sessionID != string.Empty) && !FSessionObjects.ContainsKey(sessionID))
             {
                 HttpContext.Current.Request.Cookies.Remove("OpenPetraSessionID");
                 sessionID = GetSessionID();
@@ -128,7 +128,7 @@ namespace Ict.Common.Remoting.Server
         /// clear the current session
         /// </summary>
         static public void Clear()
-        {          
+        {
             // HttpContext.Current.Session.Clear();
             string sessionId = GetSessionID();
 
