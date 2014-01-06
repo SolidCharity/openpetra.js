@@ -368,7 +368,7 @@ namespace Ict.Petra.Server.app.JSClient
                 {
                     string style = string.Empty;
 
-                    if (!File.Exists("../js/forms/frm" + child.Name + ".html"))
+                    if (!File.Exists(TAppSettingsManager.GetValue("Forms.Path") + "/frm" + child.Name + ".html"))
                     {
                         style = " class = 'notimplemented' ";
                         continue;
@@ -392,7 +392,7 @@ namespace Ict.Petra.Server.app.JSClient
                     {
                         string style = string.Empty;
 
-                        if (!File.Exists("../js/forms/frm" + task.Name + ".html"))
+                        if (!File.Exists(TAppSettingsManager.GetValue("Forms.Path") + "/frm" + task.Name + ".html"))
                         {
                             style = " class = 'notimplemented' ";
                             continue;

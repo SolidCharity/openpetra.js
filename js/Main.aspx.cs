@@ -37,7 +37,8 @@ namespace Ict.Petra.WebServer
 
             if (!myServer.IsUserLoggedIn())
             {
-                this.Response.Redirect("Default.aspx");
+                // we need the absolute path
+                this.Response.Redirect(this.Request.Url.AbsolutePath.Replace("Main", "Default"));
                 return;
             }
         }

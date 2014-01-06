@@ -13,11 +13,11 @@ function OpenTab(name, title)
         // fetch screen content from the server
         if (name.substring(0, "frm".length) === "frm")
         {
-            $("#wnd" + name).load("/lib/loadform.aspx?form=" + name);
+            $("#wnd" + name).load("lib/loadform.aspx?form=" + name);
         }
         else // fetch navigation page
         {
-            $("#wnd" + name).load("/lib/loadnavpage.aspx?page=" + name);
+            $("#wnd" + name).load("lib/loadnavpage.aspx?page=" + name);
         }
 
         $("#btnClose" + name).click(function(e) 
@@ -102,7 +102,7 @@ jQuery(document).ready(function() {
     $("#logout").click(function() {
       $.ajax({
           type: "POST",
-          url: "/serverSessionManager.asmx/Logout",
+          url: "serverSessionManager.asmx/Logout",
           data: "{}",
           contentType: "application/json; charset=utf-8",
           dataType: "json",

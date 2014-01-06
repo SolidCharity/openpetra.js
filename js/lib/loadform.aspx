@@ -1,6 +1,8 @@
 <%@ Page Language="C#" %>
 <%@ Assembly Name="System.IO" %>
+<%@ Assembly Name="Ict.Common" %>
 <%@ Import Namespace="System.IO" %>
+<%@ Import Namespace="Ict.Common" %>
 <%
     Response.ContentType = "text/html";
     Response.CacheControl = "no-cache";
@@ -9,8 +11,9 @@
     if (form.Length > 0 && !form.Contains("/"))
     {
         string content;
-        
-        using (StreamReader sr = new StreamReader("forms/" + form + ".html"))
+        string path = TAppSettingsManager.GetValue("Forms.Path");
+
+        using (StreamReader sr = new StreamReader(path + "/" + form + ".html"))
         {
             content = sr.ReadToEnd();
 
@@ -24,9 +27,9 @@
 
         // search for a <form>.js file and include the code in this write
         string javascript = string.Empty;
-        if (File.Exists("forms/" + form + ".js"))
+        if (File.Exists(path + "/" + form + ".js"))
         {
-            using (StreamReader sr = new StreamReader("forms/" + form + ".js"))
+            using (StreamReader sr = new StreamReader(path + "/" + form + ".js"))
             {
                 javascript = "<script>" + sr.ReadToEnd() + "</script>";
             }

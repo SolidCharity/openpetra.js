@@ -2,7 +2,7 @@
         e.preventDefault();
         $.ajax({
           type: "POST",
-          url: "/serverMPartner.asmx/TSimplePartnerFindWebConnector_FindPartners",
+          url: "serverMPartner.asmx/TSimplePartnerFindWebConnector_FindPartners",
           data: JSON.stringify({
                 'AFamilyNameOrOrganisation': $("#partnername").val(), 
                 'AFirstName': $("#firstname").val(),

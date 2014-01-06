@@ -9,7 +9,7 @@ jQuery(document).ready(function() {
         }
         $.ajax({
           type: "POST",
-          url: "/serverSessionManager.asmx/Login",
+          url: "serverSessionManager.asmx/Login",
           data: JSON.stringify({'username': user, 'password': pwd}),
           contentType: "application/json; charset=utf-8",
           dataType: "json",

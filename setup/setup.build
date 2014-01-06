@@ -458,7 +458,6 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
       <fileset>
         <include name="${setupDir}/bin30/Ict.Petra.Client*" />
         <include name="${setupDir}/bin30/PetraClient*" />
-        <include name="${setupDir}/bin30/UINavigation.yml" />
       </fileset>
     </delete>
   </if>
