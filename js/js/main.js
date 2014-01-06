@@ -8,7 +8,7 @@ function OpenTab(name, title)
             "</li>");
         $("#tab" + name).click(function() { ActivateTab(name); });
         
-        $("#wndHome").parent().append("<div class='OpenPetraWindow' id='wnd" + name + "'></div>");
+        $("#tabControl").append("<div class='OpenPetraWindow' id='wnd" + name + "'></div>");
         
         // TODO fetch screen content from the server
         screenContent = "<h1>" + title + "</h1>";
@@ -77,6 +77,16 @@ function AddMenuItem(parent, name, title, tabtitle)
 }
 
 jQuery(document).ready(function() {
+    $('[data-toggle=offcanvas]').click(function() {
+        $('.row-offcanvas').toggleClass('active');
+        if ($('#btnHide').hasClass("invisible")) {
+            $('#btnHide').removeClass("invisible");
+        } else {
+            $('#btnHide').toggle();
+        }
+        $('#btnShow').toggle();
+    });
+    
     $("#logout").click(function() {
       $.ajax({
           type: "POST",
@@ -105,5 +115,5 @@ jQuery(document).ready(function() {
         });      
     });
 
-    $("#tabHome").click(function() { ActivateTab("Home"); });
+    OpenTab("frmHome", "Home");
 });

@@ -45,6 +45,8 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
+          <button type="button" class="navbar-brand btn btn-xs visible" data-toggle="offcanvas" id="btnShow"><i class="glyphicon glyphicon-chevron-right"></i></button>
+          <button type="button" class="navbar-brand btn btn-xs invisible" data-toggle="offcanvas" id="btnHide"><i class="glyphicon glyphicon-chevron-left"></i></button>
           <a class="navbar-brand" href="#">OpenPetra</a>
         </div>
         <div class="navbar-collapse collapse">
@@ -73,21 +75,17 @@
     </div>
     
     <div class="container-liquid">
-      <div class="row">
-        <div class="col-md-2">
-          <div class="bs-sidebar">
+      <div class="row row-offcanvas row-offcanvas-left">
+        <div class="sidebar-offcanvas" id="sidebar" role="navigation">
+          <div class="sidebar-nav">
             <div class="list-group" id="LeftNavigation">
             </div>
           </div>
         </div>
-        <div class="col-md-10" role="main">
-            <ul class="nav nav-tabs" id="TabbedWindows">
-              <li class="tab active" id="tabHome"><a href="#">Home</a></li>
-            </ul>        
-          <!-- Main component for a primary marketing message or call to action -->
-          <div class="OpenPetraWindow" id="wndHome">
-            <h1>Home</h1>
-            <p>Welcome!</p>
+        <div class="col-xs-12 col-sm-12" id="tabControl" role="main">
+          <div class="row">
+            <ul class="nav nav-tabs col-xs-10 col-sm-10" id="TabbedWindows">
+            </ul>
           </div>
          </div>
       </div>
