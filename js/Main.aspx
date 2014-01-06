@@ -18,6 +18,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="ThirdParty/Bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="ThirdParty/DataTables/css/dataTables.bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" href="ThirdParty/jQueryUI/css/default/jquery-ui.custom.min.css">
     <link href="css/main.css" rel="stylesheet">
 
@@ -29,7 +30,9 @@
 
     <script type="text/javascript" src="ThirdParty/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="ThirdParty/jQueryUI/jquery-ui.min.js"></script>
+    <script class="include" type="text/javascript" charset="utf-8" src="ThirdParty/DataTables/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="ThirdParty/Bootstrap/js/bootstrap.min.js"></script>
+    <script class="include" type="text/javascript" charset="utf-8" src="ThirdParty/DataTables/js/dataTables.bootstrap.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/navigation.aspx"></script>
   </head>

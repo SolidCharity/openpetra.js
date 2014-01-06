@@ -25,6 +25,14 @@ body {
   padding-left: 10px;
 }
 
+/* DataTables */
+table.dataTable tr.odd.row_selected td {
+    background-color: #9FAFD1;
+}
+table.dataTable tr.even.row_selected td {
+    background-color: #9FAFD1;
+}
+
 /*
  * Off Canvas
  * --------------------------------------------------

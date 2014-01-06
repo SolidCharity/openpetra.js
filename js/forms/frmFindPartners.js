@@ -1,4 +1,3 @@
-jQuery(document).ready(function() {
     $("#btnSearch").click(function(e) {
         e.preventDefault();
         $.ajax({
@@ -14,14 +13,43 @@ jQuery(document).ready(function() {
           dataType: "json",
           success: function(data, status, response) {
             result = JSON.parse(response.responseText);
-            console.debug(JSON.stringify(response.responseText));
+            // console.debug(JSON.stringify(response.responseText));
             if (result['d'] != 0)
             {
                 // alert("Successful result");
                 SearchResult = JSON.parse(result['d'])["SearchResult"];
+                ParsedSearchResult = new Array();
+                
                 for (index = 0; index < SearchResult.length; ++index) {
-                    alert(SearchResult[index]["p_partner_short_name_c"]);
+                    // alert(SearchResult[index]["p_partner_short_name_c"]);
+                    ParsedSearchResult.push(new Array(
+                        SearchResult[index]["p_partner_class_c"],
+                        SearchResult[index]["p_partner_short_name_c"],
+                        SearchResult[index]["p_city_c"],
+                        SearchResult[index]["p_street_name_c"],
+                        SearchResult[index]["p_partner_key_n"],
+                        SearchResult[index]["p_status_code_c"],
+                        SearchResult[index]["p_location_key_i"]
+                        ));
                 }
+
+                // see http://datatables.net/release-datatables/examples/data_sources/js_array.html
+                $('#result').dataTable( {
+                        "aaData": ParsedSearchResult,
+                        "bDestroy": true
+                    } );
+
+                // see http://datatables.net/release-datatables/examples/api/select_single_row.html
+                $("#result tbody tr").click( function( e ) {
+                    if ( $(this).hasClass('row_selected') ) {
+                        $(this).removeClass('row_selected');
+                    }
+                    else {
+                        $('#result tr.row_selected').removeClass('row_selected');
+                        $(this).addClass('row_selected');
+                    }
+                });
+
             }
             else
             {
@@ -39,4 +67,19 @@ jQuery(document).ready(function() {
           }
         });      
     });
-});
+
+    $("#btnClear").click(function(e) {
+        e.preventDefault();
+        $('#formPartnerFind')[0].reset();
+    });
+
+    // Add a click handler for the partner edit
+    $("#btnEditPartner").click( function(e) {
+        e.preventDefault();
+        var anSelected = $('#result tr.row_selected');;
+        if ( anSelected.length !== 0 ) {
+            console.debug(anSelected);
+            // TODO open partner edit oTable.fnDeleteRow( anSelected[0] );
+            OpenTab("frmPartnerEdit", "Edit Partner");
+        }
+    });
