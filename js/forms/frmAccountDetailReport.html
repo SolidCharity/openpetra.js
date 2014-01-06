@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Bootstrap core CSS -->
+    <link href="../ThirdParty/Bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="../ThirdParty/jQueryUI/css/default/jquery-ui.custom.min.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="../ThirdParty/html5shiv/html5shiv.js"></script>
+      <script src="../ThirdParty/Respond/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" src="../ThirdParty/jQuery/jquery.min.js"></script>
+    <script type="text/javascript" src="../ThirdParty/jQueryUI/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../ThirdParty/Bootstrap/js/bootstrap.min.js"></script>
+  </head>
+<body>
+<script>
+$(function() {
+$( "#tabsAccountDetail" ).tabs();
+});
+</script>
+
+<!-- ab hier kommt das Formular -->
+<form class="form-horizontal" id="formAccountDetail">
+<fieldset>
+<div id="tabsAccountDetail" >
+    <ul>
+        <li><a href="#tabsAccountDetail-1">General Setting</a></li>
+        <li><a href="#tabsAccountDetail-2">Account/ CostCentre Setting</a></li>
+    </ul>
+	<div  id="tabsAccountDetail-1">
+<div></div>
+<!-- Ledger Details --> 
+<span class="input-group-addon">
+<div class="form-group row">
+	   <div >
+			<label class="col-md-1 control-label" for="ledgerdetails"><h4>Ledger Details</h4></label>
+		</div>
+		<div class="form-group row">
+			<div class="col-md-11">
+			 <label class="col-sm-1 control-label" for="ledger">Ledger:</label>
+				<div class="col-sm-4">
+					<input id="ledger" name="ledger" type="text" placeholder="" class="form-control"/>
+				</div>
+			<div class="form-group row">
+				<div class="col-md-12">
+				<label class="col-sm-3 control-label" for="accounthierarchy">Account Hierarchy:</label>
+					<div class="col-sm-3">
+					<select    name="accounthierarchy" id="accounthierarchy" class="form-control">
+						<option></option>
+						<option value="01">STANDARD</option>
+					</select>
+					</div>
+				</div>
+			</div>
+			</div>
+		</div>
+</div>
+</span>
+<legend></legend>
+<!-- Currency -->
+<span class="input-group-addon">
+<div class="form-group row">
+        <div >
+			<label class="col-md-1 control-label" for="currency"><h4>Currency</h4></label>
+		</div>
+		<div class="form-group row">
+				<div class="col-md-11">
+				<label class="col-sm-1 control-label" for="currency-1">Currency:</label>
+					<div class="col-sm-3">
+					<select    name="currency-1" id="currency-1" class="form-control">
+						<option></option>
+						<option value="01">Base</option>
+						<option value="01">International</option>
+						<option value="01">Transcation</option>
+					</select>
+					</div>
+				</div>
+		</div>
+</div>
+</span>
+<legend></legend>
+<!-- Period Range -->
+<span class="input-group-addon">
+<div class="form-group row">
+    <div >
+		<label class="col-md-1 control-label" for="periodrabge"><h4>Period Range</h4></label>
+	</div>	
+	<!-- Period -->
+	<div class="form-group row">
+	   <div class="col-md-11">
+        <div class="col-sx-2 col-sm-1">
+	       <input name="periodrabge" type="radio" value="" />
+	       
+        <label for="Period">Period:</label>
+        </div>
+		<label class="col-sx-2 col-sm-2 control-label" for="from">from:</label>
+		<div class="col-sm-1">
+			<input id="from" name="form-1"  type="text" placeholder="" class="form-control" >
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="to">to:</label>
+		<div class="col-sm-1">
+			<input id="to" name="to-1" type="text" placeholder="" class="form-control">
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="year">Year:</label>
+		<div class="col-sm-2">
+			<select    name="year-1" id="year" class="form-control">
+				<option></option>
+				<option value="01">2013</option>
+			
+			</select>
+		</div>
+		</div>
+	</div>
+	<!-- Quarter -->
+    <div class="form-group row">
+        <div class="col-md-11">
+        <div class="col-sx-2 col-sm-1">
+	       <input  name="periodrabge" type="radio" value="">
+        <label for="quarter">Quarter:</label>
+        </div>
+		<label class="col-sx-2 col-sm-2 control-label" for="from-2">from:</label>
+		<div class="col-sm-1">
+			<input id="from" name="form-3" type="text" placeholder="" class="form-control">
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="year">Year:</label>
+		<div class="col-sm-2">
+			<select    name="year" id="year" class="form-control">
+				<option></option>
+				<option value="01">2013</option>
+
+			</select>
+		</div>
+        </div>    
+    </div>
+    <!-- Date -->
+    <div  class="form-group row">
+        <div class="col-md-11">
+        <div class="col-sx-2 col-sm-1">
+	       <input  name="periodrabge"   type="radio" value=""/>
+        <label for="date">Date:</label>
+        </div>
+		<label class="col-sx-2 col-sm-2 control-label" for="from">from:</label>
+		<div class="col-sm-2">
+			<input id="from" name="" type="text" placeholder="" class="form-control">
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="to">to:</label>
+		<div class="col-sm-2">
+			<input id="to" name="" type="text" placeholder="" class="form-control">
+		</div>
+		</div>
+    </div>	
+</div>
+</span>
+<legend></legend>
+<!-- Sorting -->	
+<span class="input-group-addon">
+
+<div class="form-group row">
+    <div >
+		<label class="col-md-1 control-label" for="sorting"><h4>Sorting</h4></label>
+	</div>
+	<!-- Sort by Account -->
+    <div class="form-group row">
+    	<div class="col-md-11">
+            <div class="col-sx-2 col-sm-1">
+    	       <input  name="sorting" type="radio" checked="checked">
+            <label   for="sortbyaccount">Sort by Account:</label>
+            </div>
+        </div>
+    </div>
+    <!-- Sort by Cost Centre -->
+    <div class="form-group row">
+        <div class="col-md-11">
+            <div class="col-sx-2 col-sm-1">
+    	       <input name="sorting" type="radio">
+            <label  for="sortbyaccount">Sort by Cost Centre:</label>
+            </div>
+        </div>
+    </div>
+    <!-- Sort By Reference -->
+    <div class="form-group row">
+        <div class="col-md-11">
+            <div class="col-sx-2 col-sm-1">
+    	       <input name="sorting"  type="radio">
+            <label  for="sortbyreference">Sort By Reference:</label>
+            </div>
+    		<label class="col-sx-2 col-sm-3 control-label" for="from">from:</label>
+    		<div class="col-sm-2">
+    			<input id="from" name="from" type="text" placeholder="" class="form-control">
+    		</div>
+    		<label class="col-sx-2 col-sm-1 control-label" for="to">to:</label>
+    		<div class="col-sm-2">
+    			<input id="to" name="to" type="text" placeholder="" class="form-control">
+    		</div>
+    	</div>
+	</div>
+	<!-- By Analysis Type -->
+	<div class="form-group row">
+        <div class="col-md-11">
+            <div class="col-sx-2 col-sm-1">
+    	       <input name="sorting"  type="radio">
+            <label  for="sortbyanalysistype">Sort By Analysis Type:</label>
+            </div>
+    		<label class="col-sx-2 col-sm-3 control-label" for="from">from:</label>
+    		<div class="col-sm-2">
+    			<input id="from" name="from" type="text" placeholder="" class="form-control">
+    		</div>
+    		<label class="col-sx-2 col-sm-1 control-label" for="to">to:</label>
+    		<div class="col-sm-2">
+    			<input id="to" name="to" type="text" placeholder="" class="form-control">
+    		</div>
+    	</div>
+	</div>
+</div>
+</span>
+<legend></legend>	
+    </div>
+	<div id="tabsAccountDetail-2">
+	<div></div>
+	 <span class="input-group-addon"> 
+	  <div class="form-group row">
+    <div >
+		<label class="col-md-1 control-label" for="selectaccountcodes"><h4>Select Account Codes</h4></label>
+	</div>
+	<!-- Select Range -->
+	<div class="form-group row">
+	   <div class="col-md-11">
+        <div class="col-sx-2 col-sm-1">
+	       <input name="selectaccountcodes" type="radio" value=""/>
+        <label for="Period">Select Range:</label>
+        </div>
+        <!-- Form -->
+		<label class="col-sx-2 col-sm-2 control-label" for="from">From:</label>
+		<div class="col-sm-2">
+			<select    name="" id="" class="form-control">
+				<option></option>
+				<option value="01">2013</option>
+
+			</select>
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="to">Label-1:</label>
+		</div>
+	</div>
+    <div class="form-group row">
+        <div class="col-md-11">
+        <!-- TO -->
+		<label class="col-sx-2 col-sm-3 control-label" for="from">TO:</label>
+		<div class="col-sm-2">
+			<select    name="" id="year" class="form-control">
+				<option></option>
+				<option value="01">2013</option>
+			</select>
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="to">Label-2:</label>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-11">
+            <div class="col-sx-2 col-sm-1">
+	           <input name="selectaccountcodes" type="radio" value=""/>
+	        <!-- Form List -->
+            <label for="fromlist">From List:</label>
+            </div>
+            <label class="col-sx-2 col-sm-1 control-label" for=""></label>
+                <div class="col-sm-8">
+                    <table class="table table-bordered">
+                        <tr>
+                        <td class=""></td>
+                        <td class="success">Code</td>
+                        <td class="warning">Account Description </td>
+                        </tr>
+                    </table>
+                </div>
+            <div>
+            <button type="button" class="btn btn-default">Unselect All</button>
+            </div>                           
+        </div>
+    </div>
+    <div></div>
+    </div>
+    </span>
+    <legend></legend> 
+    <div id="tabsAccountDetail-2">
+	<div></div>
+	 <span class="input-group-addon">
+	  <div class="form-group row">
+    <div >
+		<label class="col-md-1 control-label" for="periodrabge"><h4>Select Cost Contre Codes</h4></label>
+	</div>
+	<!-- Select Range -->
+	<div class="form-group row">
+	   <div class="col-md-11">
+        <div class="col-sx-2 col-sm-1">
+	       <input name="selectaccountcodes" type="radio" value=""/>
+        <label for="selectrange">Select Range:</label>
+        </div>
+        <!-- Form -->
+		<label class="col-sx-2 col-sm-2 control-label" for="from">From:</label>
+		<div class="col-sm-2">
+			<select    name="" id="year" class="form-control">
+				<option></option>
+				<option value="01">2013</option>
+
+			</select>
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="to">Label-1:</label>
+		</div>
+	</div>
+    <div class="form-group row">
+        <div class="col-md-11">
+        <!-- TO -->
+		<label class="col-sx-2 col-sm-3 control-label" for="from">TO:</label>
+		<div class="col-sm-2">
+			<select    name="" id="year" class="form-control">
+				<option></option>
+				<option value="01">2013</option>
+			</select>
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="to">Label-2:</label>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-11">
+            <div class="col-sx-2 col-sm-1">
+	           <input name="selectaccountcodes" type="radio" value=""/>
+	        <!-- Form List -->
+            <label for="fromlist">From List:</label>
+            </div>
+            <label class="col-sx-2 col-sm-1 control-label" for=""></label>
+                <div class="col-sm-8">
+                    <table class="table table-bordered">
+                        <tr>
+                        <td class=""></td>
+                        <td class="success">Code</td>
+                        <td class="warning">Cost Contre Description </td>
+                        </tr>
+                    </table>
+                </div>
+            <div>
+            <button type="button" class="btn btn-default">Unselect All</button>
+            </div>
+            <label class="col-sx-2 col-sm-5 control-label" for="from">Summary Cost Centres:</label>
+		<div class="col-sm-3">
+			<select    name="" id="year" class="form-control">
+				<option></option>
+				<option value="01">2013</option>
+
+			</select>
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="to">Label-1:</label>
+		<div class="col-sm-8">
+		<button type="button" class="btn btn-default">Tick all reporting cost centres</button>	
+		</div>
+        </div>
+    </div>
+    <div></div>
+    </div>
+    </span>
+    <legend></legend>   
+</div> 
+</fieldset>
+</form>
+</body>
+</html>

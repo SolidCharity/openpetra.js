@@ -20,105 +20,110 @@
 <!-- ab hier kommt das Formular -->
 <form class="form-horizontal" id="formPartnerFind">
 <fieldset>
-
-<div >
-    <h1>Find by Partner Details</h1>
-</div>
-<!-- Text input-->
-<div >
-    <label class="col-lg-2 control-label" for="findcriteria"><h3>Find Criteria</h3></label>
-    <legend ></legend>
-</div>
-<!-- Partener Name -->
+<!-- Find by Partner Details -->
 <div class="form-group row">
-    <div class="col-xs-6 col-sm-4">
-        <label class="col-xs-0 col-sm-0 control-label" for="partnername">Partner Name:</label>    
-        <div class="col-xs-12 col-sm-12">
-            <input id="partnername" name="partnername" type="text" placeholder="" class="form-control">
+    <div class="col-md-11">
+        <div class="col-sx-5 col-sm-6">
+            <h2>Find by Partner Details</h2>
         </div>
     </div>
 </div>
-<!-- Personal (First)Name -->
-<div class="form-group row">
-    <div class="col-xs-6 col-sm-4">
-        <label class="col-xs-0 col-sm-0 control-label" for="firstname">Firstname:</label>
-        <div class="col-xs-12 col-sm-12">
-            <input id="firstname" name="firstname" type="text" placeholder="" class="form-control">
+<span class="input-group-addon">
+    <div class="form-group row">    
+    <!-- Find Criteria-->
+    <div >
+        <label class="col-sm-1 control-label" for="findcriteria"><h3>Find Criteria</h3></label>
+    </div>
+    <!-- Partener Name -->
+    <div class="form-group row">        
+        <div class="col-md-11">        
+			 <label    class="col-sx-4 col-sm-2 control-label" for="partnername">Partner Name:</label>
+			<div class="col-sm-4">
+				<input id="partnername" name="partnername" type="text" placeholder="" class="form-control"/>
+			</div>	
+        </div>         
+    </div>       
+    <!-- Firstname -->
+    <div class="form-group row">
+        <div class="col-md-11">
+		  <label class="col-sx-4 col-sm-2 control-label" for="Firstname">Firstname:</label>
+		      <div class="col-sm-4">
+			     <input id="Firstname" name="Firstname" type="text" placeholder="" class="form-control"/>
+              </div>
+        </div>    
+    </div>
+    <!-- Address 1 -->
+    <div class="form-group row">
+        <div class="col-md-11">
+            <label class="col-sm-2 control-label" for="address1">Address 1:</label>
+                <div class="col-sm-4">
+                    <input id="address1" name="address1" type="text" placeholder="" class="form-control">
+                </div>
+        </div>   
+    </div>
+    <!-- City/Town -->
+    <div class="form-group row">
+        <div class="col-md-11">
+        <label class="col-sm-2 control-label" for="city/town">City/Town:</label>
+            <div class="col-sm-4">
+                <input  id="city/town" name="city/town" type="text" placeholder="" class="form-control"/>
+            </div>
+        </div>
+    </div>
+    <!-- Post Code -->
+    <div class="form-group row">
+        <div class="col-md-11">
+        <label class="col-sm-2 control-label" for="postcode">Post Code:</label>
+            <div class="col-sm-4">
+                <input  id="postcode" name="postcode" type="text" placeholder="" class="form-control"/>
+            </div>
+        </div>
+    </div>
+    <!-- Country -->
+    <div class="form-group row">
+        <div class="col-md-11">
+            <label class="col-sm-2 control-label" for="country">Country:</label>        
+                <div class="col-sm-4">
+                    <select   id="country" name="country" class="form-control">
+                        <option></option>
+                        <option value="01">Jan (01)</option>
+                        <option value="02">Feb (02)</option>
+                        <option value="03">Mar (03)</option>
+                        <option value="04">Apr (04)</option>
+                        <option value="05">May (05)</option>
+                        <option value="06">June (06)</option>
+                        <option value="07">July (07)</option>
+                        <option value="08">Aug (08)</option>
+                        <option value="09">Sep (09)</option>
+                        <option value="10">Oct (10)</option>
+                        <option value="11">Nov (11)</option>
+                        <option value="12">Dec (12)</option>
+                    </select>
+                </div>
+            </div> 
+        </div>         
+        <!-- Multiple Checkboxes (inline) -->
+        <div class="form-group row">
+          <div class="col-md-11">
+              <div class="col-sx-2 col-sm-1"> 
+                <label for="mailingaddressesonly">Mailing Addresses Only:</label>
+                <input   id="mailingaddressesonly" name="mailingaddressesonly" type="checkbox" class="">   
+              </div>
+          </div>
         </div>
     </div>    
-</div>
-<!-- Address 1 -->
-<div class="form-group row">
-    <div class="col-xs-6 col-sm-4">
-        <label class="col-xs-0 col-sm-0 control-label" for="address1">Address 1:</label>
-        <div class="col-xs-12 col-sm-12">
-            <input id="address1" name="address1" type="text" placeholder="" class="form-control">
-        </div>
-     </div>   
-</div>
-<!-- City/Town -->
-<div class="form-group row">
-    <div class="col-xs-6 col-sm-4">
-        <label class="col-xs-0 col-sm-0 control-label" for="city">City/Town:</label>
-        <div class="col-xs-12 col-sm-12">
-            <input  id="city" name="city" type="text" placeholder="" class="form-control"/>
-        </div>
-    </div>
-</div>
-<!-- Post Code -->
-<div class="form-group row">
-    <div class="col-xs-6 col-sm-4">
-        <label class="col-xs-0 col-sm-0 control-label" for="postcode">Post Code:</label>
-        <div class="col-xs-12 col-sm-12">
-            <input  id="postcode" name="postcode" type="text" placeholder="" class="form-control"/>
-        </div>
-    </div>
-</div>
-<!-- Country -->
-<div class="form-group row">
-    <div class="col-xs-6 col-sm-4">
-        <label class="col-xs-0 col-sm-0 control-label" for="country">Country:</label>        
-            <div class="col-xs-12 col-sm-12">
-            <select   id="country" name="country" class="form-control">
-                <option></option>
-                <option value="01">Jan (01)</option>
-                <option value="02">Feb (02)</option>
-                <option value="03">Mar (03)</option>
-                <option value="04">Apr (04)</option>
-                <option value="05">May (05)</option>
-                <option value="06">June (06)</option>
-                <option value="07">July (07)</option>
-                <option value="08">Aug (08)</option>
-                <option value="09">Sep (09)</option>
-                <option value="10">Oct (10)</option>
-                <option value="11">Nov (11)</option>
-                <option value="12">Dec (12)</option>
-            </select>
-            </div>
-    </div> 
-</div>         
-<!-- Multiple Checkboxes (inline) -->
-<div class="form-group row">
-  <div class="col-xs-6 col-sm-5">
-    <label  class="col-xs-6 col-sm-6 control-label" for="mailingaddressesonly">Mailing Addresses Only:</label>
-      <div class="col-xs-6 col-sm-6">
-        <input   id="mailingaddressesonly" name="mailingaddressesonly" type="checkbox" class="">
-      </div>
-  </div>
-</div>
-</fieldset>
-</form>
-<!-- Linie -->
+</span>
 <div><legend></legend></div>
-<!-- Button Search -->
 <div class="form-group row">
+    <!-- Button Search -->
     <div class="col-xs-1">
         <div class="col-lg-10">
             <button class="btn btn-primary" id="btnSearch">Search</button>
         </div>
     </div>
      <div class="col-xs-6"></div>
-    <div class="col-xs-1">    
+     <!-- Button Clear -->
+    <div class="col-xs-1">
         <div class="col-lg-10">
             <button class="btn" class="form-control" id="btnClear">Clear</button>
             <script>
@@ -127,22 +132,33 @@
 				});
             </script>
         </div>
-    </div>  
+    </div>
 </div>
-<div><legend></legend></div>
-<div >
-    <label class="col-lg-2 control-label" for="findresult"><h3>Find Result</h3></label>
+<span class="input-group-addon">
+    <div class="form-group row">
+    <div class="col-md-11">
+        <!-- Find Result -->    
+        <div >
+            <label class="col-sm-1 control-label" for="findresult"><h3>Find Result</h3></label>
+        </div>
+        <!-- Table -->
+        <table class="table table-striped">
+            <tr>
+                <td class="active">Class</td>
+                <td class="success">Partner Name</td>
+                <td class="warning">City</td>
+                <td class="danger">Add2</td>
+                <td class="active">Partner Key</td>
+                <td class="success">Partner Status</td>
+                <td class="danger">Location Key</td>
+            </tr>
+        </table>
+        </div>
+    </div>        
+</span>
+<div>
 </div>
-<table class="table table-striped">
-    <tr>
-        <td class="active">Class</td>
-        <td class="success">Partner Name</td>
-        <td class="warning">City</td>
-        <td class="danger">Add2</td>
-        <td class="active">Partner Key</td>
-        <td class="success">Partner Status</td>
-        <td class="danger">Location Key</td>
-    </tr>
-</table>
+</fieldset>
+</form>
 </body>
 </html>
