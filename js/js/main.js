@@ -24,7 +24,31 @@ function OpenTab(name, title)
         {
             e.preventDefault();
             $("#tab"+name).hide();
-            ActivateTab("Home");
+
+            // find a neighboring tab that is visible
+            focusTab = $("#tab"+name).prev();
+            while (focusTab.length == 1 && focusTab.css("display") == "none")
+            {
+                focusTab = focusTab.prev();
+            }
+
+            if (focusTab.length == 0)
+            {
+                focusTab = $("#tab"+name).next();
+                while (focusTab.length == 1 && focusTab.css("display") == "none")
+                {
+                    focusTab = focusTab.next();
+                }
+            }
+                
+            if (focusTab.length == 0)
+            {
+                OpenTab("frmHome", "Home");
+            }
+            else
+            {
+                ActivateTab(focusTab[0].id.substring(3));
+            }
             return false;
         });
     }
@@ -38,9 +62,9 @@ function ActivateTab(name)
     $("#tab" + name).show();
     $("#tab" + name).addClass("active");
     $("#wnd" + name).show();
-//    $('html, body').animate({
-//                        scrollTop: $("#TabbedWindows").offset().top + $("#topnavigation").height
-//                    }, 1);
+    $('html, body').animate({
+                        scrollTop: $("#TabbedWindows").offset().top + $("#topnavigation").height
+                    }, 1);
 }
 
 function AddMenuGroup(name, title, menuitems)
@@ -104,6 +128,4 @@ jQuery(document).ready(function() {
     });
 
     OpenTab("frmHome", "Home");
-    
-    window.scrollTo(0,0);
 });
