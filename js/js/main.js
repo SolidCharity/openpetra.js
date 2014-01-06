@@ -104,4 +104,6 @@ jQuery(document).ready(function() {
     });
 
     OpenTab("frmHome", "Home");
+    
+    window.scrollTo(0,0);
 });
