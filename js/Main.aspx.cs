@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2010-2013 by SolidCharity.com
+// Copyright 2013-2014 by SolidCharity.com
 //
 // This file is part of OpenPetra.org.
 //

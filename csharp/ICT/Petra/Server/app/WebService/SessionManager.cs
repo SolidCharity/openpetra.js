@@ -5,7 +5,7 @@
 //       timop
 //
 // Copyright 2004-2013 by OM International
-// Copyright 2010-2013 by SolidCharity
+// Copyright 2013-2014 by SolidCharity
 //
 // This file is part of OpenPetra.org.
 //
@@ -57,7 +57,7 @@ namespace Ict.Petra.Server.App.WebService
     public class TOpenPetraOrgSessionManager : System.Web.Services.WebService
     {
         private static string ConfigFileName = string.Empty;
-        
+
         /// <summary>
         /// constructor, which is called for each http request
         /// </summary>
@@ -101,10 +101,9 @@ namespace Ict.Petra.Server.App.WebService
             new TSrvSetting();
             new TLogging(TSrvSetting.ServerLogFile);
             TLogging.DebugLevel = TAppSettingsManager.GetInt16("Server.DebugLevel", 0);
-            
+
             if (TServerManager.TheServerManager == null)
             {
-
                 DBAccess.SetFunctionForRetrievingCurrentObjectFromWebSession(SetDatabaseForSession,
                     GetDatabaseFromSession);
 

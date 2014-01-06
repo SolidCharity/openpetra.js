@@ -5,7 +5,7 @@
 //       timop
 //
 // Copyright 2004-2011 by OM International
-// Copyright 2010-2013 by SolidCharity
+// Copyright 2013-2014 by SolidCharity
 //
 // This file is part of OpenPetra.org.
 //
