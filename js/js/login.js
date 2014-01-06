@@ -1,10 +1,16 @@
 jQuery(document).ready(function() {
     $("#btnLogin").click(function(e) {
         e.preventDefault();
+        user=$("#txtEmail").val();
+        pwd=$("#txtPassword").val();
+        if (user == "" && pwd == "") {
+            user = "demo";
+            pwd = "demo";
+        }
         $.ajax({
           type: "POST",
           url: "/serverSessionManager.asmx/Login",
-          data: JSON.stringify({'username': $("#txtEmail").val(), 'password': $("#txtPassword").val()}),
+          data: JSON.stringify({'username': user, 'password': pwd}),
           contentType: "application/json; charset=utf-8",
           dataType: "json",
           success: function(data, status, response) {
