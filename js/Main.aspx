@@ -46,7 +46,7 @@
             <span class="icon-bar"></span>
           </button>
           <button type="button" class="navbar-brand btn btn-xs visible" data-toggle="offcanvas" id="btnShow"><i class="glyphicon glyphicon-chevron-right"></i></button>
-          <button type="button" class="navbar-brand btn btn-xs invisible" data-toggle="offcanvas" id="btnHide"><i class="glyphicon glyphicon-chevron-left"></i></button>
+          <button type="button" class="navbar-brand btn btn-xs hidden" data-toggle="offcanvas" id="btnHide"><i class="glyphicon glyphicon-chevron-left"></i></button>
           <a class="navbar-brand" href="#">OpenPetra</a>
         </div>
         <div class="navbar-collapse collapse">

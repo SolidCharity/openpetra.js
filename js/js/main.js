@@ -91,8 +91,8 @@ function AddMenuItem(parent, name, title, tabtitle)
 jQuery(document).ready(function() {
     $('[data-toggle=offcanvas]').click(function() {
         $('.row-offcanvas').toggleClass('active');
-        if ($('#btnHide').hasClass("invisible")) {
-            $('#btnHide').removeClass("invisible");
+        if ($('#btnHide').hasClass("hidden")) {
+            $('#btnHide').removeClass("hidden");
         } else {
             $('#btnHide').toggle();
         }
