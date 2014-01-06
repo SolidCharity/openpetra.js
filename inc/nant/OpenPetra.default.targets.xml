@@ -262,7 +262,7 @@
   </if>
 </target> 
 
-<target name="start" depends="initConfigFiles, startServer, startClient">
+<target name="start" depends="initConfigFiles, startServer">
 </target>
 
 <target name="startStandalone">
