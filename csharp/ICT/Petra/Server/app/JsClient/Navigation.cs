@@ -27,6 +27,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Xml;
+using System.IO;
 using System.Text;
 using GNU.Gettext;
 using Ict.Common;
@@ -362,8 +363,14 @@ namespace Ict.Petra.Server.app.JSClient
 
                 if (child.FirstChild == null)
                 {
+                    string style = string.Empty;
+                    if (!File.Exists("../js/forms/frm" + child.Name + ".html"))
+                    {
+                        style = " class = 'notimplemented' ";
+                    }
+                    
                     ScreenCode.Append("<a href='javascript:OpenTab(\"frm" + child.Name + "\", \"" +
-                        GetCaption(child) + "\")'>" + GetCaption(child) + "</a><br/>" + Environment.NewLine);
+                        GetCaption(child) + "\")'" + style + ">" + GetCaption(child) + "</a><br/>" + Environment.NewLine);
                 }
                 else
                 {
@@ -371,8 +378,13 @@ namespace Ict.Petra.Server.app.JSClient
 
                     foreach (XmlNode task in child.ChildNodes)
                     {
+                        string style = string.Empty;
+                        if (!File.Exists("../js/forms/frm" + task.Name + ".html"))
+                        {
+                            style = " class = 'notimplemented' ";
+                        }
                         ScreenCode.Append("<a href='javascript:OpenTab(\"frm" + task.Name + "\", \"" +
-                            GetCaption(task) + "\")'>" + GetCaption(task) + "</a><br/>" + Environment.NewLine);
+                            GetCaption(task) + "\")'" + style + ">" + GetCaption(task) + "</a><br/>" + Environment.NewLine);
                     }
                 }
             }

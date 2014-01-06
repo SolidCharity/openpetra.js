@@ -16,6 +16,10 @@ body {
   margin-left: 10px;
 }
 
+.notimplemented {
+    text-decoration:line-through;
+}
+
 .OpenPetraWindow {
   padding-top: 10px;
   padding-left: 10px;
