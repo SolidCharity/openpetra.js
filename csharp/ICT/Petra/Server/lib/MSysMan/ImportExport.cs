@@ -239,7 +239,17 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
         {
             List <string>tables = TTableList.GetDBNames();
 
-            TProgressTracker.InitProgressTracker(DomainManager.GClientID.ToString(),
+            string ClientID = "ClientID";
+
+            try
+            {
+                ClientID = DomainManager.GClientID.ToString();
+            }
+            catch (Exception)
+            {
+            }
+
+            TProgressTracker.InitProgressTracker(ClientID,
                 Catalog.GetString("Importing database"),
                 tables.Count + 3);
 
@@ -249,7 +259,7 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
             {
                 tables.Reverse();
 
-                TProgressTracker.SetCurrentState(DomainManager.GClientID.ToString(),
+                TProgressTracker.SetCurrentState(ClientID,
                     Catalog.GetString("deleting current data"),
                     0);
 
@@ -258,7 +268,7 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
                     DBAccess.GDBAccessObj.ExecuteNonQuery("DELETE FROM pub_" + table, Transaction);
                 }
 
-                if (TProgressTracker.GetCurrentState(DomainManager.GClientID.ToString()).CancelJob == true)
+                if (TProgressTracker.GetCurrentState(ClientID).CancelJob == true)
                 {
                     DBAccess.GDBAccessObj.RollbackTransaction();
                     return false;
@@ -270,7 +280,7 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
 
                 tables.Reverse();
 
-                TProgressTracker.SetCurrentState(DomainManager.GClientID.ToString(),
+                TProgressTracker.SetCurrentState(ClientID,
                     Catalog.GetString("loading initial tables"),
                     1);
 
@@ -294,7 +304,7 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
                     return false;
                 }
 
-                if (TProgressTracker.GetCurrentState(DomainManager.GClientID.ToString()).CancelJob == true)
+                if (TProgressTracker.GetCurrentState(ClientID).CancelJob == true)
                 {
                     DBAccess.GDBAccessObj.RollbackTransaction();
                     return false;
@@ -316,13 +326,13 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
 
                 foreach (string table in tables)
                 {
-                    TProgressTracker.SetCurrentState(DomainManager.GClientID.ToString(),
+                    TProgressTracker.SetCurrentState(ClientID,
                         String.Format(Catalog.GetString("loading table {0}"), table),
                         tableCounter);
 
                     tableCounter++;
 
-                    if (TProgressTracker.GetCurrentState(DomainManager.GClientID.ToString()).CancelJob == true)
+                    if (TProgressTracker.GetCurrentState(ClientID).CancelJob == true)
                     {
                         DBAccess.GDBAccessObj.RollbackTransaction();
                         return false;
@@ -331,7 +341,7 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
                     LoadTable(table, ymlParser, Transaction);
                 }
 
-                TProgressTracker.SetCurrentState(DomainManager.GClientID.ToString(),
+                TProgressTracker.SetCurrentState(ClientID,
                     Catalog.GetString("loading sequences"),
                     tables.Count + 5 + 3);
 
@@ -341,7 +351,7 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
                     LoadSequence(seq, ymlParser, Transaction);
                 }
 
-                TProgressTracker.SetCurrentState(DomainManager.GClientID.ToString(),
+                TProgressTracker.SetCurrentState(ClientID,
                     Catalog.GetString("finish import"),
                     tables.Count + 5 + 4);
 
@@ -350,7 +360,7 @@ namespace Ict.Petra.Server.MSysMan.ImportExport.WebConnectors
                 // reset all cached tables
                 TCacheableTablesManager.GCacheableTablesManager.MarkAllCachedTableNeedsRefreshing();
 
-                TProgressTracker.FinishJob(DomainManager.GClientID.ToString());
+                TProgressTracker.FinishJob(ClientID);
             }
             catch (Exception e)
             {
