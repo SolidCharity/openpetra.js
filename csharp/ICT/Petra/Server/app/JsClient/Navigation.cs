@@ -5,7 +5,7 @@
 //       timop
 //
 // Copyright 2004-2013 by OM International
-// Copyright 2010-2013 by SolidCharity
+// Copyright 2013-2014 by SolidCharity
 //
 // This file is part of OpenPetra.org.
 //
@@ -42,9 +42,9 @@ namespace Ict.Petra.Server.app.JSClient
     /// <summary>
     /// Load navigation from UINavigation.yml and produce javascript code
     ///
-    /// this class is based on code from the winforms client: 
+    /// this class is based on code from the winforms client:
     /// https://github.com/openpetra/openpetra/blob/master/csharp/ICT/Petra/Client/app/MainWindow/MainWindowNew.ManualCode.cs
-    /// 
+    ///
     /// TODO: only supports one ledger at the moment
     /// Frage: soll ich den Client umprogrammieren, um das Auslesen der Navigation auf dem Server zu machen?
     /// Dann könnte Winforms und Javascript client dieselben Funktionen verwenden, nur anders darstellen?
@@ -265,7 +265,7 @@ namespace Ict.Petra.Server.app.JSClient
             AddNavigationForEachLedger(MainMenuNode, AvailableLedgers, ADontUseDefaultLedger);
 
             return MainMenuNode;
-        }    
+        }
 
         /// <summary>
         /// load the navigation and return the Javascript code
@@ -293,7 +293,7 @@ namespace Ict.Petra.Server.app.JSClient
         private static string GetCaption(XmlNode ANode)
         {
             return Catalog.GetString(TYml2Xml.HasAttribute(ANode, "Label") ? TYml2Xml.GetAttribute(ANode,
-                "Label") : StringHelper.ReverseUpperCamelCase(ANode.Name)).Replace("&", "");
+                    "Label") : StringHelper.ReverseUpperCamelCase(ANode.Name)).Replace("&", "");
         }
 
         private static StringBuilder AddFolder(XmlNode AFolderNode, string AUserId)
@@ -301,8 +301,7 @@ namespace Ict.Petra.Server.app.JSClient
             // TODO icon?
 
             // TODO enabled/disabled based on permissions
-            #if TODO
-
+#if TODO
             if ((TYml2Xml.HasAttribute(AFolderNode, "Enabled"))
                 && (TYml2Xml.GetAttribute(AFolderNode, "Enabled").ToLower() == "false"))
             {
@@ -312,10 +311,11 @@ namespace Ict.Petra.Server.app.JSClient
             {
                 rbt.Enabled = AHasAccessPermission(AFolderNode, AUserId, false);
             }
-            #endif
+#endif
 
             StringBuilder JavascriptCode = new StringBuilder();
-            JavascriptCode.Append("AddMenuGroup('" + AFolderNode.Name +"', '" + GetCaption(AFolderNode) + "', function(parent) " + Environment.NewLine);
+            JavascriptCode.Append("AddMenuGroup('" + AFolderNode.Name + "', '" + GetCaption(
+                    AFolderNode) + "', function(parent) " + Environment.NewLine);
             JavascriptCode.Append("{" + Environment.NewLine);
 
             foreach (XmlNode child in AFolderNode.ChildNodes)
@@ -324,14 +324,13 @@ namespace Ict.Petra.Server.app.JSClient
                 {
                     foreach (XmlNode child2 in child.ChildNodes)
                     {
-                        JavascriptCode.Append("AddMenuItem(parent, '" + AFolderNode.Name + "_" + child2.Name +"', '" + 
+                        JavascriptCode.Append("AddMenuItem(parent, '" + AFolderNode.Name + "_" + child2.Name + "', '" +
                             GetCaption(child2) + "', '" + GetCaption(AFolderNode) + ": " + GetCaption(child2) + "');" + Environment.NewLine);
                     }
-
                 }
                 else
                 {
-                    JavascriptCode.Append("AddMenuItem(parent, '" + AFolderNode.Name + "_" + child.Name +"', '" + 
+                    JavascriptCode.Append("AddMenuItem(parent, '" + AFolderNode.Name + "_" + child.Name + "', '" +
                         GetCaption(child) + "', '" + GetCaption(AFolderNode) + " " + GetCaption(child) + "');" + Environment.NewLine);
                 }
             }
@@ -341,9 +340,103 @@ namespace Ict.Petra.Server.app.JSClient
             return JavascriptCode;
         }
 
+        private static StringBuilder AddSection(XmlNode ASectionNode, string AUserId)
+        {
+            // TODO icon?
+
+            // TODO enabled/disabled based on permissions
+
+            StringBuilder ScreenCode = new StringBuilder();
+
+            if ((ASectionNode.FirstChild != null) && (ASectionNode.FirstChild.FirstChild == null))
+            {
+                ScreenCode.Append("<h3>" + GetCaption(ASectionNode) + "</h3>" + Environment.NewLine);
+            }
+
+            foreach (XmlNode child in ASectionNode.ChildNodes)
+            {
+                if (child.Name == "SearchBoxes")
+                {
+                    continue;
+                }
+
+                if (child.FirstChild == null)
+                {
+                    ScreenCode.Append("<a href='javascript:OpenTab(\"frm" + child.Name + "\", \"" +
+                        GetCaption(child) + "\")'>" + GetCaption(child) + "</a><br/>" + Environment.NewLine);
+                }
+                else
+                {
+                    ScreenCode.Append("<h3>" + GetCaption(child) + "</h3>" + Environment.NewLine);
+
+                    foreach (XmlNode task in child.ChildNodes)
+                    {
+                        ScreenCode.Append("<a href='javascript:OpenTab(\"frm" + task.Name + "\", \"" +
+                            GetCaption(task) + "\")'>" + GetCaption(task) + "</a><br/>" + Environment.NewLine);
+                    }
+                }
+            }
+
+            return ScreenCode;
+        }
+
         private static string FormatLedgerNumberForModuleAccess(int ALedgerNumber)
         {
             return "LEDGER" + ALedgerNumber.ToString("0000");
+        }
+
+        /// <summary>
+        /// load the html code for a single navigation page, based on the UINavigation file
+        /// </summary>
+        public static string LoadNavigationPage(string ANavigationPage)
+        {
+            // TODO: store MainMenuNode in session variable?
+
+            // Force re-calculation of available Ledgers and correct setting of FCurrentLedger
+            FLedgersAvailableToUser = null;
+
+            XmlNode MainMenuNode = BuildNavigationXml(false);
+            XmlNode DepartmentNode = MainMenuNode.FirstChild;
+
+            StringBuilder ScreenContent = new StringBuilder();
+
+            string Department = ANavigationPage.Split(new char[] { '_' })[0];
+            string Page = ANavigationPage.Split(new char[] { '_' })[1];
+
+            while (DepartmentNode != null)
+            {
+                if (DepartmentNode.Name == Department)
+                {
+                    if (TYml2Xml.GetAttribute(DepartmentNode.FirstChild, "SkipThisLevel") == "true")
+                    {
+                        DepartmentNode = DepartmentNode.FirstChild;
+                    }
+
+                    XmlNode SectionNode = DepartmentNode.FirstChild;
+
+                    while (SectionNode != null)
+                    {
+                        if (SectionNode.Name == Page)
+                        {
+                            ScreenContent.Append(AddSection(SectionNode, UserInfo.GUserInfo.UserID));
+                            break;
+                        }
+
+                        SectionNode = SectionNode.NextSibling;
+                    }
+
+                    break;
+                }
+
+                DepartmentNode = DepartmentNode.NextSibling;
+            }
+
+            if (ScreenContent.Length == 0)
+            {
+                return "cannot find " + ANavigationPage;
+            }
+
+            return ScreenContent.ToString();
         }
     }
 }

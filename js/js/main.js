@@ -10,26 +10,14 @@ function OpenTab(name, title)
         
         $("#tabControl").append("<div class='OpenPetraWindow' id='wnd" + name + "'></div>");
         
-        // TODO fetch screen content from the server
-        screenContent = "<h1>" + title + "</h1>";
-        if (name == "Partner_Partners")
-        {
-            screenContent = "<h3>Maintain Partners</h3>";
-            screenContent += "<a href='javascript:OpenTab(\"frmPartnerFind\", \"Partner Find\")'>Find Partners</a><br/>";
-            screenContent += "<a href='javascript:OpenTab(\"frmPartnerEdit\", \"Partner Edit\")'>Work with Last Partner</a><br/>";
-            screenContent += "<a href='#'>Delete Partner</a><br/>";
-            screenContent += "<h3>Create Partner</h3>";
-            screenContent += "<a href='#'>Add new Family</a><br/>";
-            screenContent += "<a href='#'>Add new Person</a><br/>";
-            screenContent += "<a href='#'>Add new Organisation</a><br/>";
-            screenContent += "<a href='#'>Add new Bank</a><br/>";
-            screenContent += "<a href='#'>Add new Venue</a><br/>";
-            screenContent += "<a href='#'>Add new Unit</a><br/>";
-            $("#wnd" + name).html(screenContent);
-        } 
-        else if (name.substring(0, "frm".length) === "frm")
+        // fetch screen content from the server
+        if (name.substring(0, "frm".length) === "frm")
         {
             $("#wnd" + name).load("/lib/loadform.aspx?form=" + name);
+        }
+        else // fetch navigation page
+        {
+            $("#wnd" + name).load("/lib/loadnavpage.aspx?page=" + name);
         }
 
         $("#btnClose" + name).click(function(e) 
