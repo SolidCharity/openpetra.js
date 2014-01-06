@@ -349,9 +349,12 @@ namespace Ict.Petra.Server.app.JSClient
 
             StringBuilder ScreenCode = new StringBuilder();
 
+            bool TaskDisplayed = true;
+
             if ((ASectionNode.FirstChild != null) && (ASectionNode.FirstChild.FirstChild == null))
             {
                 ScreenCode.Append("<h3>" + GetCaption(ASectionNode) + "</h3>" + Environment.NewLine);
+                TaskDisplayed = false;
             }
 
             foreach (XmlNode child in ASectionNode.ChildNodes)
@@ -364,29 +367,47 @@ namespace Ict.Petra.Server.app.JSClient
                 if (child.FirstChild == null)
                 {
                     string style = string.Empty;
+
                     if (!File.Exists("../js/forms/frm" + child.Name + ".html"))
                     {
                         style = " class = 'notimplemented' ";
+                        continue;
                     }
-                    
+
                     ScreenCode.Append("<a href='javascript:OpenTab(\"frm" + child.Name + "\", \"" +
                         GetCaption(child) + "\")'" + style + ">" + GetCaption(child) + "</a><br/>" + Environment.NewLine);
+                    TaskDisplayed = true;
                 }
                 else
                 {
+                    if (!TaskDisplayed)
+                    {
+                        ScreenCode.Append("not implemented yet<br/>" + Environment.NewLine);
+                    }
+
                     ScreenCode.Append("<h3>" + GetCaption(child) + "</h3>" + Environment.NewLine);
+                    TaskDisplayed = false;
 
                     foreach (XmlNode task in child.ChildNodes)
                     {
                         string style = string.Empty;
+
                         if (!File.Exists("../js/forms/frm" + task.Name + ".html"))
                         {
                             style = " class = 'notimplemented' ";
+                            continue;
                         }
+
                         ScreenCode.Append("<a href='javascript:OpenTab(\"frm" + task.Name + "\", \"" +
                             GetCaption(task) + "\")'" + style + ">" + GetCaption(task) + "</a><br/>" + Environment.NewLine);
+                        TaskDisplayed = true;
                     }
                 }
+            }
+
+            if (!TaskDisplayed)
+            {
+                ScreenCode.Append("not implemented yet<br/>" + Environment.NewLine);
             }
 
             return ScreenCode;
