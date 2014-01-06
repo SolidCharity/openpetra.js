@@ -193,14 +193,15 @@ init() {
   )
 }
 FINISH
+    sed -i 's~"mod_fastcgi",~#"mod_fastcgi",~g' /etc/lighttpd/modules.conf
     sed -i 's~server.modules = (~server.modules = (\n  "mod_fastcgi",~g' /etc/lighttpd/modules.conf
     sed -i 's/server.use-ipv6 = "enable"/server.use-ipv6 = "disable"/g' /etc/lighttpd/lighttpd.conf
     sed -i 's/server.max-connections = 1024/server.max-connections = 512/g' /etc/lighttpd/lighttpd.conf
-    echo 'include_shell "cat /etc/lighttpd/vhosts.d/*.conf"' >> /etc/lighttpd/lighttpd.conf
+    sed -i 's~#include_shell "cat /etc/lighttpd/vhosts\.d/\*\.conf"~include_shell "cat /etc/lighttpd/vhosts.d/*.conf"~g' /etc/lighttpd/lighttpd.conf
     service lighttpd restart
     chkconfig lighttpd on
-    chkconfig openpetra-server on
-    service openpetra-server start
+    chkconfig openpetra on
+    service openpetra start
     ymlgzfile=$OpenPetraOrgPath/db30/base.yml.gz
     loadYmlGz
 }
