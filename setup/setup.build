@@ -474,22 +474,20 @@ public static string InsertRecursiveAllFilesFromSubdirectoriesForDeletion(string
     </delete>
   </if>
 
-  <if test="${BuildArchive != 'server'}">
-    <property name="UINavigation.file" value="${dir.root}/csharp/ICT/Petra/Definitions/UINavigation.yml.my"/>
-    <if test="${file::exists(UINavigation.file)}">
-      <copy file="${UINavigation.file}" tofile="${setupDir}/bin30/UINavigation.yml" overwrite="true"/>
-    </if>
-    <if test="${not file::exists(UINavigation.file)}">
-      <property name="UINavigation.file" value="${dir.root}/csharp/ICT/Petra/Definitions/UINavigation.yml"/>
-      <copy file="${UINavigation.file}" tofile="${setupDir}/bin30/UINavigation.yml" overwrite="true"/>
-    </if>
-    <copy todir="${setupDir}/resources30">
-      <fileset basedir="${dir.root}/resources">
-        <include name="*.ico" />
-        <include name="*.png" />
-      </fileset>
-    </copy>       
+  <property name="UINavigation.file" value="${dir.root}/csharp/ICT/Petra/Definitions/UINavigation.yml.my"/>
+  <if test="${file::exists(UINavigation.file)}">
+    <copy file="${UINavigation.file}" tofile="${setupDir}/bin30/UINavigation.yml" overwrite="true"/>
   </if>
+  <if test="${not file::exists(UINavigation.file)}">
+    <property name="UINavigation.file" value="${dir.root}/csharp/ICT/Petra/Definitions/UINavigation.yml"/>
+    <copy file="${UINavigation.file}" tofile="${setupDir}/bin30/UINavigation.yml" overwrite="true"/>
+  </if>
+  <copy todir="${setupDir}/resources30">
+    <fileset basedir="${dir.root}/resources">
+      <include name="*.ico" />
+      <include name="*.png" />
+    </fileset>
+  </copy>       
   
   <copy todir="${setupDir}/manuals30">
     <fileset basedir="${dir.root}/setup/petra${PetraRelease}/releasenotes/">
