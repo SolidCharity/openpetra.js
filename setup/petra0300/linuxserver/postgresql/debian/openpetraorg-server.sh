@@ -54,7 +54,7 @@ fi
 start() {
     log_daemon_msg "Starting OpenPetra.org server"
 
-    su $userName -c ". $mono_path/env.sh; $FASTCGI_MONO_SERVER /socket=tcp:127.0.0.1:$OPENPETRA_PORT /applications=/:/var/www/html /appconfigfile=/home/$userName/etc/PetraServerConsole.config&"
+    su $userName -c ". $mono_path/env.sh; $FASTCGI_MONO_SERVER /socket=tcp:127.0.0.1:$OPENPETRA_PORT /applications=/:/var/www/openpetra /appconfigfile=/home/$userName/etc/PetraServerConsole.config&"
     status=0
     log_end_msg $status
 }
@@ -188,7 +188,7 @@ init() {
 
   server.name = "$hostname/openpetra$OPENPETRA_PORT"
 
-  server.document-root = "/var/www/html"
+  server.document-root = "/var/www/openpetra"
 
   fastcgi.server = (
         "/openpetra$OPENPETRA_PORT" => ((
