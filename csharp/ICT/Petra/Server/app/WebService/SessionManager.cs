@@ -102,6 +102,13 @@ namespace Ict.Petra.Server.App.WebService
             new TLogging(TSrvSetting.ServerLogFile);
             TLogging.DebugLevel = TAppSettingsManager.GetInt16("Server.DebugLevel", 0);
 
+            if (HttpContext.Current != null)
+            {
+                HttpContext.Current.Server.ScriptTimeout = Convert.ToInt32(
+                    TimeSpan.FromMinutes(TAppSettingsManager.GetInt32("WebRequestTimeOutInMinutes", 15)).
+                    TotalSeconds);
+            }
+
             if (TServerManager.TheServerManager == null)
             {
                 DBAccess.SetFunctionForRetrievingCurrentObjectFromWebSession(SetDatabaseForSession,
