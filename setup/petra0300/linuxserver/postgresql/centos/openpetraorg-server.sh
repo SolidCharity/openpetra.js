@@ -135,6 +135,7 @@ init() {
     echo "creating database..."
     service postgresql-$POSTGRESQLVERSION initdb
     service postgresql-$POSTGRESQLVERSION start
+    chkconfig postgresql-$POSTGRESQLVERSION on
 
     echo "local  $OPENPETRA_DBNAME $OPENPETRA_DBUSER   md5" > /var/lib/pgsql/$POSTGRESQLVERSION/data/pg_hba.conf.new
     echo "host  $OPENPETRA_DBNAME $OPENPETRA_DBUSER  ::1/128   md5" >> /var/lib/pgsql/$POSTGRESQLVERSION/data/pg_hba.conf.new
@@ -202,7 +203,11 @@ FINISH
     chkconfig lighttpd on
     chkconfig openpetra on
     service openpetra start
-    ymlgzfile=$OpenPetraOrgPath/db30/base.yml.gz
+    ymlgzfile=$OpenPetraOrgPath/db30/demo.yml.gz
+    if [ ! -f $ymlgzfile ]
+    then
+      ymlgzfile=$OpenPetraOrgPath/db30/base.yml.gz
+    fi
     loadYmlGz
 }
 
