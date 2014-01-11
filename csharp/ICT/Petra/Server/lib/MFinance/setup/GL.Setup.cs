@@ -5,6 +5,7 @@
 //       timop
 //
 // Copyright 2004-2013 by OM International
+// Copyright 2013-2014 by SolidCharity
 //
 // This file is part of OpenPetra.org.
 //
@@ -28,6 +29,7 @@ using System.Data.Odbc;
 using System.Globalization;
 using System.Xml;
 using System.IO;
+using System.Text;
 using GNU.Gettext;
 using Ict.Common;
 using Ict.Common.IO;
@@ -655,6 +657,94 @@ namespace Ict.Petra.Server.MFinance.Setup.WebConnectors
             MainDS.RemoveEmptyTables();
 
             return MainDS;
+        }
+
+        private static string InsertNodeIntoHTMLTreeView(GLSetupTDS AMainDS,
+            Int32 ALedgerNumber,
+            AAccountHierarchyDetailRow ADetailRow,
+            bool AIsRootNode = false)
+        {
+            StringBuilder result = new StringBuilder();
+
+            AAccountRow AccountRow = (AAccountRow)AMainDS.AAccount.Rows.Find(
+                new object[] { ALedgerNumber, ADetailRow.ReportingAccountCode });
+
+            string nodeLabel = ADetailRow.ReportingAccountCode;
+
+            if (!AccountRow.IsAccountCodeShortDescNull())
+            {
+                nodeLabel += " (" + AccountRow.AccountCodeShortDesc + ")";
+            }
+
+            if (AIsRootNode)
+            {
+                result.Append("<ul><li id='acct" + AccountRow.AccountCode + "'><span><i class=\"icon-folder-open\"></i>" + nodeLabel + "</span><ul>");
+            }
+            else if (!AccountRow.PostingStatus)
+            {
+                result.Append("<li id='acct" + AccountRow.AccountCode + "'><span><i class=\"icon-minus-sign\"></i>" + nodeLabel + "</span><ul>");
+            }
+            else if (AccountRow.PostingStatus)
+            {
+                result.Append("<li id='acct" + AccountRow.AccountCode + "'><span><i class=\"icon-leaf\"></i>" + nodeLabel + "</span></<li>");
+            }
+
+            // Now add the children of this node:
+            DataView view = new DataView(AMainDS.AAccountHierarchyDetail);
+            view.Sort = AAccountHierarchyDetailTable.GetReportOrderDBName() + ", " + AAccountHierarchyDetailTable.GetReportingAccountCodeDBName();
+            view.RowFilter =
+                AAccountHierarchyDetailTable.GetAccountHierarchyCodeDBName() + " = '" + ADetailRow.AccountHierarchyCode + "' AND " +
+                AAccountHierarchyDetailTable.GetAccountCodeToReportToDBName() + " = '" + ADetailRow.ReportingAccountCode + "'";
+
+            if (view.Count > 0)
+            {
+                foreach (DataRowView rowView in view)
+                {
+                    AAccountHierarchyDetailRow accountDetail = (AAccountHierarchyDetailRow)rowView.Row;
+                    result.Append(InsertNodeIntoHTMLTreeView(AMainDS, ALedgerNumber, accountDetail));
+                }
+            }
+
+            if (AIsRootNode)
+            {
+                result.Append("</ul></li></ul>");
+            }
+            else if (!AccountRow.PostingStatus)
+            {
+                result.Append("</ul></li>");
+            }
+
+            return result.ToString();
+        }
+
+        /// <summary>
+        /// returns the selected account hierarchy available for this ledger, formatted for the html client
+        /// </summary>
+        [RequireModulePermission("FINANCE-1")]
+        public static string LoadAccountHierarchyHtmlCode(Int32 ALedgerNumber, string AAccountHierarchyCode)
+        {
+            GLSetupTDS MainDS = LoadAccountHierarchies(ALedgerNumber);
+
+            AAccountHierarchyRow accountHierarchy = (AAccountHierarchyRow)MainDS.AAccountHierarchy.Rows.Find(new object[] { ALedgerNumber,
+                                                                                                                            AAccountHierarchyCode });
+
+            StringBuilder result = new StringBuilder();
+
+            if (accountHierarchy != null)
+            {
+                // find the BALSHT account that is reporting to the root account
+                MainDS.AAccountHierarchyDetail.DefaultView.RowFilter =
+                    AAccountHierarchyDetailTable.GetAccountHierarchyCodeDBName() + " = '" + AAccountHierarchyCode + "' AND " +
+                    AAccountHierarchyDetailTable.GetAccountCodeToReportToDBName() + " = '" + accountHierarchy.RootAccountCode + "'";
+
+                result.Append(InsertNodeIntoHTMLTreeView(
+                        MainDS,
+                        ALedgerNumber,
+                        (AAccountHierarchyDetailRow)MainDS.AAccountHierarchyDetail.DefaultView[0].Row,
+                        true));
+            }
+
+            return result.ToString();
         }
 
         /// <summary>
