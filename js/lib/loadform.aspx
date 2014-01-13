@@ -41,7 +41,10 @@
             {
                 if (previousPosInclude != -1)
                 {
-                    result.Append(content.Substring(previousPosInclude, newPosInclude - previousPosInclude));
+                    Int32 posAfterPreviousInclude = content.IndexOf("-->", previousPosInclude) + "-->".Length;
+                    result.Append(content.Substring(
+                        posAfterPreviousInclude,
+                        newPosInclude - posAfterPreviousInclude));
                 }
                 else
                 {
@@ -52,19 +55,23 @@
                     newPosInclude + "<!-- include ".Length,
                     content.IndexOf("-->", newPosInclude) - "<!-- include ".Length - newPosInclude).Trim();
 
-                if (includeFilename.StartsWith("css/") && File.Exists(path + "/../" + includeFilename))
+                if (includeFilename.EndsWith(".css") && File.Exists(path + "/../" + includeFilename))
                 {
                     using (StreamReader srCss = new StreamReader(path + "/../" + includeFilename))
                     {
                         result.Append("<style>").Append(srCss.ReadToEnd()).Append("</style>");
                     }
                 }
-                if (includeFilename.StartsWith("js/") && File.Exists(path + "/../" + includeFilename))
+                else if (includeFilename.EndsWith(".js") && File.Exists(path + "/../" + includeFilename))
                 {
                     using (StreamReader srJs = new StreamReader(path + "/../" + includeFilename))
                     {
                         result.Append("<script>").Append(srJs.ReadToEnd()).Append("</script>");
                     }
+                }
+                else
+                {
+                    throw new Exception("Error: cannot find file " + includeFilename);
                 }
 
                 previousPosInclude = newPosInclude;

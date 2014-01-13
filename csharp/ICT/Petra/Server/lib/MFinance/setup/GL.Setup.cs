@@ -1561,29 +1561,36 @@ namespace Ict.Petra.Server.MFinance.Setup.WebConnectors
         {
             GLSetupTDS MainDS = new GLSetupTDS();
 
-            AAccountHierarchyAccess.LoadViaALedger(MainDS, ALedgerNumber, null);
-            AAccountHierarchyDetailAccess.LoadViaALedger(MainDS, ALedgerNumber, null);
+            AAccountHierarchyAccess.LoadByPrimaryKey(MainDS, ALedgerNumber, AAccountHierarchyName, null);
+            AAccountHierarchyDetailAccess.LoadViaAAccountHierarchy(MainDS, ALedgerNumber, AAccountHierarchyName, null);
             AAccountAccess.LoadViaALedger(MainDS, ALedgerNumber, null);
             AAccountPropertyAccess.LoadViaALedger(MainDS, ALedgerNumber, null);
 
             XmlDocument doc = TYml2Xml.CreateXmlDocument();
 
-            AAccountHierarchyRow accountHierarchy = (AAccountHierarchyRow)MainDS.AAccountHierarchy.Rows.Find(new object[] { ALedgerNumber,
-                                                                                                                            AAccountHierarchyName });
-
-            if (accountHierarchy != null)
+            if (MainDS.AAccountHierarchy.Rows.Count == 1)
             {
                 // find the BALSHT account that is reporting to the root account
                 MainDS.AAccountHierarchyDetail.DefaultView.RowFilter =
                     AAccountHierarchyDetailTable.GetAccountHierarchyCodeDBName() + " = '" + AAccountHierarchyName + "' AND " +
-                    AAccountHierarchyDetailTable.GetAccountCodeToReportToDBName() + " = '" + accountHierarchy.RootAccountCode + "'";
-
+                    AAccountHierarchyDetailTable.GetAccountCodeToReportToDBName() + " = '" + MainDS.AAccountHierarchy[0].RootAccountCode + "'";
                 InsertNodeIntoXmlDocument(MainDS, doc, doc.DocumentElement,
                     (AAccountHierarchyDetailRow)MainDS.AAccountHierarchyDetail.DefaultView[0].Row);
             }
 
             // XmlDocument is not serializable, therefore print it to string and return the string
             return TXMLParser.XmlToString(doc);
+        }
+
+        /// export account hierarchy as base64 encoded yml.gz file
+        [RequireModulePermission("FINANCE-1")]
+        public static string ExportAccountHierarchyYmlGz(Int32 ALedgerNumber, string AAccountHierarchyName)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            doc.LoadXml(ExportAccountHierarchy(ALedgerNumber, AAccountHierarchyName));
+            
+            return TYml2Xml.Xml2YmlGz(doc);
         }
 
         /// <summary>
