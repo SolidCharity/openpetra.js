@@ -1589,7 +1589,7 @@ namespace Ict.Petra.Server.MFinance.Setup.WebConnectors
             XmlDocument doc = new XmlDocument();
 
             doc.LoadXml(ExportAccountHierarchy(ALedgerNumber, AAccountHierarchyName));
-            
+
             return TYml2Xml.Xml2YmlGz(doc);
         }
 
