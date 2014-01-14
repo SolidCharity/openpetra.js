@@ -14,6 +14,7 @@
     <script type="text/javascript" src="../ThirdParty/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="../ThirdParty/jQueryUI/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../ThirdParty/Bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="frmAccountDetailReport.js"></script>
   </head>
 <body>
 <script>
@@ -92,10 +93,10 @@ $( "#tabsAccountDetail" ).tabs();
 	<div class="form-group row">
 	   <div class="col-md-11">
         <div class="col-sx-2 col-sm-1">
-	       <input name="periodrabge" type="radio" value="" />
-	       
-        <label for="Period">Period:</label>
+	       <input name="periodrange" type="radio" value="period" id="radioPeriod"/>
+        <label for="radioPeriod">Period:</label>
         </div>
+        <div id="divPeriod">
 		<label class="col-sx-2 col-sm-2 control-label" for="from">from:</label>
 		<div class="col-sm-1">
 			<input id="from" name="form-1"  type="text" placeholder="" class="form-control" >
@@ -112,15 +113,17 @@ $( "#tabsAccountDetail" ).tabs();
 			
 			</select>
 		</div>
+        </div>
 		</div>
 	</div>
 	<!-- Quarter -->
     <div class="form-group row">
         <div class="col-md-11">
         <div class="col-sx-2 col-sm-1">
-	       <input  name="periodrabge" type="radio" value="">
+	       <input  name="periodrange" type="radio" value="quarter">
         <label for="quarter">Quarter:</label>
         </div>
+        <div id="divQuarter">
 		<label class="col-sx-2 col-sm-2 control-label" for="from-2">from:</label>
 		<div class="col-sm-1">
 			<input id="from" name="form-3" type="text" placeholder="" class="form-control">
@@ -133,15 +136,17 @@ $( "#tabsAccountDetail" ).tabs();
 
 			</select>
 		</div>
-        </div>    
+        </div>
+        </div>
     </div>
     <!-- Date -->
     <div  class="form-group row">
         <div class="col-md-11">
         <div class="col-sx-2 col-sm-1">
-	       <input  name="periodrabge"   type="radio" value=""/>
+	       <input  name="periodrange"   type="radio" value="date"/>
         <label for="date">Date:</label>
         </div>
+        <div id="divDate">
 		<label class="col-sx-2 col-sm-2 control-label" for="from">from:</label>
 		<div class="col-sm-2">
 			<input id="from" name="" type="text" placeholder="" class="form-control">
@@ -151,6 +156,7 @@ $( "#tabsAccountDetail" ).tabs();
 			<input id="to" name="" type="text" placeholder="" class="form-control">
 		</div>
 		</div>
+        </div>
     </div>	
 </div>
 </span>
