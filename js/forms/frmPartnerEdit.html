@@ -25,63 +25,63 @@ $( "#tabsPartnerEdit" ).tabs();
 <form class="form-horizontal" id="formPartnerEdit">
 <fieldset>
 <span class="input-group-addon">
-    <!-- Key Partner Data -->
+<!-- Key Partner Data -->
+<div class="form-group row">
+    <div >
+        <label class="col-sm-1 control-label" for="keypartnerdata"><h3>Key Partner Data</h3></label>
+    </div>
+</div>
+<div class="form-group row">
     <div class="form-group row">
-        <div >
-            <label class="col-sm-1 control-label" for="keypartnerdata"><h3>Key Partner Data</h3></label>
+        <!-- Key -->
+        <div class="col-md-2">
+            <label class=" control-label" for="key">Key:</label>            
+        </div>
+        <!-- Class -->
+        <div class="col-md-6">
+            <label class=" control-label" for="class">Class:</label>
         </div>
     </div>
     <div class="form-group row">
-        <div class="form-group row">
-            <!-- Key -->
-            <div class="col-md-2">
-                <label class=" control-label" for="key">Key:</label>            
+        <div class="col-md-12">
+            <!-- Title -->
+            <label class="col-sx-2 col-sm-1 control-label" for="title">Title:</label>
+            <div class="col-sm-2">
+                <input id="title" name="title" type="text" placeholder="" class="form-control">
             </div>
-            <!-- Class -->
-            <div class="col-md-6">
-                <label class=" control-label" for="class">Class:</label>
+            <!-- Name -->
+            <label class="col-sx-2 col-sm-1 control-label" for="name">Name:</label>
+            <div class="col-sm-2">
+                <input id="name" name="name" type="text" placeholder="" class="form-control">
             </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-md-12">
-                <!-- Title -->
-                <label class="col-sx-2 col-sm-1 control-label" for="title">Title:</label>
-                <div class="col-sm-2">
-                    <input id="title" name="title" type="text" placeholder="" class="form-control">
-                </div>
-                <!-- Name -->
-                <label class="col-sx-2 col-sm-1 control-label" for="name">Name:</label>
-                <div class="col-sm-2">
-                    <input id="name" name="name" type="text" placeholder="" class="form-control">
-                </div>
-                <!-- Firstname -->
-                <label class="col-sx-2 col-sm-1 control-label" for="firstname">Firstname:</label>
-                <div class="col-sm-2">
-                    <input id="firstname" name="firstname" type="text" placeholder="" class="form-control">
-                </div>
-                <!-- Partner Status -->    
-                <label class="col-sx-2 col-sm-1 control-label" for="partnerstatus">Partner Status:</label>
-                <div class="col-sm-2">
-                    <select    name="partnerstatus" id="partnerstatus" class="form-control">
-                        <option></option>
-                        <option value="01">ACTIVE</option>
-                        <option value="02">DIED</option>
-                        <option value="03">INACTIVE</option>
-                        <option value="04">MERGED</option>
-                    </select>
-                </div>
-            </div>        
-        </div>
-        <div class="form-group row">
-            <div class="col md-8">
-            <!-- No Solicitations -->
-            <label  class="col-xs-3 col-sm-2 control-label" for="nosolicitations">No Solicitations:</label>
-                <div class="col-xs-3 col-sm-1">
-                    <input   id="nosolicitations" name="nosolicitations" type="checkbox" class="form-control">
-                </div>
+            <!-- Firstname -->
+            <label class="col-sx-2 col-sm-1 control-label" for="firstname">Firstname:</label>
+            <div class="col-sm-2">
+                <input id="firstname" name="firstname" type="text" placeholder="" class="form-control">
+            </div>
+            <!-- Partner Status -->    
+            <label class="col-sx-2 col-sm-1 control-label" for="partnerstatus">Partner Status:</label>
+            <div class="col-sm-2">
+                <select    name="partnerstatus" id="partnerstatus" class="form-control">
+                    <option></option>
+                    <option value="01">ACTIVE</option>
+                    <option value="02">DIED</option>
+                    <option value="03">INACTIVE</option>
+                    <option value="04">MERGED</option>
+                </select>
+            </div>
+        </div>        
+    </div>
+    <div class="form-group row">
+        <div class="col md-8">
+        <!-- No Solicitations -->
+        <label  class="col-xs-3 col-sm-2 control-label" for="nosolicitations">No Solicitations:</label>
+            <div class="col-xs-3 col-sm-1">
+                <input   id="nosolicitations" name="nosolicitations" type="checkbox" class="form-control">
             </div>
         </div>
     </div>
+</div>
 </span> 
 <div id="tabsPartnerEdit" >
     <ul>
@@ -89,47 +89,47 @@ $( "#tabsPartnerEdit" ).tabs();
         <li><a href="#tabsPartnerEdit-2">Subscriptions (0)</a></li>
         <li><a href="#tabsPartnerEdit-3">Special Types (0)</a></li>
     </ul>
-    <!-- Addresses Tab --> 
+<!-- Addresses Tab --> 
 <div  id="tabsPartnerEdit-1">
 <div></div>
-	<span class="input-group-addon">
-	   <!-- Table -->
-        <div class="form-group row">
-            <div class="col-md-12">	
-        		<table class="table table-striped">
-        			<tr>
-        				<td class="active">Address-1</td>
-        				<td class="success">Street-2</td>
-        				<td class="warning">Adress-3</td>
-        				<td class="danger">City</td>
-        				<td class="active">Location Type</td>
-        			</tr>
-        		</table>
-        	</div>	
+<span class="input-group-addon">
+	<!-- Table -->
+    <div class="form-group row">
+        <div class="col-md-12">	
+        	<table class="table table-striped">
+        		<tr>
+        			<td class="active">Address-1</td>
+        			<td class="success">Street-2</td>
+        			<td class="warning">Adress-3</td>
+        			<td class="danger">City</td>
+        			<td class="active">Location Type</td>
+        		</tr>
+        	</table>
+        </div>	
     </div>
 </span>
 <legend></legend>
-<div class="form-group row">
-    <div class="col-xs-1">
-        <!-- New Butten -->
-        <div class="col-lg-10">
-	       <button class="btn btn-primary">New</button>
+    <div class="form-group row">
+        <div class="col-xs-1">
+            <!-- New Butten -->
+            <div class="col-lg-10">
+    	       <button class="btn btn-primary">New</button>
+            </div>
         </div>
-	</div>
-	<div class="col-xs-6"></div>
-	<div class="col-xs-1">
-	   <!-- Delete Butten -->
-	   <div class="col-lg-10">
-	       <button class="btn btn-primary" class="form-control">Delete</button>
-	   </div>
-	</div>
-</div>	
+        <div class="col-xs-6"></div>
+        <div class="col-xs-1">
+            <!-- Delete Butten -->
+            <div class="col-lg-10">
+                <button class="btn btn-primary" class="form-control">Delete</button>
+            </div>
+        </div>
+    </div>	
 <span class="input-group-addon">
     <div class="form-group row">
         <!-- Address -->		
 		<div class="form-group row">
             <div >
-                <label class="col-sm-2 control-label" for="keypartnerdata"><h3>Address</h3></label>
+                <label class="col-sm-2 control-label" for="address"><h3>Address</h3></label>
             </div>
         </div>
 		<!-- Addr1 -->
@@ -307,12 +307,308 @@ $( "#tabsPartnerEdit" ).tabs();
 </span>
 <legend></legend>		
 </div>
-    <!-- Subscriptions Tab -->
-	<div id="tabsPartnerEdit-2">
-	<div>
-	  <p>Subscriptions</p>
+<!-- Subscriptions Tab -->
+<div id="tabsPartnerEdit-2">
+<div></div>
+<span class="input-group-addon">    
+    <!-- Table -->
+    <div class="form-group row">
+        <div class="col-md-12">
+        	<table class="table table-striped">
+        		<tr>
+        			<td class="active">Publication Code</td>
+        			<td class="success">Status</td>
+        			<td class="warning">Free Subscription</td>
+        		</tr>
+        	</table>
+        </div>
+    </div>        	
+</span>
+<legend></legend>
+<div class="form-group row">
+    <div class="col-xs-1">
+        <!-- New Butten -->
+        <div class="col-lg-10">
+	       <button class="btn btn-primary">New</button>
+        </div>
 	</div>
+	<div class="col-xs-3"></div>
+	<div class="col-xs-1">
+        <!-- Delete Butten -->
+        <div class="col-lg-10">
+	       <button class="btn btn-primary">Delete</button>
+        </div>
 	</div>
+	<div class="col-xs-3"></div>
+	<div class="col-xs-1">
+	   <!-- Cancel All Butten -->
+	   <div class="col-lg-10">
+	       <button class="btn btn-primary" class="form-control">Cancel All</button>
+	   </div>
+	</div>
+</div>
+<span class="input-group-addon">
+    <!-- Subscription -->
+	<div class="form-group row">
+        <div >
+            <label class="col-sm-2 control-label" for="subscription"><h3>Subscription</h3></label>
+        </div>
+    </div>
+    <div class="form-group row">
+        <!-- Publication Code -->        		
+		<div class="col-md-8">
+			<label class="col-sm-3 control-label" for="publicationcode">Publication Code:</label>
+				<div class="col-sm-4">
+				<select    name="publicationcode" id="publicationcode" class="form-control">
+					<option></option>
+					<option value="01">Jan (01)</option>
+					<option value="02">Feb (02)</option>
+					<option value="03">Mar (03)</option>
+					<option value="04">Apr (04)</option>
+					<option value="05">May (05)</option>
+					<option value="06">June (06)</option>
+					<option value="07">July (07)</option>
+					<option value="08">Aug (08)</option>
+					<option value="09">Sep (09)</option>
+					<option value="10">Oct (10)</option>
+					<option value="11">Nov (11)</option>
+					<option value="12">Dec (12)</option>
+				</select>
+				</div>
+				<label class="col-sm-1 control-label" for="country">Lable:</label>
+		</div>
+    </div>
+    <div class="form-group row">
+		<!-- Subscription Status -->
+        <div class="col-md-8">
+			<label class="col-sm-3 control-label" for="subscriptionstatus">Subscription Status:</label>
+				<div class="col-sm-4">
+				<select    name="subscriptionstatus" id="subscriptionstatus" class="form-control">
+					<option></option>
+					<option value="01">Jan (01)</option>
+					<option value="02">Feb (02)</option>
+					<option value="03">Mar (03)</option>
+					<option value="04">Apr (04)</option>
+					<option value="05">May (05)</option>
+					<option value="06">June (06)</option>
+					<option value="07">July (07)</option>
+					<option value="08">Aug (08)</option>
+					<option value="09">Sep (09)</option>
+					<option value="10">Oct (10)</option>
+					<option value="11">Nov (11)</option>
+					<option value="12">Dec (12)</option>
+				</select>
+				</div>
+		</div>
+    </div>
+    <div class="form-group row">	
+	   <!-- Free Subscription -->		
+    	<div class="col-md-8">
+    		<div class="col-sx-2 col-sm-3">
+    		<label  class=" control-label" for="freesubscription">Free Subscription:</label>
+    			<input   id="freesubscription" name="freesubscription" type="checkbox" class="">
+    		</div>
+    	</div>	              
+    </div>
+</span>
+<div></div>
+<legend></legend>
+<span class="input-group-addon">
+    <!-- Miscellaneous -->
+	<div class="form-group row">
+        <div >
+            <label class="col-sm-2 control-label" for="miscellaneous"><h3>Miscellaneous</h3></label>
+        </div>
+    </div>
+    <div class="form-group row">
+        <!-- Puplication Cost -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="puplicationcost">Puplication Cost:</label>
+			<div class="col-sm-4">
+				<input id="puplicationcost" name="puplicationcost" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- Complimentary -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="complimentary">Complimentary:</label>
+			<div class="col-sm-4">
+				<input id="complimentary" name="complimentary" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- Copies -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="copies">Copies:</label>
+			<div class="col-sm-4">
+				<input id="copies" name="copies" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+    <div class="form-group row">
+        <!-- Reason Given -->
+		<div class="col-md-8">
+			<label class="col-sm-3 control-label" for="reasongiven">Reason Given:</label>
+			<div class="col-sm-4">
+				<select    name="reasongiven" id="reasongiven" class="form-control">
+					<option></option>
+					<option value="01">Jan (01)</option>
+					<option value="02">Feb (02)</option>
+					<option value="03">Mar (03)</option>
+					<option value="04">Apr (04)</option>
+					<option value="05">May (05)</option>
+					<option value="06">June (06)</option>
+					<option value="07">July (07)</option>
+					<option value="08">Aug (08)</option>
+					<option value="09">Sep (09)</option>
+					<option value="10">Oct (10)</option>
+					<option value="11">Nov (11)</option>
+					<option value="12">Dec (12)</option>
+				</select>
+			</div>
+		</div>
+    </div>
+    <div class="form-group row">
+		<!-- Reason Ended -->
+        <div class="col-md-8">
+			<label class="col-sm-3 control-label" for="reasonended">Reason Ended:</label>
+			<div class="col-sm-4">
+				<select    name="reasonended" id="reasonended" class="form-control">
+					<option></option>
+					<option value="01">Jan (01)</option>
+					<option value="02">Feb (02)</option>
+					<option value="03">Mar (03)</option>
+					<option value="04">Apr (04)</option>
+					<option value="05">May (05)</option>
+					<option value="06">June (06)</option>
+					<option value="07">July (07)</option>
+					<option value="08">Aug (08)</option>
+					<option value="09">Sep (09)</option>
+					<option value="10">Oct (10)</option>
+					<option value="11">Nov (11)</option>
+					<option value="12">Dec (12)</option>
+				</select>
+			</div>
+		</div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-8">
+        <!-- Gift Given By -->
+        <label class="col-sx-4 col-sm-3 control-label" for="giftgivenby">Gift Given By:</label>
+            <!-- Find Butten -->
+            <div class="col-sm-1">
+	            <button class="btn btn-primary">Find</button>
+            </div>
+            <div class="col-sm-3">
+                <input name="find" type="text" value=""  class="form-control"/>
+            </div>
+        </div>
+    </div>
+</span>
+<legend></legend>
+<span class="input-group-addon">
+    <!-- Dates -->
+	<div class="form-group row">
+        <div >
+            <label class="col-sm-2 control-label" for="dates"><h3>Dates</h3></label>
+        </div>
+    </div>
+    <div class="form-group row">
+        <!-- Start Date -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="startdate">Start Date:</label>
+			<div class="col-sm-4">
+				<input id="startdate" name="startdate" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- Expiry Date -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="expirydate">Expiry Date:</label>
+			<div class="col-sm-4">
+				<input id="expirydate" name="expirydate" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- Date Renewed -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="daterenewed">Date Renewed:</label>
+			<div class="col-sm-4">
+				<input id="daterenewed" name="daterenewed" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- Notice Sent -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="noticesent">Notice Sent:</label>
+			<div class="col-sm-4">
+				<input id="noticesent" name="noticesent" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- Date Ended -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="dateended">Date Ended:</label>
+			<div class="col-sm-4">
+				<input id="dateended" name="dateended" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+</span>
+<div></div>
+<legend></legend>
+<span class="input-group-addon">
+    <!-- Issues -->
+	<div class="form-group row">
+        <div >
+            <label class="col-sm-2 control-label" for="issues"><h3>Issues</h3></label>
+        </div>
+    </div>
+    <div class="form-group row">
+        <!-- Issues Received -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="issuesreceived">Issues Received:</label>
+			<div class="col-sm-4">
+				<input id="issuesreceived" name="issuesreceived" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- First Issue Sent -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="firstissuesent">First Issue Sent:</label>
+			<div class="col-sm-4">
+				<input id="firstissuesent" name="firstissuesent" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- Last Issue Sen -->
+		<div class="col-md-8">
+        <label class="col-sm-3 control-label" for="lastissuesen">Last Issue Sen:</label>
+			<div class="col-sm-4">
+				<input id="lastissuesen" name="lastissuesen" type="text" placeholder="" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="form-group row">
+        <!-- Edit Issues -->
+		<div class="col-md-8">        
+    		<div class="col-sm-6">
+    			<button class="btn btn-primary">Edit Issues</button>
+    		</div>
+        </div>
+	</div>
+</span>
+<div></div>
+
+</div>
 	<!-- Special Type Tab -->
 	<div id="tabsPartnerEdit-3">
 	<div></div>
@@ -331,7 +627,6 @@ $( "#tabsPartnerEdit" ).tabs();
     </span>
     <div></div>
 	</div>
-
 </div>
 </fieldset>
 </form>

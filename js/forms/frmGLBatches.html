@@ -16,23 +16,105 @@
     <script type="text/javascript" src="../ThirdParty/Bootstrap/js/bootstrap.min.js"></script>
   </head>
 <body>
-<script>
+<script> 
 $(function() {
-$( "#tabsGLBatches" ).tabs();
+$( "#tabsPartnerEdit" ).tabs();
 });
 </script>
 <!-- ab hier kommt das Formular -->
-<form class="form-horizontal" id="formGLBatches">
+<form class="form-horizontal" id="formPartnerEdit">
 <fieldset>
-<div id="tabsGLBatches" >
+<nav class="navbar navbar-fixed-top" role="navigation">
+  <div class="btn-group">
+    <!-- File Butten -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          File
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="#" ><span class="glyphicon glyphicon-floppy-saved"></span>Save</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-print"></span>Print...</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-folder-close"></span>Close</a></li>
+        </ul>
+    </div>
+    <!-- Edit Butten -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          Edit
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a href="#">Undo Current Field</a></li>
+          <li><a href="#">Undo Screen</a></li>
+          <li><a href="#">Find</a></li>
+        </ul>
+    </div>
+    <!-- Batch Butten -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          Batch
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a href="#">Post Batch</a></li>
+          <li><a href="#">Test Batch</a></li>
+          <li><a href="#">Reverse Batch</a></li>
+          <li><a href="#">Import Batchs</a></li>
+          <li><a href="#">Import from Clipboard</a></li>
+          <li><a href="#">Export Batchs</a></li>
+        </ul>
+    </div>
+    <!-- Help Butten -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          Help
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a href="#">OpenPetra Help</a></li>
+          <li><a href="#">Bug Report</a></li>
+          <li><a href="#">About OpenPetra</a></li>
+          <li><a href="#">The Development Team</a></li>
+        </ul>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-md-9">
+        <!-- Save Butten -->
+        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-floppy-saved"></span>Save</button>
+        </button>
+        <!-- Test Batch Butten -->
+        <button type="button" class="btn btn-default btn-sm">TestBatch</button>
+        </button>
+        <!-- Post Batch Butten -->
+        <button type="button" class="btn btn-default btn-sm">Post Batch</button>
+        </button>
+        <!-- Reverse Batch Butten -->
+        <button type="button" class="btn btn-default btn-sm">Reverse Batch</button>
+        </button>
+        <!-- Import Baches Butten -->
+        <button type="button" class="btn btn-default btn-sm">Import Baches</button>
+        </button>
+        <!-- Import from Clipboard Butten -->
+        <button type="button" class="btn btn-default btn-sm">Import from Clipboard</button>
+        </button>
+        <!-- Export Baches Butten -->
+        <button type="button" class="btn btn-default btn-sm">Export Baches</button>
+        </button>
+    </div>
+</div>
+</nav>
+<div id="tabsPartnerEdit"  style="margin-top:63px;">
     <ul>
-        <li><a href="#tabsGLBatches-1">Batches</a></li>
-        <li><a href="#tabsGLBatches-2">Journals</a></li>
-        <li><a href="#tabsGLBatches-3">Transactions</a></li>
+        <li><a href="#tabsPartnerEdit-1">Batches</a></li>
+        <li><a href="#tabsPartnerEdit-2">Journals</a></li>
+        <li><a href="#tabsPartnerEdit-3">Transactions</a></li>
     </ul>
     <!-- Batches Tab -->
-<div  id="tabsGLBatches-1">
+<div  id="tabsPartnerEdit-1">
 <div></div>
+    
     <span class="input-group-addon">
         <!-- Show batches available for -->
         <div class="form-group row">
@@ -176,7 +258,7 @@ $( "#tabsGLBatches" ).tabs();
 <legend></legend>
 </div>
 <!-- Journals Tab -->
-<div id="tabsGLBatches-2">
+<div id="tabsPartnerEdit-2">
 <div></div>
 <span class="input-group-addon">
     <div class="form-group row">
@@ -346,7 +428,7 @@ $( "#tabsGLBatches" ).tabs();
 <legend></legend>
 </div>
 <!-- Transaction Tab -->
-<div id="tabsGLBatches-3">
+<div id="tabsPartnerEdit-3">
 <div></div>
 <span class="input-group-addon">
     <div class="form-group row">
