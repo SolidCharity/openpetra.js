@@ -24,7 +24,7 @@ $( "#tabsPartnerEdit" ).tabs();
 <!-- ab hier kommt das Formular -->
 <form class="form-horizontal" id="formPartnerEdit">
 <fieldset>
-<nav class="navbar navbar-fixed-top" role="navigation">
+<div class="row">
   <div class="btn-group">
     <!-- File Butten -->
     <div class="btn-group">
@@ -60,9 +60,9 @@ $( "#tabsPartnerEdit" ).tabs();
           <li><a href="#">Post Batch</a></li>
           <li><a href="#">Test Batch</a></li>
           <li><a href="#">Reverse Batch</a></li>
-          <li><a href="#">Import Batchs</a></li>
+          <li><a href="#">Import Batches</a></li>
           <li><a href="#">Import from Clipboard</a></li>
-          <li><a href="#">Export Batchs</a></li>
+          <li><a href="#">Export Batches</a></li>
         </ul>
     </div>
     <!-- Help Butten -->
@@ -79,10 +79,11 @@ $( "#tabsPartnerEdit" ).tabs();
         </ul>
     </div>
 </div>
-<div class="form-group row">
-    <div class="col-md-9">
+</div>
+<div class="row">
+    <div class="btn-group">
         <!-- Save Butten -->
-        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-floppy-saved"></span>Save</button>
+        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-floppy-saved"></span> Save</button>
         </button>
         <!-- Test Batch Butten -->
         <button type="button" class="btn btn-default btn-sm">TestBatch</button>
@@ -94,18 +95,18 @@ $( "#tabsPartnerEdit" ).tabs();
         <button type="button" class="btn btn-default btn-sm">Reverse Batch</button>
         </button>
         <!-- Import Baches Butten -->
-        <button type="button" class="btn btn-default btn-sm">Import Baches</button>
+        <button type="button" class="btn btn-default btn-sm">Import Batches</button>
         </button>
         <!-- Import from Clipboard Butten -->
         <button type="button" class="btn btn-default btn-sm">Import from Clipboard</button>
         </button>
         <!-- Export Baches Butten -->
-        <button type="button" class="btn btn-default btn-sm">Export Baches</button>
+        <button type="button" class="btn btn-default btn-sm">Export Batches</button>
         </button>
     </div>
 </div>
-</nav>
-<div id="tabsPartnerEdit"  style="margin-top:63px;">
+</div>
+<div id="tabsPartnerEdit">
     <ul>
         <li><a href="#tabsPartnerEdit-1">Batches</a></li>
         <li><a href="#tabsPartnerEdit-2">Journals</a></li>
