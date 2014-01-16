@@ -59,11 +59,16 @@ function ExportAccountHierarchy() {
         result = JSON.parse(response.responseText);
         if (result['d'] != 0)
         {
-            // alert("Successful result");
-            console.debug(JXG.decompress(result['d']));
+            // using download feature from HTML5, see http://caniuse.com/download
+            // and http://www.w3.org/TR/html/links.html#downloading-resources
             var pom = document.createElement('a');
             pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JXG.decompress(result['d'])));
             pom.setAttribute('download', "accounthierarchy.yml");
+            
+            // For Mozilla we need to add the link, otherwise the click won't work
+            // see https://support.mozilla.org/de/questions/968992
+            document.body.appendChild(pom);
+            
             pom.click();
         }
         else
