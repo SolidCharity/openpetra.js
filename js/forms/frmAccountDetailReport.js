@@ -24,7 +24,7 @@ $("input[name=selectaccountcodes]").change(function() {
 });
 
 $(document).ready(function() {
-    $("input[value=selectaccountcodes]").click();
+    $("input[value=selectrange]").click();
 });
 // Select Cost Centre Codes
 $("input[name=selectcostcentrecodes]").change(function() {
@@ -33,5 +33,5 @@ $("input[name=selectcostcentrecodes]").change(function() {
 });
 
 $(document).ready(function() {
-    $("input[value=selectcostcentrecodes]").click();
+    $("input[value=selectrange-1]").click();
 });
