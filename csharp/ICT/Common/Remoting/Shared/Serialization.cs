@@ -5,7 +5,7 @@
 //       timop
 //
 // Copyright 2004-2013 by OM International
-// Copyright 2010-2013 by SolidCharity
+// Copyright 2013-2014 by SolidCharity
 //
 // This file is part of OpenPetra.org.
 //
@@ -74,6 +74,30 @@ namespace Ict.Common.Remoting.Shared
             return serializer.Serialize(dataset);
         }
 
+        static private string DataTableToJson(DataTable ATable)
+        {
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+            List <Dictionary <string, object>>table = null;
+            Dictionary <string, object>row = null;
+
+            table = new List <Dictionary <string, object>>();
+
+            foreach (DataRow dr in ATable.Rows)
+            {
+                row = new Dictionary <string, object>();
+
+                foreach (DataColumn col in ATable.Columns)
+                {
+                    row.Add(col.ColumnName.Trim(), dr[col]);
+                }
+
+                table.Add(row);
+            }
+
+            return serializer.Serialize(table);
+        }
+
         /// <summary>
         /// serialize any object. if it is a complex type, use JSON
         /// </summary>
@@ -94,9 +118,19 @@ namespace Ict.Common.Remoting.Shared
                 return "null";
             }
 
+            if (o is Type)
+            {
+                return o.ToString();
+            }
+
             if (o is DataSet)
             {
                 return DataSetToJson((DataSet)o);
+            }
+
+            if (o is DataTable)
+            {
+                return DataTableToJson((DataTable)o);
             }
 
             MemoryStream memoryStream = new MemoryStream();
@@ -159,7 +193,12 @@ namespace Ict.Common.Remoting.Shared
 
             string result = SerializeObject(o, binary);
 
-            return result + ":" + (binary ? "binary" : o.GetType().ToString());
+            if ((result.Length > 0) && (result[0] != '{') && (result[0] != '['))
+            {
+                result = "\"" + result + "\"";
+            }
+
+            return result; // + ":" + (binary ? "binary" : o.GetType().ToString());
         }
 
         /// <summary>

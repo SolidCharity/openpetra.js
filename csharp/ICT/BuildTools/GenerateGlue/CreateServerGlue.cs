@@ -4,7 +4,8 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2013 by OM International
+// Copyright 2004-2014 by OM International
+// Copyright 2013-2014 by SolidCharity
 //
 // This file is part of OpenPetra.org.
 //
@@ -149,6 +150,7 @@ public class GenerateServerGlue
 
         snippet.SetCodelet("LOCALVARIABLES", string.Empty);
         string returnCode = string.Empty;
+        int returnCounter = 0;
 
         foreach (ParameterDeclarationExpression p in AParameters)
         {
@@ -164,8 +166,10 @@ public class GenerateServerGlue
                 parametertype = parametertype.Contains("Int64") || parametertype == "long" ? "System.Int64" : parametertype;
             }
 
+            bool EnumParameter = parametertype.EndsWith("Enum");
             bool BinaryParameter = !((parametertype == "System.Int64") || (parametertype == "System.Int32") || (parametertype == "System.Int16")
-                                     || (parametertype == "System.String") || (parametertype == "System.Boolean"));
+                                     || (parametertype == "System.String") || (parametertype == "System.Boolean")
+                                     || EnumParameter);
 
             if (ActualParameters.Length > 0)
             {
@@ -180,7 +184,7 @@ public class GenerateServerGlue
                     ParameterDefinition += ", ";
                 }
 
-                if (!BinaryParameter)
+                if (!EnumParameter && !BinaryParameter)
                 {
                     ParameterDefinition += parametertype + " " + p.ParameterName;
                 }
@@ -204,6 +208,13 @@ public class GenerateServerGlue
                         Environment.NewLine);
                     ActualParameters += "ref Local" + p.ParameterName;
                 }
+                else if (EnumParameter)
+                {
+                    snippet.AddToCodelet("LOCALVARIABLES", parametertype + " Local" + p.ParameterName + " = " +
+                        " (" + parametertype + ") Enum.Parse(typeof(" + parametertype + "), " + p.ParameterName + ");" +
+                        Environment.NewLine);
+                    ActualParameters += "ref Local" + p.ParameterName;
+                }
                 else
                 {
                     ActualParameters += "ref " + p.ParameterName;
@@ -215,6 +226,10 @@ public class GenerateServerGlue
                 {
                     ActualParameters += "(" + parametertype + ")THttpBinarySerializer.DeserializeObject(" + p.ParameterName + ",\"binary\")";
                 }
+                else if (EnumParameter)
+                {
+                    ActualParameters += " (" + parametertype + ") Enum.Parse(typeof(" + parametertype + "), " + p.ParameterName + ")";
+                }
                 else
                 {
                     ActualParameters += p.ParameterName;
@@ -223,11 +238,21 @@ public class GenerateServerGlue
 
             if (((ParameterModifiers.Ref & p.ParamModifier) > 0) || ((ParameterModifiers.Out & p.ParamModifier) > 0))
             {
+                if (returnCounter == 1)
+                {
+                    returnCode = "\"{ \\\"0\\\": \" + " + returnCode;
+                }
+
+                if (returnCounter > 0)
+                {
+                    returnCode += " + \", \\\"" + returnCounter.ToString() + "\\\": \" + ";
+                }
+
                 returnCode +=
-                    (returnCode.Length > 0 ? "+\",\"+" : string.Empty) +
                     "THttpBinarySerializer.SerializeObjectWithType(" +
                     (((ParameterModifiers.Ref & p.ParamModifier) > 0 && BinaryParameter) ? "Local" : string.Empty) +
                     p.ParameterName + ")";
+                returnCounter++;
             }
         }
 
@@ -244,11 +269,17 @@ public class GenerateServerGlue
                 returntype = returntype.Contains("Int64") || returntype == "long" ? "System.Int64" : returntype;
             }
 
-            if (returnCode.Length > 0)
+            if (returnCounter > 0)
             {
                 if (returntype != "void")
                 {
-                    returnCode += (returnCode.Length > 0 ? "+\",\"+" : string.Empty) + "THttpBinarySerializer.SerializeObjectWithType(Result)";
+                    if (returnCounter == 1)
+                    {
+                        returnCode = "\"{ \\\"0\\\": \" + " + returnCode;
+                    }
+
+                    returnCode += "+\", \\\"" + returnCounter.ToString() + "\\\": \"+" + "THttpBinarySerializer.SerializeObjectWithType(Result)";
+                    returnCounter++;
                 }
 
                 returntype = "string";
@@ -273,6 +304,11 @@ public class GenerateServerGlue
             else
             {
                 localreturn = "return ";
+            }
+
+            if (returnCounter > 1)
+            {
+                returnCode += "+ \"}\"";
             }
 
             snippet.SetCodelet("RETURN", string.Empty);
