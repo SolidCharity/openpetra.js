@@ -94,8 +94,46 @@ jQuery(document).ready(function() {
         ExportAccountHierarchy();
     });
     $('#btnImportAccountHierarchy').on('click', function (e) {
-        alert("import");
-        LoadAccountHierarchy();
+        $("#fileImportAccountHierarchy").click();
+    });
+    $('#fileImportAccountHierarchy').change(function() {
+        var filename = $(this).val();
+
+        // see http://www.html5rocks.com/en/tutorials/file/dndfiles/
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            //alert("Great success! All the File APIs are supported.");
+        } else {
+          alert('The File APIs are not fully supported in this browser.');
+        }        
+        
+        var reader = new FileReader();
+
+        reader.onload = (function(theFile) {
+            return function(e) {
+                s=e.target.result;
+                base64EncodedFileContent = s.substring(s.indexOf("base64,") + "base64,".length);
+             
+                $.ajax({ 
+                    type: "POST",
+                    url: "serverMFinance.asmx/TGLSetupWebConnector_ImportAccountHierarchy",
+                      data: JSON.stringify({
+                            // TODO LedgerNumber not hard coded
+                            'ALedgerNumber': 43, 
+                            'AAccountHierarchyName': 'STANDARD', 
+                            'AYmlAccountHierarchy': base64EncodedFileContent.concat(":base64"), 
+                            }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                      success: function(){
+                            LoadAccountHierarchy();
+                           //alert( "Data Uploaded: ");
+                        }
+                    });     
+            };
+        })($(this)[0].files[0]);
+
+        // Read in the file as a data URL.
+        reader.readAsDataURL($(this)[0].files[0]);
     });
     
     LoadAccountHierarchy();

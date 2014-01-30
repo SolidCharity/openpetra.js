@@ -1758,16 +1758,17 @@ namespace Ict.Petra.Server.MFinance.Setup.WebConnectors
         /// </summary>
         /// <param name="ALedgerNumber"></param>
         /// <param name="AHierarchyName"></param>
-        /// <param name="AXmlAccountHierarchy"></param>
+        /// <param name="AYmlAccountHierarchy"></param>
         /// <returns></returns>
         [RequireModulePermission("FINANCE-3")]
-        public static bool ImportAccountHierarchy(Int32 ALedgerNumber, string AHierarchyName, string AXmlAccountHierarchy)
+        public static bool ImportAccountHierarchy(Int32 ALedgerNumber, string AHierarchyName, string AYmlAccountHierarchy)
         {
             XmlDocument doc = new XmlDocument();
 
             try
             {
-                doc.LoadXml(AXmlAccountHierarchy);
+                TYml2Xml ymlParser = new TYml2Xml(AYmlAccountHierarchy.Split(new char[] { '\n' }));
+                doc = ymlParser.ParseYML2XML();
             }
             catch (XmlException exp)
             {
@@ -1776,7 +1777,7 @@ namespace Ict.Petra.Server.MFinance.Setup.WebConnectors
                     Environment.NewLine +
                     exp.Message +
                     Environment.NewLine +
-                    AXmlAccountHierarchy);
+                    AYmlAccountHierarchy);
             }
 
             GLSetupTDS MainDS = LoadAccountHierarchies(ALedgerNumber);

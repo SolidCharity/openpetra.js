@@ -211,6 +211,16 @@ namespace Ict.Common.Remoting.Shared
                 return null;
             }
 
+            if (s == null)
+            {
+                return null;
+            }
+
+            if ((type == "System.String") && s.EndsWith(":base64"))
+            {
+                return System.Text.UTF8Encoding.ASCII.GetString(Convert.FromBase64String(s.Substring(0, s.Length - ":base65".Length)));
+            }
+
             if (s.EndsWith(":binary"))
             {
                 type = "binary";
