@@ -14,12 +14,12 @@ $("input[name=allradio]").change(function() {
     $('#divSelected_Cost_Centres :input').attr('disabled', $(this).attr('value') != "fromlist");
 });
 
+            // Init the radio buttons
 $(document).ready(function() {
     $("input[value=fromlist]").click();
     $('#definecolumn :input').attr('disabled', true);
 });
 
-        //Get from GL
 $("#idaddbutten").click(function() {
    $('#definecolumn :input').attr('disabled', false);
 });
