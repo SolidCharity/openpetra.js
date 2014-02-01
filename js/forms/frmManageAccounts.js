@@ -111,23 +111,37 @@ jQuery(document).ready(function() {
         reader.onload = (function(theFile) {
             return function(e) {
                 s=e.target.result;
+                showPleaseWait();
                 base64EncodedFileContent = s.substring(s.indexOf("base64,") + "base64,".length);
-             
+
                 $.ajax({ 
                     type: "POST",
                     url: "serverMFinance.asmx/TGLSetupWebConnector_ImportAccountHierarchy",
                       data: JSON.stringify({
                             // TODO LedgerNumber not hard coded
                             'ALedgerNumber': 43, 
-                            'AAccountHierarchyName': 'STANDARD', 
+                            'AHierarchyName': 'STANDARD', 
                             'AYmlAccountHierarchy': base64EncodedFileContent.concat(":base64"), 
                             }),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                      success: function(){
+                    success: function(){
                             LoadAccountHierarchy();
+                            hidePleaseWait();
                            //alert( "Data Uploaded: ");
-                        }
+                        },
+                    error: function(response, status, error) {
+                        console.debug(error);
+                        console.debug(JSON.stringify(response.responseJSON));
+                        alert("Server error, please try again later");
+                        hidePleaseWait();
+                      },
+                    fail: function(msg) {
+                        console.debug(msg);
+                        alert("Server failure, please try again later");
+                        hidePleaseWait();
+                      }
+                        
                     });     
             };
         })($(this)[0].files[0]);
@@ -138,3 +152,10 @@ jQuery(document).ready(function() {
     
     LoadAccountHierarchy();
 });
+
+function showPleaseWait() {
+    $('#myModal').modal();
+}
+function hidePleaseWait() {
+    $('#myModal').modal('hide');
+}
