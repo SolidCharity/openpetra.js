@@ -1,3 +1,4 @@
+function Init() {
     $("#btnSearch").click(function(e) {
         e.preventDefault();
         $.ajax({
@@ -107,7 +108,7 @@
             ParsedSearchResult = new Array();
             
             for (index = 0; index < SearchResult.length; ++index) {
-                console.debug(SearchResult[index]["p_country_code_c"].concat(" ").concat(SearchResult[index]["p_country_name_c"]));
+                // console.debug(SearchResult[index]["p_country_code_c"].concat(" ").concat(SearchResult[index]["p_country_name_c"]));
             }
         }
         else
@@ -125,3 +126,4 @@
         alert("Server failure, please try again later");
       }
     });      
+}

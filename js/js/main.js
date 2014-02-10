@@ -8,17 +8,21 @@ function OpenTab(name, title)
             "</li>");
         $("#tab" + name).click(function() { ActivateTab(name); });
         
-        $("#tabControl").append("<div class='OpenPetraWindow' id='wnd" + name + "'></div>");
-        
         // fetch screen content from the server
         if (name.substring(0, "frm".length) === "frm")
         {
-            $("#wnd" + name).load("lib/loadform.aspx?form=" + name);
+            src = "lib/loadform.aspx?form=" + name;
         }
         else // fetch navigation page
         {
-            $("#wnd" + name).load("lib/loadnavpage.aspx?page=" + name);
+            src = "lib/loadnavpage.aspx?page=" + name;
         }
+
+        iframe = '<div class="OpenPetraWindow" id="wnd' + name + '">' + 
+            '<iframe class="openpetraiframe" id="iframe' + name + '" frameborder="0" scrolling="no" src="' + src + '"/>' + 
+            '</div>';
+
+        $(iframe).appendTo('#containerIFrames');
 
         $("#btnClose" + name).click(function(e) 
         {
