@@ -107,9 +107,12 @@ function Init() {
             
             ParsedSearchResult = new Array();
             
+            options = "<option></option>";
             for (index = 0; index < SearchResult.length; ++index) {
-                // console.debug(SearchResult[index]["p_country_code_c"].concat(" ").concat(SearchResult[index]["p_country_name_c"]));
+                options += "<option value='" + SearchResult[index]["p_country_code_c"] + "'>" + 
+                    SearchResult[index]["p_country_name_c"] + "</option>";
             }
+            $("#country").html(options);
         }
         else
         {
