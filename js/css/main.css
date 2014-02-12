@@ -16,10 +16,6 @@ body {
   margin-left: 10px;
 }
 
-.notimplemented {
-    text-decoration:line-through;
-}
-
 .OpenPetraWindow {
   padding-top: 10px;
   padding-left: 10px;
@@ -32,14 +28,6 @@ body {
   height: 1000px;
   overflow: hidden;
   border: none;
-}
-
-/* DataTables */
-table.dataTable tr.odd.row_selected td {
-    background-color: #9FAFD1;
-}
-table.dataTable tr.even.row_selected td {
-    background-color: #9FAFD1;
 }
 
 /*

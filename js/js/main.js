@@ -67,7 +67,7 @@ function ActivateTab(name)
     $("#tab" + name).addClass("active");
     $("#wnd" + name).show();
     $('html, body').animate({
-                        scrollTop: $("#TabbedWindows").offset().top + $("#topnavigation").height
+                        scrollTop: $("#containerIFrames").offset().top + $("#topnavigation").height
                     }, 1);
 }
 
@@ -92,7 +92,7 @@ function AddMenuItem(parent, name, title, tabtitle)
     $("#" + name).click(function() {OpenTab(this.id, tabtitle);});
 }
 
-jQuery(document).ready(function() {
+function init() {
     $('[data-toggle=offcanvas]').click(function() {
         $('.row-offcanvas').toggleClass('active');
         if ($('#btnHide').hasClass("hidden")) {
@@ -132,4 +132,10 @@ jQuery(document).ready(function() {
     });
 
     OpenTab("frmHome", "Home");
-});
+    
+    // Chrome: make sure, that after a refresh, we are scrolled to the top
+    // see also http://stackoverflow.com/questions/9551396/prevent-refresh-jump-with-javascript
+    $(window).on('beforeunload', function() {
+        $(window).scrollTop(0);
+    });
+}

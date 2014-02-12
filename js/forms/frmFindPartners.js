@@ -81,7 +81,7 @@ function Init() {
         if ( anSelected.length !== 0 ) {
             console.debug(anSelected);
             // TODO open partner edit oTable.fnDeleteRow( anSelected[0] );
-            OpenTab("frmPartnerEdit", "Edit Partner");
+            window.parent.OpenTab("frmPartnerEdit", "Edit Partner");
         }
     });
 

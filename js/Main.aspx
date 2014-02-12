@@ -37,7 +37,7 @@
     <script type="text/javascript" src="js/navigation.aspx"></script>
   </head>
 
-  <body>
+  <body onLoad="init()">
 
     <!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" id="topnavigation">
