@@ -33,13 +33,20 @@
         }
 
         // search for a <form>.js file and include the code in the result
-        if (File.Exists(path + "/" + form + ".js"))
+        if (content.Contains("\"" + form + ".js"))
         {
-            using (StreamReader sr = new StreamReader(path + "/" + form + ".js"))
+            content = content.Replace("\"" + form + ".js", "\"../forms/" + form + ".js");
+        }
+        else
+        {
+            if (File.Exists(path + "/" + form + ".js"))
             {
-                string jsContent = sr.ReadToEnd();
-                jsContent = jsContent.Replace("url: \"server", "url: \"../server");
-                script.Append("<script>").Append(jsContent).Append("</script>");
+                using (StreamReader sr = new StreamReader(path + "/" + form + ".js"))
+                {
+                    string jsContent = sr.ReadToEnd();
+                    jsContent = jsContent.Replace("url: \"server", "url: \"../server");
+                    script.Append("<script>").Append(jsContent).Append("</script>");
+                }
             }
         }
 
