@@ -21,7 +21,6 @@ $(function() {
 $( "#tabsBalanceSheet" ).tabs();
 });
 </script>
-
 <!-- ab hier kommt das Formular -->
 <form class="form-horizontal" id="formBalanceSheet">
 <fieldset>
@@ -31,55 +30,56 @@ $( "#tabsBalanceSheet" ).tabs();
         <li><a href="#tabsBalanceSheet-2">Columen Settings</a></li>
         <li><a href="#tabsBalanceSheet-3">Additional Settings</a></li>
     </ul>
-	<div  id="tabsBalanceSheet-1">
+<!-- General Settings Tab -->
+<div  id="tabsBalanceSheet-1">
 <div></div>
 <!-- Ledger Details -->
 <span class="input-group-addon">
 <div class="form-group row">
-	   <div>
-			<label class="col-md-1 control-label" for="ledgerdetails"><h4>Ledger Details</h4></label>
-		</div>
+	<div>
+		<label class="col-md-1 control-label" for="ledgerdetails"><h4>Ledger Details</h4></label>
+	</div>
+	<div class="form-group row">
+		<div class="col-md-11">
+			<label class="col-sm-1 control-label" for="ledger">Ledger:</label>
+			<div class="col-sm-4">
+				<input id="ledger" name="ledger" type="text" placeholder="" class="form-control"/>
+			</div>
 		<div class="form-group row">
-			<div class="col-md-11">
-			 <label class="col-sm-1 control-label" for="ledger">Ledger:</label>
-				<div class="col-sm-4">
-					<input id="ledger" name="ledger" type="text" placeholder="" class="form-control"/>
+			<div class="col-md-12">
+			<label class="col-sm-3 control-label" for="accounthierarchy">Account Hierarchy:</label>
+				<div class="col-sm-3">
+    				<select    name="accounthierarchy" id="accounthierarchy" class="form-control">
+    					<option></option>
+    					<option value="01">STANDARD</option>
+    				</select>
 				</div>
-			<div class="form-group row">
-				<div class="col-md-12">
-				<label class="col-sm-3 control-label" for="accounthierarchy">Account Hierarchy:</label>
-					<div class="col-sm-3">
-					<select    name="accounthierarchy" id="accounthierarchy" class="form-control">
-						<option></option>
-						<option value="01">STANDARD</option>
-					</select>
-					</div>
-				</div>
-			</div>
 			</div>
 		</div>
+		</div>
+	</div>
 </div>
 </span>
 <legend></legend>
 <!-- Currency -->
 <span class="input-group-addon">
 <div class="form-group row">
-        <div >
-			<label class="col-md-1 control-label" for="currency"><h4>Currency</h4></label>
+    <div >
+		<label class="col-md-1 control-label" for="currency"><h4>Currency</h4></label>
+	</div>
+	<div class="form-group row">
+		<div class="col-md-11">
+			<label class="col-sm-1 control-label" for="currency-1">Currency:</label>
+			<div class="col-sm-3">
+				<select    name="currency-1" id="currency-1" class="form-control">
+					<option></option>
+					<option value="01">Base</option>
+					<option value="01">International</option>
+					<option value="01">Transcation</option>
+				</select>
+			</div>
 		</div>
-		<div class="form-group row">
-				<div class="col-md-11">
-				<label class="col-sm-1 control-label" for="currency-1">Currency:</label>
-					<div class="col-sm-3">
-					<select    name="currency-1" id="currency-1" class="form-control">
-						<option></option>
-						<option value="01">Base</option>
-						<option value="01">International</option>
-						<option value="01">Transcation</option>
-					</select>
-					</div>
-				</div>
-		</div>
+	</div>
 </div>
 </span>
 <legend></legend>
@@ -87,52 +87,53 @@ $( "#tabsBalanceSheet" ).tabs();
 <span class="input-group-addon">
 <div class="form-group row">
     <div >
-		<label class="col-md-1 control-label" for="periodrabge"><h4>Period Range</h4></label>
+		<label class="col-md-1 control-label" for="periodrange"><h4>Period Range</h4></label>
 	</div>
 	<!-- Period -->
 	<div class="form-group row">
 	   <div class="col-md-11">
         <div class="col-sx-2 col-sm-1">
-	       <input name="period" type="radio" value="" checked="checked"/>
-
-        <label for="Period">Period</label>
+	       <input name="periodrange" type="radio" value="period"  id="period" />
+        <label for="period">Period</label>
         </div>
+        <div id="divPeriod">
 		<label class="col-sx-2 col-sm-2 control-label" for="from">from:</label>
 		<div class="col-sm-1">
-			<input id="from" name="form-1"  type="text" placeholder="" class="form-control" >
+			<input id="from" name="from"  type="text" placeholder="" class="form-control" >
 		</div>
 		<label class="col-sx-2 col-sm-1 control-label" for="to">to:</label>
 		<div class="col-sm-1">
-			<input id="to" name="to-1" type="text" placeholder="" class="form-control">
-		</div>
-		<label class="col-sx-2 col-sm-1 control-label" for="year">Year:</label>
-		<div class="col-sm-2">
-			<select    name="year-1" id="year" class="form-control">
-				<option></option>
-				<option value="01">2013</option>
-
-			</select>
-		</div>
-		</div>
-	</div>
-	<!-- Quarter -->
-    <div class="form-group row">
-        <div class="col-md-11">
-        <div class="col-sx-2 col-sm-1">
-	       <input  name="periodrabge" type="radio" value=""/>
-        <label for="quarter">Quarter</label>
-        </div>
-		<label class="col-sx-2 col-sm-2 control-label" for="from-2">from:</label>
-		<div class="col-sm-1">
-			<input id="from" name="form-3" type="text" placeholder="" class="form-control">
+			<input id="to" name="to" type="text" placeholder="" class="form-control">
 		</div>
 		<label class="col-sx-2 col-sm-1 control-label" for="year">Year:</label>
 		<div class="col-sm-2">
 			<select    name="year" id="year" class="form-control">
 				<option></option>
 				<option value="01">2013</option>
-
 			</select>
+		</div>
+		</div>
+	</div>
+	</div>
+	<!-- Quarter -->
+    <div class="form-group row">
+        <div class="col-md-11">
+        <div class="col-sx-2 col-sm-1">
+	       <input  name="periodrange" type="radio" value="quarter" id="quarter"/>
+        <label for="quarter">Quarter</label>
+        </div>
+        <div id="divQuarter">
+		<label class="col-sx-2 col-sm-2 control-label" for="from-1">from:</label>
+		<div class="col-sm-1">
+			<input id="from-1" name="form-1" type="text" placeholder="" class="form-control">
+		</div>
+		<label class="col-sx-2 col-sm-1 control-label" for="year-1">Year:</label>
+		<div class="col-sm-2">
+			<select    name="year-1" id="year-1" class="form-control">
+				<option></option>
+				<option value="01">2013</option>
+			</select>
+		</div>
 		</div>
         </div>
     </div>
@@ -140,16 +141,18 @@ $( "#tabsBalanceSheet" ).tabs();
     <div  class="form-group row">
         <div class="col-md-11">
         <div class="col-sx-2 col-sm-1">
-	       <input  name="periodrabge"   type="radio" value=""/>
+	       <input  name="periodrange"   type="radio" value="date" id="date"/>
         <label for="date">Date</label>
         </div>
-		<label class="col-sx-2 col-sm-2 control-label" for="from">from:</label>
+        <div id="divDate">
+		<label class="col-sx-2 col-sm-2 control-label" for="from-2">from:</label>
 		<div class="col-sm-2">
-			<input id="from" name="" type="text" placeholder="" class="form-control">
+			<input id="from-2" name="from-2" type="text" placeholder="" class="form-control">
 		</div>
-		<label class="col-sx-2 col-sm-1 control-label" for="to">to:</label>
+		<label class="col-sx-2 col-sm-1 control-label" for="to-2">to:</label>
 		<div class="col-sm-2">
-			<input id="to" name="" type="text" placeholder="" class="form-control">
+			<input id="to-2" name="to-2" type="text" placeholder="" class="form-control">
+		</div>
 		</div>
 		</div>
     </div>
@@ -157,11 +160,11 @@ $( "#tabsBalanceSheet" ).tabs();
 </span>
 <legend></legend>
 </div>
-    <div id="tabsBalanceSheet-2">
-	<div></div>
-	 <span class="input-group-addon">
-	  <div class="form-group row">
-	<!-- 1 -->
+<!-- Columen Settings Tab -->
+<div id="tabsBalanceSheet-2">
+<div></div>
+<span class="input-group-addon">
+<div class="form-group row">
 	<div class="form-group row">
 	   <div class="col-md-11">
 	   <!-- Button Left -->
@@ -195,19 +198,19 @@ $( "#tabsBalanceSheet" ).tabs();
         <div class="col-md-11">
             <!-- Button Add & Remove -->
             <div class="col-sx-2 col-sm-1">
-            <button type="button" class="btn btn-default">Add</button>
+            <button type="button"  name="addbutten" id="idaddbutten"  value="addbutten" class="btn btn-default">Add</button>
             <button type="button" class="btn btn-default">Remove</button>
             </div>
         </div>
     </div>
-    <div></div>
-    </div>
-    </span>
-    <legend></legend>
-    <div></div>
-	 <span class="input-group-addon">
-	 <!-- Define Column -->
-	  <div class="form-group row">
+<div></div>
+</div>
+</span>
+<legend></legend>
+<div></div>
+<span class="input-group-addon" id="definecolumn">
+<!-- Define Column -->
+<div class="form-group row">
     <div >
 		<label class="col-md-1 control-label" for="definecolumn"><h4>Define Column</h4></label>
 	</div>
@@ -215,7 +218,7 @@ $( "#tabsBalanceSheet" ).tabs();
 	<div class="form-group row">
 	   <div class="col-md-11">
         <div class="col-sx-2 col-sm-2">
-	       <input name="definecolumn" type="radio" value="" checked="checked"/>
+	       <input name="definecolumn"  id="getfromgl" type="radio" value="" />
         <label for="getfromgl">Get from GL</label>
         </div>
 		<div class="col-sm-3">
@@ -226,7 +229,7 @@ $( "#tabsBalanceSheet" ).tabs();
 		</div>
 		<!-- Calculate from existing column(s) -->
 		<div class="col-sx-2 col-sm-4">
-	       <input name="definecolumn" type="radio" value="" checked="checked"/>
+	       <input name="definecolumn" type="radio" id="calculatefromexistingcolumn" value="" />
         <label for="calculatefromexistingcolumn">Calculate from existing column(s)</label>
         </div>
 		<div class="col-sm-3">
@@ -249,8 +252,6 @@ $( "#tabsBalanceSheet" ).tabs();
 				<option value="01">2012</option>
 			</select>
 		</div>
-		</div>	
-	</div>
 	<div class="form-group row">
         <div class="col-md-11">
             <!-- Button Cancel & Apply -->
@@ -260,16 +261,19 @@ $( "#tabsBalanceSheet" ).tabs();
             </div>
         </div>
     </div>
-    <div></div>
+    </div>	
     </div>
-    </span>
-    <legend></legend>
-    </div>
-    <div id="tabsBalanceSheet-3">
-    <div></div>
-	<!-- Format Currency -->
-    <span class="input-group-addon">
-    <div class="form-group row">
+<div></div>
+</div>
+</span>
+<legend></legend>
+</div>
+<!-- Additional Settings Tab -->
+<div id="tabsBalanceSheet-3">
+<div></div>
+<!-- Format Currency -->
+<span class="input-group-addon">
+<div class="form-group row">
     <div >
 		<label class="col-md-1 control-label" for="formatcurrency"><h4>Format Currency</h4></label>
 	</div>
@@ -277,7 +281,7 @@ $( "#tabsBalanceSheet" ).tabs();
     <div class="form-group row">
     	<div class="col-md-11">
             <div class="col-sx-2 col-sm-1">
-    	       <input  name="formatcurrency" type="radio" checked="checked">
+    	       <input  name="formatcurrency" type="radio" id="complete" checked="checked">
             <label   for="complete">Complete</label>
             </div>
         </div>
@@ -286,7 +290,7 @@ $( "#tabsBalanceSheet" ).tabs();
     <div class="form-group row">
         <div class="col-md-11">
             <div class="col-sx-2 col-sm-1">
-    	       <input name="formatcurrency" type="radio">
+    	       <input name="formatcurrency" type="radio" id="withoutdecimals" >
             <label  for="withoutdecimals">Without decimals</label>
             </div>
         </div>
@@ -295,25 +299,25 @@ $( "#tabsBalanceSheet" ).tabs();
     <div class="form-group row">
         <div class="col-md-11">
             <div class="col-sx-2 col-sm-1">
-    	       <input name="formatcurrency"  type="radio">
+    	       <input name="formatcurrency"  type="radio" id="onlythousands" >
             <label  for="onlythousands">Only Thousands</label>
             </div>
     	</div>
 	</div>
-    </div>
-    </span>
-    <legend></legend>
-    <!-- Depth -->
-    <span class="input-group-addon">
-    <div class="form-group row">
+</div>
+</span>
+<legend></legend>
+<!-- Depth -->
+<span class="input-group-addon">
+<div class="form-group row">
     <div >
-		<label class="col-md-1 control-label" for="sorting"><h4>Depth</h4></label>
+		<label class="col-md-1 control-label" for="depth"><h4>Depth</h4></label>
 	</div>
 	<!-- Detail -->
     <div class="form-group row">
     	<div class="col-md-11">
             <div class="col-sx-2 col-sm-1">
-    	       <input  name="depth" type="radio" checked="checked">
+    	       <input  name="depth" type="radio"  id="detail" checked="checked">
             <label   for="detail">Detail</label>
             </div>
         </div>
@@ -322,7 +326,7 @@ $( "#tabsBalanceSheet" ).tabs();
     <div class="form-group row">
         <div class="col-md-11">
             <div class="col-sx-2 col-sm-1">
-    	       <input name="depth" type="radio">
+    	       <input name="depth" type="radio" id="standard" >
             <label  for="standard">Standard</label>
             </div>
         </div>
@@ -331,7 +335,7 @@ $( "#tabsBalanceSheet" ).tabs();
     <div class="form-group row">
         <div class="col-md-11">
             <div class="col-sx-2 col-sm-1">
-    	       <input name="depth"  type="radio">
+    	       <input name="depth"  type="radio" id="summary" >
             <label  for="summary">Summary</label>
             </div>
     	</div>
@@ -340,8 +344,9 @@ $( "#tabsBalanceSheet" ).tabs();
 </span>
 <legend></legend>
 </div>
-</dir>	
+</div>	
 </fieldset>
 </form>
+<script type="text/javascript" src="frmBalanceSheetStandard.js"></script>
 </body>
 </html>
